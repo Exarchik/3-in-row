@@ -526,6 +526,21 @@
   .box.regen .crate { animation: regen .8s; }
   @keyframes regen { 40% { filter: brightness(1.5) drop-shadow(0 0 10px #7cffb0); transform: scale(1.1); } }
 
+  /* ===== Металеве ядро ===== */
+  .gem.box.core { transition: transform .3s cubic-bezier(.5,0,.7,1.3); }   /* ядро падає разом із фішками */
+  .core .crate { background: none; box-shadow: none; inset: 1px; }
+  .core .ball { inset: 0; width: 100%; height: 100%; filter: drop-shadow(0 3px 3px rgba(0,0,0,.55)); }
+  .core .down {
+    left: 50%; bottom: -14%; width: 26%; height: 18%; margin-left: -13%; z-index: 2;
+    background: #ffcc66; clip-path: polygon(0 0, 100% 0, 50% 100%); opacity: .85;
+    animation: coreHint 1.2s ease-in-out infinite;
+  }
+  @keyframes coreHint { 50% { transform: translateY(3px); opacity: .4; } }
+  .box.core.tink .crate { animation: tink .22s; }
+  @keyframes tink { 30% { transform: translateX(-2px) rotate(-4deg); filter: brightness(1.5); } 70% { transform: translateX(2px) rotate(3deg); } }
+  .box.core.landed .crate { animation: coreLand .35s forwards; }
+  @keyframes coreLand { 40% { transform: scale(1.25, .8); filter: brightness(2) drop-shadow(0 0 12px #ffcc66); } to { transform: scale(.2); opacity: 0; } }
+
   /* ===== Ящик з вибухівкою ===== */
   .tnt .crate {
     background: repeating-linear-gradient(0deg, #d23a2a 0 31%, #9c2418 31% 34%);
@@ -623,6 +638,7 @@
     ⚙️ слизогенератор — щоходу створює слиз у сусідній клітинці; якщо за хід його пошкодили — пропускає; 3 удари, а коли ламається — заливає слизом зону 3×3<br>
     🔫 цвяхозабивач (лежить у синіх картонних коробках) — 3 удари; від кожного удару стріляє цвяхом в одному з 4 напрямків, а коли ламається — в усі 4. Цвях пролітає крізь фішки і б'є всі перешкоди на шляху<br>
     🧨 ящик TNT — як дерев'яний (3 удари), але коли ламається — вибухає 3×3<br>
+    ⚫ металеве ядро — не пошкоджується нічим; падає вниз, коли під ним збирають комбінації, а торкнувшись дна поля — вибухає 3×3<br>
     ⚡ електрогенератор — 3 удари; на третьому вибухає як фіолетова блискавка (рядок, стовпчик, обидві діагоналі). Якщо за хід його не зачепили — відновлює 1 одиницю здоров'я<br>
     🕷️ павук — щоходу переповзає на сусідню фішку і лишає павутину; гине з 1 удару<br>
     🎁 у дерев'яних ящиках зрідка трапляється бонус (молоток, рукавичка чи дротик)<br>
@@ -743,6 +759,8 @@ const sfx = {
     tone(strong ? 700 : 1100, { dur: strong ? 0.3 : 0.15, vol: strong ? 0.05 : 0.03, type: 'square', slide: 1.5 });
     noise(strong ? 0.2 : 0.1, strong ? 0.1 : 0.05, 6000);
   },
+  coreTink: () => { tone(2100, { dur: 0.12, vol: 0.03 }); tone(3150, { dur: 0.08, vol: 0.015 }); },
+  coreLand: () => { tone(90, { dur: 0.4, vol: 0.3, slide: 0.6 }); noise(0.15, 0.15, 500); },
   teslaRegen: () => { tone(260, { dur: 0.45, vol: 0.1, slide: 2 }); tone(PENTA[4], { dur: 0.3, vol: 0.05, delay: 0.3 }); },
   nail: () => { tone(1700, { dur: 0.09, vol: 0.07, type: 'triangle', slide: 0.5 }); noise(0.05, 0.08, 3000); },
   spiderMove: () => [0, 1, 2, 3].forEach(i => tone(2200 + i * 150, { dur: 0.03, vol: 0.025, type: 'triangle', delay: i * 0.07 })),
@@ -755,7 +773,7 @@ const sfx = {
 // ===== Гра =====
 const N = 8, TYPES = 6;
 const RAINBOW = 6, BOMB = 7, LIGHTNING = 8, FROG = 9;
-const CARDBOARD = 10, WOOD = 11, REINFORCED = 12, SLIME = 13, GENERATOR = 14, NAILGUN = 15, TNT = 16, TESLA = 17;
+const CARDBOARD = 10, WOOD = 11, REINFORCED = 12, SLIME = 13, GENERATOR = 14, NAILGUN = 15, TNT = 16, TESLA = 17, CORE = 18;
 const isNormal = t => t < TYPES;
 const isSpecial = t => t >= RAINBOW && t <= FROG;
 const isBox = t => t >= CARDBOARD;
@@ -788,6 +806,11 @@ function randomLevel() {
     map[r][c] = x < .2 ? 'c' : x < .27 ? 'n' : x < .42 ? 'w' : x < .5 ? 't' : x < .62 ? 'r' : x < .77 ? 's' : x < .92 ? 'x' : 'p';
   }
   if (Math.random() < .25) map[1 + Math.floor(Math.random() * 6)][Math.floor(Math.random() * N)] = 'e';
+  // ядро — лише над стовпчиком, де нижче немає нерухомих перешкод
+  if (Math.random() < .3) {
+    const c = Math.floor(Math.random() * N);
+    if ([1, 2, 3, 4, 5, 6, 7].every(r => map[r][c] === '.')) map[0][c] = 'o';
+  }
   if (Math.random() < .3) map[2 + Math.floor(Math.random() * 4)][Math.floor(Math.random() * N)] = 'g';
   return { moves: 30, map: map.map(row => row.join('')) };
 }
@@ -817,7 +840,7 @@ function createGem(r, c, type, fromRow = r) {
   return gem;
 }
 
-const BOX_CHARS = { c: CARDBOARD, n: CARDBOARD, w: WOOD, r: REINFORCED, s: SLIME, g: GENERATOR, t: TNT, e: TESLA };
+const BOX_CHARS = { c: CARDBOARD, n: CARDBOARD, w: WOOD, r: REINFORCED, s: SLIME, g: GENERATOR, t: TNT, e: TESLA, o: CORE };
 function startLevel(i) {
   level = i;
   const def = LEVELS[i] || randomLevel();
@@ -1000,7 +1023,7 @@ function collapse() {
   const mono = monoNext;
   monoNext = null;
   let created = 0;
-  const boxAt = (r, c) => grid[r][c] && (isBox(grid[r][c].type) || locked(grid[r][c]));
+  const boxAt = (r, c) => grid[r][c] && grid[r][c].type !== CORE && (isBox(grid[r][c].type) || locked(grid[r][c]));
   for (let c = 0; c < N; c++) {
     let bottom = N - 1;
     while (bottom >= 0) {
@@ -1036,6 +1059,7 @@ const BOX_INFO = {
   [NAILGUN]:    { cls: 'nailgun',    hp: 3, pts: 150, shards: ['#f2c230', '#2b2b2b', '#8b96a3'] },
   [TNT]:        { cls: 'wood tnt',   hp: 3, pts: 150, shards: ['#d23a2a', '#9c2418', '#ffcc66'] },
   [TESLA]:      { cls: 'tesla',      hp: 3, pts: 250, shards: ['#d9822b', '#8a4a12', '#c3ccd5', '#7cc8ff'] },
+  [CORE]:       { cls: 'core',       hp: 1, pts: 200, shards: ['#9aa5b1', '#3d444c', '#ffcc66'] },
 };
 const CRACKS = '<svg class="crack" viewBox="0 0 100 100">' +
   '<polyline class="c1" points="24,10 40,34 30,52 52,70 46,92"/>' +
@@ -1064,6 +1088,15 @@ const TESLA_SVG = '<svg class="tc" viewBox="0 0 100 100"><defs>' +
   '<circle cx="50" cy="17" r="5" fill="url(#tTorus)" stroke="#434b54" stroke-width="1"/></svg>';
 const ZAP_SVG = '<svg viewBox="0 0 40 50"><polyline points="20,50 14,36 24,28 12,16 22,8 18,0"/>' +
   '<polyline class="side" points="16,32 4,26 8,18 0,12"/><polyline class="side" points="22,22 34,18 30,10 40,4"/></svg>';
+const CORE_SVG = '<svg class="ball" viewBox="0 0 100 100"><defs>' +
+  '<radialGradient id="cBall" cx=".35" cy=".3" r=".75"><stop offset="0" stop-color="#e3e8ee"/><stop offset=".25" stop-color="#8b96a3"/>' +
+  '<stop offset=".7" stop-color="#3d444c"/><stop offset="1" stop-color="#15181d"/></radialGradient></defs>' +
+  '<circle cx="50" cy="52" r="42" fill="url(#cBall)" stroke="#111" stroke-width="2"/>' +
+  '<path d="M10,52 Q50,66 90,52" fill="none" stroke="#1d2129" stroke-width="7"/>' +
+  '<path d="M10,52 Q50,66 90,52" fill="none" stroke="#6b747e" stroke-width="2" transform="translate(0,-3)"/>' +
+  [18, 34, 50, 66, 82].map(x => `<circle cx="${x}" cy="${52 + (x === 50 ? 7 : x === 34 || x === 66 ? 5 : 2)}" r="2.6" fill="#c3ccd5"/>`).join('') +
+  '<ellipse cx="36" cy="32" rx="11" ry="6" fill="#fff" opacity=".35" transform="rotate(-30 36 32)"/></svg>';
+
 function setTeslaStage(box) {
   box.el.classList.toggle('dmg1', box.hp === 2);
   box.el.classList.toggle('dmg2', box.hp === 1);
@@ -1080,6 +1113,7 @@ function createBox(r, c, type) {
     '<i class="band b-left"></i><i class="band b-right"></i><i class="band b-top"></i><i class="band b-bottom"></i>';
   if (type === TNT) inner = CRACKS + '<i class="plank p1"></i><i class="plank p2"></i><i class="tnt-label">TNT</i>';
   if (type === NAILGUN) inner = NAILGUN_SVG + CRACKS;
+  if (type === CORE) inner = CORE_SVG + '<i class="down"></i>';
   if (type === TESLA) inner = '<i class="glow"></i>' + TESLA_SVG + '<i class="zap">' + ZAP_SVG + '</i>';
   if (type === GENERATOR) inner = '<i class="tank"></i>' + CRACKS +
     '<i class="nut n1"></i><i class="nut n2"></i><i class="nut n3"></i><i class="nut n4"></i><i class="smoke"></i>';
@@ -1148,6 +1182,13 @@ function shatter(r, c, colors, n = 8) {
 function hitBox(r, c) {
   const box = grid[r][c];
   if (!box) return;
+  if (box.type === CORE) {
+    // ядро нічим не пошкодити — лише «дзенькає»
+    box.el.classList.remove('tink'); box.el.getBoundingClientRect(); box.el.classList.add('tink');
+    const now = performance.now();
+    if (!hitBox.lastTink || now - hitBox.lastTink > 120) { sfx.coreTink(); hitBox.lastTink = now; }
+    return;
+  }
   if (box.spider) { killSpider(box, r, c); return; }
   if (box.web) { tearWeb(box, r, c); return; }
   if (!isBox(box.type) || box.broken) return;
@@ -1338,6 +1379,26 @@ function fireNail(r, c, [dr, dc]) {
 }
 
 // 🧨 Вибух TNT 3×3: фішки знищуються, перешкоди — 1 удар, бонуси спрацьовують
+// ⚫ Ядро, що торкнулося дна поля, вибухає 3×3
+function landCores() {
+  let any = false;
+  for (let c = 0; c < N; c++) {
+    const g = grid[N - 1][c];
+    if (!g || g.type !== CORE || g.broken) continue;
+    g.broken = true;
+    g.el.classList.add('landed');
+    setTimeout(() => g.el.remove(), 400);
+    sfx.coreLand();
+    shatter(N - 1, c, BOX_INFO[CORE].shards, 10);
+    score += BOX_INFO[CORE].pts;
+    floatText('+' + BOX_INFO[CORE].pts, N - 1, c, '#ffd27a');
+    tntExplode(N - 1, c);
+    any = true;
+  }
+  if (any) updateHud();
+  return any;
+}
+
 // ⚡ Електрогенератор вибухає як фіолетова блискавка: рядок, стовпчик і обидві діагоналі
 function teslaBlast(r, c) {
   shakeBoard();
@@ -1398,6 +1459,7 @@ function tntExplode(r, c) {
 async function settle() {
   for (let guard = 0; guard < 30; guard++) {
     while (inFlight > 0) await wait(50);
+    if (landCores()) { await wait(250); while (inFlight > 0) await wait(50); }
     const dets = pendingDet.splice(0).map(findGem).filter(p => p && isSpecial(grid[p[0]][p[1]].type));
     const dirty = pendingClear.length || pendingFill.length || grid.flat().some(g => g && g.broken);
     if (!dets.length && !dirty) return;
@@ -2162,7 +2224,10 @@ $('b-glove').onclick = () => pickBooster('glove');
 $('b-dart').onclick = () => pickBooster('dart');
 
 function onBoosterCell(r, c) {
-  if (boosterMode === 'hammer') { useHammer(r, c); return; }
+  if (boosterMode === 'hammer') {
+    if (grid[r][c]?.type === CORE) { sfx.coreTink(); setTip('⚫ Ядро не пошкодити — опустіть його на дно поля'); return; }
+    useHammer(r, c); return;
+  }
   // рукавичка
   const g = grid[r][c];
   if (!movable(g)) { sfx.wrong(); return; }                  // перешкоди не можна
@@ -2232,7 +2297,7 @@ const DART_SVG = '<svg viewBox="0 0 40 10"><polygon points="0,5 9,3.2 9,6.8" fil
 async function useDarts() {
   const live = () => {
     const o = [];
-    for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) if (isObstacle(grid[r][c])) o.push([r, c]);
+    for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) if (isObstacle(grid[r][c]) && grid[r][c].type !== CORE) o.push([r, c]);
     return o;
   };
   if (!live().length) { setTip('🎯 На полі немає перешкод'); setTimeout(() => setTip(''), 1500); return; }
@@ -2413,7 +2478,7 @@ $('soundBtn').onclick = () => {
 
 // ===================== Рівні з JSON =====================
 // Формат: { "levels": [ { "name": "...", "moves": 20, "map": ["........", ... 8 рядків по 8 символів] } ] }
-const MAP_CHARS = '.cnwtrsgxpe';
+const MAP_CHARS = '.cnwtrsgxpeo';
 function parseLevels(data) {
   const list = Array.isArray(data) ? data : data?.levels;
   if (!Array.isArray(list) || !list.length) throw new Error('у файлі немає списку "levels"');

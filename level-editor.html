@@ -103,6 +103,12 @@
   .k-s .t { background: radial-gradient(circle at 40% 35%, #b6ff6a, #5fc93a 50%, #2f8a2a); border-radius: 45% 55% 50% 50%; }
   .k-g .t { background: linear-gradient(135deg, #6d7682, #2a2f35); border: 2px solid #1f2328; }
   .k-g .t::after { content: ''; width: 55%; height: 55%; border-radius: 50%; background: radial-gradient(circle, #b6ff6a, #3fae2e 70%); box-shadow: 0 0 0 3px #8b96a3, 0 0 8px #8f8; }
+  .k-o .t {
+    inset: 8%; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #e3e8ee, #8b96a3 25%, #3d444c 70%, #15181d);
+    box-shadow: 0 2px 4px rgba(0,0,0,.6);
+  }
+  .k-o .ico { position: absolute; bottom: -1px; font-size: calc(var(--cell) * .28); color: #ffcc66; }
   .k-e .t {
     background:
       radial-gradient(ellipse 42% 16% at 50% 24%, #eef2f6 0 60%, #7d8794 61% 100%, transparent 101%),
@@ -194,7 +200,7 @@
     <p class="hint">
       Клік або протягування — малювати вибраним інструментом.<br>
       Права кнопка миші — стерти (поставити звичайну фішку).<br>
-      Клавіші 0–9 та E — швидкий вибір інструмента, Ctrl+Z / Ctrl+Y — скасувати / повторити.
+      Клавіші 0–9, E та O — швидкий вибір інструмента, Ctrl+Z / Ctrl+Y — скасувати / повторити.
     </p>
     <details>
       <summary>JSON (можна редагувати вручну)</summary>
@@ -222,12 +228,13 @@ const TOOLS = [
   { ch: 'x', name: 'Павутина на фішці', ico: '🕸️' },
   { ch: 'p', name: 'Павук на фішці', ico: '🕷️' },
   { ch: 'e', name: 'Електрогенератор', ico: '⚡' },
+  { ch: 'o', name: 'Металеве ядро', ico: '▼' },
 ];
 const CHARS = TOOLS.map(t => t.ch).join('');
-const MINI = { '.': '', e: '#7cc8ff', c: '#c99357', n: '#5b8fd6', w: '#8d5a27', t: '#d23a2a', r: '#9aa5b1', s: '#5fc93a', g: '#3e454e', x: '#e8e8ff', p: '#c0303a' };
+const MINI = { '.': '', o: '#2a2f35', e: '#7cc8ff', c: '#c99357', n: '#5b8fd6', w: '#8d5a27', t: '#d23a2a', r: '#9aa5b1', s: '#5fc93a', g: '#3e454e', x: '#e8e8ff', p: '#c0303a' };
 const LEGEND = {
   '.': 'фішка', c: 'картонна коробка', n: 'синя коробка з цвяхозабивачем', w: "дерев'яний ящик", t: 'ящик TNT',
-  r: 'армований ящик', s: 'слиз', g: 'слизогенератор', x: 'фішка в павутині', p: 'павук на фішці', e: 'електрогенератор',
+  r: 'армований ящик', s: 'слиз', g: 'слизогенератор', x: 'фішка в павутині', p: 'павук на фішці', e: 'електрогенератор', o: 'металеве ядро',
 };
 
 // Стартовий набір — ті самі рівні, що вбудовані в гру
@@ -296,6 +303,12 @@ function warningsFor(lv) {
   if (lv.moves < 5) w.push('дуже мало ходів');
   const free = lv.map.join('').split('').filter(ch => ch === '.').length;
   if (free < 12) w.push('замало вільних фішок — гравцю буде важко ходити');
+  // ядро має мати змогу впасти до дна: під ним лише звичайні фішки або інші ядра
+  lv.map.forEach((row, r) => [...row].forEach((ch, c) => {
+    if (ch !== 'o') return;
+    if (r === N - 1) w.push(`ядро в рядку ${r + 1} вибухне після першого ходу`);
+    else if (lv.map.slice(r + 1).some(rw => !'.o'.includes(rw[c]))) w.push(`ядро в стовпчику ${c + 1} не зможе впасти до дна — під ним перешкода`);
+  }));
   return w;
 }
 
@@ -342,7 +355,7 @@ function renderFields() {
 function renderJSON() { if (document.activeElement !== $('json')) $('json').value = toJSON(); }
 function renderPalette() {
   $('palette').innerHTML = TOOLS.map((t, i) =>
-    `<button class="tool${t.ch === tool ? ' sel' : ''}" data-ch="${t.ch}">${cellHTML(t.ch, 30)}<span>${t.name}</span><kbd>${i < 10 ? i : 'E'}</kbd></button>`).join('');
+    `<button class="tool${t.ch === tool ? ' sel' : ''}" data-ch="${t.ch}">${cellHTML(t.ch, 30)}<span>${t.name}</span><kbd>${i < 10 ? i : t.ch.toUpperCase()}</kbd></button>`).join('');
   $('palette').querySelectorAll('.tool').forEach(b => b.onclick = () => { tool = b.dataset.ch; renderPalette(); });
 }
 function renderAll() { renderList(); renderBoard(); renderFields(); renderJSON(); $('undoBtn').disabled = !undoStack.length; $('redoBtn').disabled = !redoStack.length; }
@@ -429,6 +442,7 @@ document.addEventListener('keydown', e => {
   else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') { e.preventDefault(); redo(); }
   else if (/^[0-9]$/.test(e.key) && TOOLS[+e.key]) { tool = TOOLS[+e.key].ch; renderPalette(); }
   else if (e.key.toLowerCase() === 'e' || e.key.toLowerCase() === 'у') { tool = 'e'; renderPalette(); }
+  else if (e.key.toLowerCase() === 'o' || e.key.toLowerCase() === 'щ') { tool = 'o'; renderPalette(); }
 });
 
 // ---------- файл ----------
