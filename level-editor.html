@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark light">
+<meta name="darkreader-lock">
+<title>Редактор рівнів — 3 в ряд</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; font-family: system-ui, sans-serif; color: #fff;
+    background: radial-gradient(circle at top, #3b2a6b, #14102a); color-scheme: dark;
+  }
+  header {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 12px 16px;
+    background: rgba(0,0,0,.25); border-bottom: 1px solid rgba(255,255,255,.08);
+  }
+  header h1 { font-size: 20px; margin: 0 12px 0 0; }
+  header .file { font-size: 13px; opacity: .7; margin-right: auto; }
+  button {
+    background: linear-gradient(135deg, #ff6bb5, #8e44ad); color: #fff; border: 0; cursor: pointer;
+    padding: 8px 14px; font-size: 14px; font-weight: 700; border-radius: 999px; white-space: nowrap;
+  }
+  button.ghost { background: rgba(255,255,255,.1); }
+  button.danger { background: linear-gradient(135deg, #ff6b6b, #c0392b); }
+  button:hover { filter: brightness(1.15); }
+  button:disabled { opacity: .4; cursor: default; filter: none; }
+  main { display: flex; flex-wrap: wrap; gap: 16px; padding: 16px; align-items: flex-start; justify-content: center; }
+  .panel { background: rgba(255,255,255,.06); border-radius: 14px; padding: 14px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); }
+  .panel h2 { font-size: 15px; margin: 0 0 10px; opacity: .85; }
+
+  /* список рівнів */
+  .levels { width: 270px; }
+  .list { display: flex; flex-direction: column; gap: 6px; max-height: 60vh; overflow: auto; margin-bottom: 10px; }
+  .item {
+    display: flex; gap: 10px; align-items: center; padding: 6px 8px; border-radius: 10px; cursor: pointer;
+    background: rgba(255,255,255,.05);
+  }
+  .item:hover { background: rgba(255,255,255,.1); }
+  .item.sel { background: rgba(255,107,181,.25); box-shadow: inset 0 0 0 2px #ff6bb5; }
+  .item .num { font-weight: 800; width: 22px; text-align: right; opacity: .7; }
+  .item .info { flex: 1; min-width: 0; }
+  .item .nm { font-weight: 700; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .item .meta { font-size: 11px; opacity: .65; }
+  .item .warn { color: #ffcc66; }
+  .mini { display: grid; grid-template-columns: repeat(8, 5px); gap: 1px; flex: none; }
+  .mini i { width: 5px; height: 5px; border-radius: 1px; background: rgba(255,255,255,.15); }
+  .row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .row button { padding: 6px 10px; font-size: 13px; }
+
+  /* редактор */
+  .editor { display: flex; flex-direction: column; gap: 12px; }
+  .fields { display: flex; gap: 12px; flex-wrap: wrap; align-items: end; }
+  label { font-size: 12px; opacity: .8; display: flex; flex-direction: column; gap: 4px; }
+  input[type=text], input[type=number] {
+    background: rgba(0,0,0,.3); color: #fff; border: 1px solid rgba(255,255,255,.2); border-radius: 8px;
+    padding: 7px 10px; font-size: 15px; font-family: inherit;
+  }
+  input[type=text] { width: 220px; }
+  input[type=number] { width: 90px; }
+  .stepper { display: flex; gap: 4px; }
+  .stepper button { padding: 6px 11px; }
+
+  .board {
+    --cell: min(calc((100vw - 64px) / 8), 54px);
+    display: grid; grid-template-columns: repeat(8, var(--cell)); gap: 3px; padding: 8px;
+    background: rgba(0,0,0,.25); border-radius: 12px; touch-action: none; user-select: none; width: max-content;
+  }
+  .cell {
+    width: var(--cell); height: var(--cell); border-radius: 8px; position: relative; cursor: crosshair;
+    display: flex; align-items: center; justify-content: center; font-size: calc(var(--cell) * .48); line-height: 1;
+  }
+  .cell:hover { outline: 2px solid #ffe66d; outline-offset: -2px; }
+  /* сірий фон під перешкодами, як у грі */
+  .cell.obs { background: linear-gradient(135deg, #8a8f9c, #5f6472); }
+  .cell .t { position: absolute; inset: 4px; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+
+  .k-dot .t { inset: 30%; border-radius: 50%; background: rgba(255,255,255,.12); }
+  .k-c .t { background: linear-gradient(90deg, transparent 40%, #f0e1b4 40% 60%, transparent 60%) top / 100% 55% no-repeat, linear-gradient(135deg, #e2b77a, #b37d42); border: 2px solid #94632e; }
+  .k-n .t { background: linear-gradient(90deg, transparent 40%, #f0e1b4 40% 60%, transparent 60%) top / 100% 55% no-repeat, linear-gradient(135deg, #8fb8ec, #3f6fb8); border: 2px solid #2c5394; }
+  .k-w .t, .k-t .t {
+    background:
+      linear-gradient(45deg, transparent 42%, #7a4a1c 42% 58%, transparent 58%),
+      linear-gradient(-45deg, transparent 42%, #7a4a1c 42% 58%, transparent 58%),
+      repeating-linear-gradient(0deg, #c08546 0 31%, #8d5a27 31% 34%);
+    border: 3px solid #6b3f16;
+  }
+  .k-t .t {
+    background:
+      linear-gradient(45deg, transparent 42%, #7d160d 42% 58%, transparent 58%),
+      linear-gradient(-45deg, transparent 42%, #7d160d 42% 58%, transparent 58%),
+      repeating-linear-gradient(0deg, #d23a2a 0 31%, #9c2418 31% 34%);
+    border-color: #6e130b; font: 900 calc(var(--cell) * .24)/1 system-ui; text-shadow: 0 0 3px #000;
+  }
+  .k-r .t {
+    background:
+      linear-gradient(45deg, transparent 44%, #8b96a3 44% 56%, transparent 56%),
+      linear-gradient(-45deg, transparent 44%, #8b96a3 44% 56%, transparent 56%),
+      repeating-linear-gradient(0deg, #c08546 0 31%, #8d5a27 31% 34%);
+    border: 5px solid #9aa5b1; inset: 2px;
+  }
+  .k-s .t { background: radial-gradient(circle at 40% 35%, #b6ff6a, #5fc93a 50%, #2f8a2a); border-radius: 45% 55% 50% 50%; }
+  .k-g .t { background: linear-gradient(135deg, #6d7682, #2a2f35); border: 2px solid #1f2328; }
+  .k-g .t::after { content: ''; width: 55%; height: 55%; border-radius: 50%; background: radial-gradient(circle, #b6ff6a, #3fae2e 70%); box-shadow: 0 0 0 3px #8b96a3, 0 0 8px #8f8; }
+  .k-x .t, .k-p .t { background: rgba(255,255,255,.12); border-radius: 50%; inset: 18%; }
+  .cell .ico { position: relative; z-index: 1; filter: drop-shadow(0 1px 2px rgba(0,0,0,.6)); }
+
+  .palette { display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 6px; max-width: 540px; }
+  .tool span { line-height: 1.2; white-space: normal; }
+  .tool {
+    display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: 10px; cursor: pointer;
+    background: rgba(255,255,255,.06); font-size: 12px; font-weight: 600; border: 0; color: #fff; text-align: left;
+  }
+  .tool .cell { --cell: 30px; cursor: pointer; flex: none; }
+  .tool .cell:hover { outline: none; }
+  .tool.sel { background: rgba(255,230,109,.2); box-shadow: inset 0 0 0 2px #ffe66d; }
+  .tool kbd { margin-left: auto; font-size: 10px; opacity: .55; font-family: inherit; }
+
+  .hint { font-size: 12px; opacity: .65; line-height: 1.5; }
+  .warnings { font-size: 13px; color: #ffcc66; min-height: 18px; }
+  .stats { font-size: 13px; opacity: .85; }
+  details summary { cursor: pointer; font-size: 13px; opacity: .8; }
+  textarea {
+    width: 100%; min-height: 220px; margin-top: 8px; background: rgba(0,0,0,.35); color: #dfe; border: 1px solid rgba(255,255,255,.15);
+    border-radius: 8px; font: 12px/1.4 ui-monospace, Consolas, monospace; padding: 8px;
+  }
+  .toast {
+    position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%) translateY(80px); opacity: 0;
+    background: #2d2366; padding: 10px 18px; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,.5);
+    transition: .3s; font-size: 14px; z-index: 10; max-width: 90vw;
+  }
+  .toast.show { transform: translateX(-50%); opacity: 1; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🧩 Редактор рівнів</h1>
+  <span class="file" id="fileInfo">levels.json · не збережено</span>
+  <button class="ghost" id="newBtn">🆕 Новий</button>
+  <button class="ghost" id="openBtn">📂 Відкрити JSON</button>
+  <button id="saveBtn">💾 Зберегти levels.json</button>
+  <button class="ghost" id="copyBtn">📋 Копіювати JSON</button>
+  <button class="ghost" id="testBtn" title="Відкриває match3.html і запускає цей рівень">▶ Тест у грі</button>
+  <input type="file" id="fileInput" accept=".json,application/json" hidden>
+</header>
+
+<main>
+  <section class="panel levels">
+    <h2>Рівні</h2>
+    <div class="list" id="list"></div>
+    <div class="row">
+      <button id="addBtn">＋ Додати</button>
+      <button class="ghost" id="dupBtn" title="Дублювати">⧉</button>
+      <button class="ghost" id="upBtn" title="Вище">↑</button>
+      <button class="ghost" id="downBtn" title="Нижче">↓</button>
+      <button class="danger" id="delBtn" title="Видалити">🗑</button>
+    </div>
+  </section>
+
+  <section class="panel editor">
+    <div class="fields">
+      <label>Назва рівня<input type="text" id="name" maxlength="40" placeholder="Без назви"></label>
+      <label>Ходів на рівень
+        <div class="stepper">
+          <button class="ghost" id="mMinus">−</button>
+          <input type="number" id="moves" min="1" max="999">
+          <button class="ghost" id="mPlus">＋</button>
+        </div>
+      </label>
+    </div>
+    <div class="board" id="board"></div>
+    <div class="stats" id="stats"></div>
+    <div class="warnings" id="warnings"></div>
+    <div class="row">
+      <button class="ghost" id="undoBtn">↶ Скасувати</button>
+      <button class="ghost" id="redoBtn">↷ Повторити</button>
+      <button class="ghost" id="clearBtn">🧹 Очистити поле</button>
+      <button class="ghost" id="mirrorBtn" title="Віддзеркалити ліву половину на праву">⇋ Симетрія</button>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Інструменти</h2>
+    <div class="palette" id="palette"></div>
+    <p class="hint">
+      Клік або протягування — малювати вибраним інструментом.<br>
+      Права кнопка миші — стерти (поставити звичайну фішку).<br>
+      Клавіші 0–9 — швидкий вибір інструмента, Ctrl+Z / Ctrl+Y — скасувати / повторити.
+    </p>
+    <details>
+      <summary>JSON (можна редагувати вручну)</summary>
+      <textarea id="json" spellcheck="false"></textarea>
+      <div class="row" style="margin-top:6px"><button class="ghost" id="applyJson">Застосувати текст</button></div>
+    </details>
+  </section>
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+const N = 8;
+const $ = id => document.getElementById(id);
+
+// Інструменти: символ у карті → вигляд і назва (той самий формат, що й у грі)
+const TOOLS = [
+  { ch: '.', name: 'Фішка (гумка)', ico: '' },
+  { ch: 'c', name: 'Картонна коробка', ico: '' },
+  { ch: 'n', name: 'Коробка з цвяхозабивачем', ico: '🔫' },
+  { ch: 'w', name: 'Дерев\'яний ящик', ico: '' },
+  { ch: 't', name: 'Ящик TNT', ico: 'TNT' },
+  { ch: 'r', name: 'Армований ящик', ico: '' },
+  { ch: 's', name: 'Слиз', ico: '' },
+  { ch: 'g', name: 'Слизогенератор', ico: '' },
+  { ch: 'x', name: 'Павутина на фішці', ico: '🕸️' },
+  { ch: 'p', name: 'Павук на фішці', ico: '🕷️' },
+];
+const CHARS = TOOLS.map(t => t.ch).join('');
+const MINI = { '.': '', c: '#c99357', n: '#5b8fd6', w: '#8d5a27', t: '#d23a2a', r: '#9aa5b1', s: '#5fc93a', g: '#3e454e', x: '#e8e8ff', p: '#c0303a' };
+const LEGEND = {
+  '.': 'фішка', c: 'картонна коробка', n: 'синя коробка з цвяхозабивачем', w: "дерев'яний ящик", t: 'ящик TNT',
+  r: 'армований ящик', s: 'слиз', g: 'слизогенератор', x: 'фішка в павутині', p: 'павук на фішці',
+};
+
+// Стартовий набір — ті самі рівні, що вбудовані в гру
+const DEFAULT = [
+  { name: 'Картонний старт', moves: 18, map: ['........','........','........','.cc..cc.','.cc..cc.','........','........','........'] },
+  { name: 'Дерево і картон', moves: 22, map: ['........','........','..w..w..','.ccwwcc.','........','..w..w..','........','........'] },
+  { name: 'Павутина', moves: 22, map: ['........','..x..x..','........','x.cccc.x','........','..x..x..','........','........'] },
+  { name: 'Слиз', moves: 22, map: ['........','........','........','........','.c....c.','...ss...','..ssss..','........'] },
+  { name: 'Армовані ящики', moves: 28, map: ['........','........','..r..r..','...ww...','...ww...','..r..r..','........','........'] },
+  { name: 'Фортеця', moves: 35, map: ['........','........','..rrrr..','..rxxr..','..rxxr..','..rrrr..','........','........'] },
+  { name: 'Мікс', moves: 32, map: ['ss....ss','s.x..x.s','..w..w..','...rr...','...cc...','..w..w..','.x....x.','........'] },
+  { name: 'Генератор', moves: 25, map: ['........','........','........','...g....','........','........','........','........'] },
+  { name: 'Два генератори', moves: 32, map: ['........','.g....g.','........','..cccc..','..wwww..','........','........','........'] },
+  { name: 'Цвяхозабивачі', moves: 28, map: ['........','........','.cn..nc.','........','..wwww..','........','.nc..cn.','........'] },
+  { name: 'Павуки', moves: 25, map: ['........','........','...p....','........','....p...','........','..c..c..','........'] },
+  { name: 'Динаміт', moves: 30, map: ['........','..t..t..','..wwww..','..wttw..','..wwww..','..t..t..','........','........'] },
+];
+
+let levels = JSON.parse(JSON.stringify(DEFAULT));
+let cur = 0, tool = 'c', dirty = false, fileName = 'levels.json';
+const undoStack = [], redoStack = [];
+
+// ---------- дані ----------
+const snapshot = () => JSON.stringify({ levels, cur });
+function pushUndo() {
+  undoStack.push(snapshot());
+  if (undoStack.length > 100) undoStack.shift();
+  redoStack.length = 0;
+}
+function restore(snap) { const d = JSON.parse(snap); levels = d.levels; cur = d.cur; markDirty(); renderAll(); }
+function markDirty() { dirty = true; $('fileInfo').textContent = fileName + ' · є незбережені зміни'; }
+function markSaved() { dirty = false; $('fileInfo').textContent = fileName + ' · збережено'; }
+
+function newLevel() { return { name: '', moves: 25, map: Array(N).fill('.'.repeat(N)) }; }
+const obstacles = lv => lv.map.join('').replace(/\./g, '').length;
+function setCell(r, c, ch) {
+  const row = levels[cur].map[r];
+  if (row[c] === ch) return false;
+  levels[cur].map[r] = row.slice(0, c) + ch + row.slice(c + 1);
+  return true;
+}
+function toJSON() {
+  return JSON.stringify({ version: 1, legend: LEGEND, levels: levels.map(l => ({ name: l.name, moves: l.moves, map: l.map })) }, null, 2);
+}
+// та сама перевірка, що й у грі
+function parseLevels(data) {
+  const list = Array.isArray(data) ? data : data?.levels;
+  if (!Array.isArray(list) || !list.length) throw new Error('у файлі немає списку "levels"');
+  return list.map((lv, i) => {
+    const moves = Math.round(Number(lv.moves));
+    if (!(moves > 0 && moves < 1000)) throw new Error(`рівень ${i + 1}: некоректна кількість ходів`);
+    if (!Array.isArray(lv.map) || lv.map.length !== N) throw new Error(`рівень ${i + 1}: карта має бути ${N} рядків`);
+    const map = lv.map.map((row, r) => {
+      row = String(row);
+      if (row.length !== N) throw new Error(`рівень ${i + 1}, рядок ${r + 1}: має бути ${N} символів`);
+      return [...row].map(ch => CHARS.includes(ch) ? ch : '.').join('');
+    });
+    return { name: lv.name ? String(lv.name) : '', moves, map };
+  });
+}
+function warningsFor(lv) {
+  const w = [];
+  const cnt = obstacles(lv);
+  if (!cnt) w.push('немає перешкод — рівень буде пройдено одразу');
+  if (lv.moves < 5) w.push('дуже мало ходів');
+  const free = lv.map.join('').split('').filter(ch => ch === '.').length;
+  if (free < 12) w.push('замало вільних фішок — гравцю буде важко ходити');
+  return w;
+}
+
+// ---------- малювання ----------
+function cellHTML(ch, size) {
+  const t = TOOLS.find(x => x.ch === ch);
+  const cls = ch === '.' ? 'k-dot' : 'k-' + ch;
+  const ico = t.ico && ch !== 't' ? `<span class="ico">${t.ico}</span>` : '';
+  return `<div class="cell ${cls}${ch !== '.' ? ' obs' : ''}"${size ? ` style="--cell:${size}px"` : ''}><div class="t">${ch === 't' ? 'TNT' : ''}</div>${ico}</div>`;
+}
+
+function renderList() {
+  $('list').innerHTML = levels.map((lv, i) => {
+    const w = warningsFor(lv);
+    const mini = lv.map.join('').split('').map(ch => `<i${MINI[ch] ? ` style="background:${MINI[ch]}"` : ''}></i>`).join('');
+    return `<div class="item${i === cur ? ' sel' : ''}" data-i="${i}">
+      <span class="num">${i + 1}</span><div class="mini">${mini}</div>
+      <div class="info"><div class="nm">${lv.name || 'Без назви'}</div>
+      <div class="meta">${lv.moves} ходів · перешкод: ${obstacles(lv)}${w.length ? ' · <span class="warn">⚠</span>' : ''}</div></div></div>`;
+  }).join('');
+  $('list').querySelectorAll('.item').forEach(el => el.onclick = () => { cur = +el.dataset.i; renderAll(); });
+  $('delBtn').disabled = levels.length <= 1;
+  $('upBtn').disabled = cur === 0;
+  $('downBtn').disabled = cur === levels.length - 1;
+}
+
+function renderBoard() {
+  const lv = levels[cur];
+  $('board').innerHTML = lv.map.map((row, r) => [...row].map((ch, c) =>
+    cellHTML(ch).replace('<div class="cell', `<div data-r="${r}" data-c="${c}" title="${LEGEND[ch]}" class="cell`)).join('')).join('');
+  const counts = {};
+  lv.map.join('').split('').forEach(ch => { if (ch !== '.') counts[ch] = (counts[ch] || 0) + 1; });
+  $('stats').textContent = Object.keys(counts).length
+    ? 'На полі: ' + Object.entries(counts).map(([ch, n]) => `${LEGEND[ch]} × ${n}`).join(', ')
+    : 'Поле порожнє — оберіть інструмент і клікніть по клітинках';
+  const w = warningsFor(lv);
+  $('warnings').textContent = w.length ? '⚠ ' + w.join(' · ') : '';
+}
+
+function renderFields() {
+  $('name').value = levels[cur].name;
+  $('moves').value = levels[cur].moves;
+}
+function renderJSON() { if (document.activeElement !== $('json')) $('json').value = toJSON(); }
+function renderPalette() {
+  $('palette').innerHTML = TOOLS.map((t, i) =>
+    `<button class="tool${t.ch === tool ? ' sel' : ''}" data-ch="${t.ch}">${cellHTML(t.ch, 30)}<span>${t.name}</span><kbd>${i}</kbd></button>`).join('');
+  $('palette').querySelectorAll('.tool').forEach(b => b.onclick = () => { tool = b.dataset.ch; renderPalette(); });
+}
+function renderAll() { renderList(); renderBoard(); renderFields(); renderJSON(); $('undoBtn').disabled = !undoStack.length; $('redoBtn').disabled = !redoStack.length; }
+
+// ---------- малювання по полю ----------
+let painting = null;   // символ, яким малюємо під час протягування
+$('board').addEventListener('contextmenu', e => e.preventDefault());
+$('board').addEventListener('pointerdown', e => {
+  const el = e.target.closest('.cell');
+  if (!el) return;
+  e.preventDefault();
+  $('board').releasePointerCapture?.(e.pointerId);
+  painting = e.button === 2 ? '.' : tool;
+  // повторний клік тим самим інструментом по такій самій клітинці — стирає
+  const r = +el.dataset.r, c = +el.dataset.c;
+  if (e.button !== 2 && levels[cur].map[r][c] === tool && tool !== '.') painting = '.';
+  pushUndo();
+  if (!paintAt(r, c)) undoStack.pop();
+});
+$('board').addEventListener('pointermove', e => {
+  if (!painting) return;
+  const el = document.elementFromPoint(e.clientX, e.clientY)?.closest('#board .cell');
+  if (el) paintAt(+el.dataset.r, +el.dataset.c);
+});
+window.addEventListener('pointerup', () => { painting = null; });
+function paintAt(r, c) {
+  if (!setCell(r, c, painting)) return false;
+  markDirty();
+  renderList(); renderBoard(); renderJSON();
+  $('undoBtn').disabled = false;
+  return true;
+}
+
+// ---------- поля ----------
+$('name').addEventListener('focus', () => pushUndo());
+$('name').addEventListener('input', () => { levels[cur].name = $('name').value; markDirty(); renderList(); renderJSON(); });
+function setMoves(v) {
+  v = Math.max(1, Math.min(999, Math.round(v) || 1));
+  if (v === levels[cur].moves) return;
+  pushUndo();
+  levels[cur].moves = v; markDirty(); renderAll();
+}
+$('moves').addEventListener('change', () => setMoves(+$('moves').value));
+$('mMinus').onclick = () => setMoves(levels[cur].moves - 1);
+$('mPlus').onclick = () => setMoves(levels[cur].moves + 1);
+
+// ---------- список ----------
+$('addBtn').onclick = () => { pushUndo(); levels.splice(cur + 1, 0, newLevel()); cur++; markDirty(); renderAll(); $('name').focus(); };
+$('dupBtn').onclick = () => {
+  pushUndo();
+  const copy = JSON.parse(JSON.stringify(levels[cur]));
+  copy.name = (copy.name || 'Рівень') + ' (копія)';
+  levels.splice(cur + 1, 0, copy); cur++; markDirty(); renderAll();
+};
+$('delBtn').onclick = () => {
+  if (levels.length <= 1) return;
+  if (!confirm(`Видалити рівень ${cur + 1} «${levels[cur].name || 'Без назви'}»?`)) return;
+  pushUndo();
+  levels.splice(cur, 1); cur = Math.min(cur, levels.length - 1); markDirty(); renderAll();
+};
+function move(d) {
+  const j = cur + d;
+  if (j < 0 || j >= levels.length) return;
+  pushUndo();
+  [levels[cur], levels[j]] = [levels[j], levels[cur]]; cur = j; markDirty(); renderAll();
+}
+$('upBtn').onclick = () => move(-1);
+$('downBtn').onclick = () => move(1);
+
+// ---------- дії з полем ----------
+$('clearBtn').onclick = () => { pushUndo(); levels[cur].map = Array(N).fill('.'.repeat(N)); markDirty(); renderAll(); };
+$('mirrorBtn').onclick = () => {
+  pushUndo();
+  levels[cur].map = levels[cur].map.map(row => row.slice(0, N / 2) + [...row.slice(0, N / 2)].reverse().join(''));
+  markDirty(); renderAll();
+};
+function undo() { if (!undoStack.length) return; redoStack.push(snapshot()); restore(undoStack.pop()); }
+function redo() { if (!redoStack.length) return; undoStack.push(snapshot()); restore(redoStack.pop()); }
+$('undoBtn').onclick = undo;
+$('redoBtn').onclick = redo;
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); e.shiftKey ? redo() : undo(); }
+  else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') { e.preventDefault(); redo(); }
+  else if (/^[0-9]$/.test(e.key) && TOOLS[+e.key]) { tool = TOOLS[+e.key].ch; renderPalette(); }
+});
+
+// ---------- файл ----------
+function toast(t) { $('toast').textContent = t; $('toast').classList.add('show'); clearTimeout(toast.h); toast.h = setTimeout(() => $('toast').classList.remove('show'), 2600); }
+$('newBtn').onclick = () => {
+  if (dirty && !confirm('Почати новий файл? Незбережені зміни буде втрачено.')) return;
+  pushUndo();
+  levels = [newLevel()]; cur = 0; fileName = 'levels.json'; markDirty(); renderAll();
+};
+$('openBtn').onclick = () => $('fileInput').click();
+$('fileInput').onchange = async e => {
+  const f = e.target.files[0];
+  e.target.value = '';
+  if (!f) return;
+  try {
+    const list = parseLevels(JSON.parse(await f.text()));
+    pushUndo();
+    levels = list; cur = 0; fileName = f.name; renderAll(); markSaved();
+    toast(`📂 Відкрито ${f.name}: рівнів ${list.length}`);
+  } catch (err) { toast('⚠️ Не вдалося відкрити: ' + err.message); }
+};
+$('saveBtn').onclick = () => {
+  const blob = new Blob([toJSON()], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = fileName.endsWith('.json') ? fileName : 'levels.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  markSaved();
+  toast('💾 Файл збережено — покладіть його поруч із match3.html');
+};
+$('copyBtn').onclick = async () => {
+  try { await navigator.clipboard.writeText(toJSON()); toast('📋 JSON скопійовано'); }
+  catch { $('json').closest('details').open = true; $('json').select(); toast('Виділіть і скопіюйте текст вручну'); }
+};
+$('applyJson').onclick = () => {
+  try {
+    const list = parseLevels(JSON.parse($('json').value));
+    pushUndo(); levels = list; cur = Math.min(cur, list.length - 1); markDirty(); $('json').blur(); renderAll();
+    toast('✅ JSON застосовано');
+  } catch (err) { toast('⚠️ Помилка в JSON: ' + err.message); }
+};
+
+// ---------- тест у грі ----------
+let gameWin = null;
+function sendToGame() { gameWin.postMessage({ type: 'match3-levels', data: { levels }, start: cur }, '*'); }
+window.addEventListener('message', e => { if (e.data?.type === 'match3-ready' && gameWin && e.source === gameWin) sendToGame(); });
+$('testBtn').onclick = () => {
+  if (gameWin && !gameWin.closed) { sendToGame(); gameWin.focus(); return; }
+  gameWin = window.open('match3.html', 'match3-test');
+  if (!gameWin) toast('Браузер заблокував нове вікно — дозвольте спливаючі вікна');
+};
+
+window.addEventListener('beforeunload', e => { if (dirty) { e.preventDefault(); e.returnValue = ''; } });
+
+renderPalette();
+renderAll();
+$('fileInfo').textContent = fileName + ' · стандартні рівні';
+</script>
+</body>
+</html>

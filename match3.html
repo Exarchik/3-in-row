@@ -1,0 +1,2365 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="color-scheme" content="dark light">
+<meta name="darkreader-lock">
+<meta name="theme-color" content="#14102a">
+<title>3 в ряд</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-family: system-ui, sans-serif; color: #fff;
+    background: radial-gradient(circle at top, #3b2a6b, #14102a);
+    user-select: none; -webkit-user-select: none;
+    color-scheme: dark light; forced-color-adjust: none;
+    -webkit-tap-highlight-color: transparent; overscroll-behavior: none;
+    padding: 12px 0;
+  }
+  h1 { margin: 0 0 10px; font-size: 28px; letter-spacing: 1px; }
+  .hud { display: flex; gap: 12px; margin-bottom: 12px; }
+  .stat {
+    background: rgba(255,255,255,.1); padding: 8px 16px; border-radius: 12px;
+    text-align: center; min-width: 68px;
+  }
+  .stat small { display: block; opacity: .7; font-size: 12px; }
+  .stat b { font-size: 22px; }
+  .board {
+    --cell: max(34px, min(calc((100vw - 20px) / 8), 60px, calc((100vh - 330px) / 8)));
+    --cell: max(34px, min(calc((100vw - 20px) / 8), 60px, calc((100svh - 330px) / 8)));
+    position: relative; width: calc(var(--cell) * 8); height: calc(var(--cell) * 8);
+    background: rgba(255,255,255,.06); border-radius: 14px; overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0,0,0,.5), inset 0 0 0 2px rgba(255,255,255,.08);
+    touch-action: none;
+  }
+  .board.shake { animation: boardShake .35s; }
+  @keyframes boardShake {
+    20% { translate: -6px 3px; } 40% { translate: 5px -4px; }
+    60% { translate: -4px -2px; } 80% { translate: 3px 3px; }
+  }
+  .gem {
+    position: absolute; left: 0; top: 0;
+    width: var(--cell); height: var(--cell); padding: 6px;
+    transition: transform .3s cubic-bezier(.3,.9,.4,1.15);
+    cursor: pointer;
+  }
+  .face {
+    width: 100%; height: 100%; position: relative;
+    box-shadow: inset -3px -4px 0 rgba(0,0,0,.25), inset 3px 3px 0 rgba(255,255,255,.4), 0 3px 6px rgba(0,0,0,.4);
+    transition: transform .15s;
+  }
+  .t0 .face { background: linear-gradient(135deg,#ff6b6b,#c0392b); border-radius: 50%; }
+  .t1 .face { background: linear-gradient(135deg,#ffe66d,#f39c12); border-radius: 20%; transform: rotate(45deg) scale(.8); }
+  .t2 .face { background: linear-gradient(135deg,#6bff95,#27ae60); border-radius: 30% 70% 30% 70%; }
+  .t3 .face { background: linear-gradient(135deg,#6bc5ff,#2471a3); border-radius: 18%; }
+  .t4 .face { background: linear-gradient(135deg,#d58bff,#8e44ad); border-radius: 50% 50% 15% 15%; }
+  .t5 .face { background: linear-gradient(135deg,#ffb36b,#d35400); border-radius: 50% 10%; }
+
+  .gem.appear .face { animation: appear .5s cubic-bezier(.3,1.6,.5,1); }
+  @keyframes appear { from { transform: scale(0); } }
+
+  /* 🌈 Кольорова куля */
+  .t6 .face {
+    border-radius: 50%;
+    background: conic-gradient(#ff6b6b, #ffe66d, #6bff95, #6bc5ff, #d58bff, #ff6b6b);
+    box-shadow: 0 0 12px rgba(255,255,255,.8), inset 0 0 8px rgba(255,255,255,.9);
+    animation: spin 2s linear infinite;
+  }
+  .t6.appear .face { animation: appear .5s cubic-bezier(.3,1.6,.5,1), spin 2s linear infinite; }
+  .gem.t6.selected .face { animation: spin .6s linear infinite; filter: brightness(1.4) drop-shadow(0 0 8px #fff); }
+  @keyframes spin { to { rotate: 360deg; } }
+
+  /* 💣 Бомба */
+  .t7 .face {
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #8a8aa0, #2b2b3a 55%, #111 100%);
+    box-shadow: 0 0 10px rgba(255,120,60,.6), inset -3px -4px 0 rgba(0,0,0,.4);
+  }
+  .t7 .face::before {
+    content: ''; position: absolute; width: 22%; height: 22%; right: 6%; top: 2%;
+    background: #6b5a3a; border-radius: 3px; rotate: 45deg;
+  }
+  .t7 .face::after {
+    content: ''; position: absolute; width: 26%; height: 26%; right: -4%; top: -8%;
+    border-radius: 50%; background: radial-gradient(#fff, #ffd23f 40%, #ff6b1a 70%, transparent 72%);
+    animation: spark .25s infinite alternate;
+  }
+  @keyframes spark { to { transform: scale(1.4); filter: brightness(1.4); } }
+
+  /* ⚡ Блискавка */
+  .t8 .face {
+    border-radius: 22%;
+    background: linear-gradient(135deg, #5b7cff, #1b2a8a);
+    box-shadow: 0 0 12px rgba(120,200,255,.8), inset 0 0 6px rgba(255,255,255,.6);
+  }
+  .t8 .face::after {
+    content: ''; position: absolute; inset: 14%;
+    background: linear-gradient(#fff, #ffe66d);
+    clip-path: polygon(58% 0, 18% 56%, 46% 56%, 36% 100%, 82% 40%, 54% 40%, 70% 0);
+    filter: drop-shadow(0 0 3px #fff);
+    animation: flicker 1.2s infinite;
+  }
+  @keyframes flicker { 0%, 90%, 100% { opacity: 1; } 93% { opacity: .4; } 96% { opacity: 1; } 98% { opacity: .5; } }
+
+  /* 🐸 Жабка */
+  .t9 .face {
+    border-radius: 50% 50% 42% 42%;
+    background: radial-gradient(circle at 50% 70%, #b8ff8a, #4fc23a 60%, #2e8a22);
+  }
+  .t9 .face::before { /* очі */
+    content: ''; position: absolute; left: -4%; right: -4%; top: -14%; height: 46%;
+    background:
+      radial-gradient(circle at 22% 55%, #111 0 11%, #fff 12% 26%, #3fae2e 27% 34%, transparent 35%),
+      radial-gradient(circle at 78% 55%, #111 0 11%, #fff 12% 26%, #3fae2e 27% 34%, transparent 35%);
+    animation: blink 4s infinite;
+  }
+  .t9 .face::after { /* усмішка */
+    content: ''; position: absolute; left: 26%; right: 26%; top: 48%; height: 22%;
+    border-bottom: 3px solid #1d5e15; border-radius: 0 0 50% 50%;
+  }
+  @keyframes blink { 0%, 94%, 100% { transform: scaleY(1); } 97% { transform: scaleY(.1); } }
+  .gem.eating { z-index: 12; }
+  .gem.gulp .face { animation: gulp .2s; }
+  @keyframes gulp { 50% { transform: scale(1.25, .85); } }
+  .gem.leave .face { animation: frogLeave .5s forwards; }
+  @keyframes frogLeave {
+    30% { transform: translateY(-25%) scale(1.15, .9); }
+    100% { transform: translateY(-140%) scale(.2); opacity: 0; }
+  }
+  .gem.eaten { z-index: 11; transition: transform .22s ease-in, opacity .1s .2s !important; }
+  /* відкритий рот жабки, коли вона працює */
+  .gem.t9.eating .face::after {
+    border: 0; left: 28%; right: 28%; top: 42%; height: 32%;
+    border-radius: 45% 45% 50% 50%;
+    background: radial-gradient(circle at 50% 75%, #ff7aa0 0 22%, #7a1030 28%, #2a0010);
+    box-shadow: 0 0 0 2px #1d5e15;
+  }
+  /* червона жабка */
+  .t9.red .face { background: radial-gradient(circle at 50% 70%, #ffb3a0, #e8402a 60%, #8a1a10); }
+  .t9.red .face::after { border-bottom-color: #5e1510; }
+  .gem.t9.red.eating .face::after { box-shadow: 0 0 0 2px #5e1510; }
+  .gem.t9.red { z-index: 12; }
+  .gem.t9.red .face { transform: scale(1.2); }
+  /* велика бомба */
+  .gem.big { z-index: 12; }
+  .gem.big .face { transform: scale(1.9); transition: transform .35s cubic-bezier(.3,1.6,.5,1); }
+  .gem.big.charging .face { animation: pulseBig .12s infinite alternate; }
+  @keyframes pulseBig { from { transform: scale(1.9); } to { transform: scale(2.1); filter: brightness(1.6); } }
+  /* фіолетова блискавка */
+  .gem.t8.purple { z-index: 12; }
+  .gem.t8.purple .face {
+    background: linear-gradient(135deg, #d38bff, #6a1fb0);
+    box-shadow: 0 0 16px rgba(200,120,255,.95), inset 0 0 6px rgba(255,255,255,.6);
+    transform: scale(1.3); transition: transform .3s;
+  }
+  .bolt.purple {
+    background: linear-gradient(var(--dir), transparent, #e2b8ff 30%, #fff 50%, #e2b8ff 70%, transparent);
+    box-shadow: 0 0 16px #b46bff, 0 0 30px #fff;
+  }
+  .bolt.d { height: calc(var(--cell) * .5); width: calc(var(--cell) * 12); --dir: 180deg; transform-origin: 50% 50%; }
+  .flash {
+    position: absolute; inset: 0; pointer-events: none; z-index: 9;
+    background: radial-gradient(circle, rgba(255,255,255,.95), rgba(255,240,255,.4) 50%, transparent 75%);
+    animation: flash .7s forwards;
+  }
+  @keyframes flash { from { opacity: 1; } to { opacity: 0; } }
+  .tongue {
+    position: absolute; height: 8px; margin-top: -4px; transform-origin: 0 50%;
+    background: linear-gradient(#ff8fb1, #e84a7f); border-radius: 4px;
+    z-index: 13; pointer-events: none; transition: transform .18s ease-out;
+  }
+  .tongue::after {
+    content: ''; position: absolute; right: -6px; top: -4px; width: 16px; height: 16px;
+    border-radius: 50%; background: radial-gradient(circle at 40% 40%, #ffb3cb, #e84a7f);
+  }
+
+  /* ===== Перепони ===== */
+  .gem.box { cursor: default; z-index: 5; transition: none; }
+  .crate { position: absolute; inset: 3px; border-radius: 6px; }
+  .box.hit .crate { animation: boxHit .25s; }
+  @keyframes boxHit { 25% { translate: -3px 1px; } 50% { translate: 3px -1px; } 75% { translate: -2px 0; } }
+  .box.breaking .crate { animation: boxBreak .35s forwards; }
+  @keyframes boxBreak { to { transform: scale(.4); opacity: 0; } }
+  .box .crate > * { position: absolute; }
+  .box.dented .crate { transform: scale(.94, .9) rotate(-3deg); border-radius: 14% 6% 18% 8%; filter: brightness(.9) saturate(.9); transition: transform .2s; }
+
+  /* картонна коробка */
+  .cardboard .crate {
+    background:
+      linear-gradient(90deg, transparent 48%, rgba(120,70,20,.35) 48% 52%, transparent 52%),
+      linear-gradient(135deg, #e2b77a, #c99357 55%, #b37d42);
+    border: 2px solid #94632e; border-radius: 4px;
+    box-shadow: inset 0 3px 0 rgba(255,255,255,.25), 0 3px 6px rgba(0,0,0,.45);
+  }
+  .cardboard .tape {
+    left: 38%; width: 24%; top: -4%; height: 70%;
+    background: linear-gradient(90deg, rgba(240,225,180,.85), rgba(255,245,210,.95), rgba(240,225,180,.85));
+    border-bottom: 3px dashed rgba(200,180,130,.9);
+  }
+  .cardboard.dented .crate {
+    background:
+      linear-gradient(60deg, transparent 40%, rgba(90,50,15,.35) 41% 43%, transparent 44%),
+      linear-gradient(-30deg, transparent 55%, rgba(90,50,15,.3) 56% 58%, transparent 59%),
+      linear-gradient(90deg, transparent 48%, rgba(120,70,20,.35) 48% 52%, transparent 52%),
+      linear-gradient(135deg, #d6aa6e, #bb8549 55%, #a06c35);
+  }
+
+  /* дерев'яний ящик з дошками навхрест */
+  .wood .crate, .reinforced .crate {
+    background: repeating-linear-gradient(0deg, #c08546 0 31%, #8d5a27 31% 34%);
+    border: 4px solid #6b3f16;
+    box-shadow: inset 0 0 0 2px #d9a066, 0 3px 6px rgba(0,0,0,.5);
+  }
+  .wood .plank {
+    left: -10%; right: -10%; top: 50%; height: 20%; margin-top: -10%;
+    background: linear-gradient(#a36a31, #7a4a1c); border: 1px solid #5a3410; border-radius: 2px;
+  }
+  .wood .p1 { transform: rotate(45deg); }
+  .wood .p2 { transform: rotate(-45deg); }
+
+  /* армований дерев'яний ящик */
+  .reinforced .crate { border-color: #5a3410; }
+  .reinforced .band { background: linear-gradient(135deg, #d8dee5, #8b96a3 50%, #5d6772); box-shadow: 0 0 0 1px #3d444c; }
+  .reinforced .b-top    { left: -4px; right: -4px; top: -4px; height: 18%; }
+  .reinforced .b-bottom { left: -4px; right: -4px; bottom: -4px; height: 18%; }
+  .reinforced .b-left   { top: -4px; bottom: -4px; left: -4px; width: 18%; }
+  .reinforced .b-right  { top: -4px; bottom: -4px; right: -4px; width: 18%; }
+  .reinforced .x1, .reinforced .x2 { left: -12%; right: -12%; top: 50%; height: 15%; margin-top: -7.5%; }
+  .reinforced .x1 { transform: rotate(45deg); }
+  .reinforced .x2 { transform: rotate(-45deg); }
+
+  /* слизогенератор */
+  .generator .crate {
+    background: linear-gradient(135deg, #6d7682, #3e454e 60%, #2a2f35);
+    border: 3px solid #1f2328; border-radius: 10px;
+    box-shadow: inset 0 0 0 2px rgba(255,255,255,.15), 0 3px 6px rgba(0,0,0,.5);
+  }
+  .generator .tank {
+    left: 21%; top: 21%; width: 58%; height: 58%; border-radius: 50%; overflow: hidden;
+    background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.6) 0 8%, transparent 9%),
+                radial-gradient(circle, #b6ff6a, #3fae2e 70%, #1d5e15);
+    box-shadow: 0 0 0 3px #8b96a3, 0 0 10px rgba(120,255,80,.7), inset 0 -3px 6px rgba(0,50,0,.6);
+    animation: tankGlow 1.6s ease-in-out infinite alternate;
+  }
+  .generator .tank::before, .generator .tank::after {
+    content: ''; position: absolute; width: 18%; height: 18%; border-radius: 50%;
+    background: rgba(230,255,200,.8); bottom: -20%; animation: bubble 1.8s linear infinite;
+  }
+  .generator .tank::before { left: 25%; }
+  .generator .tank::after { left: 60%; width: 12%; height: 12%; animation-delay: .9s; }
+  @keyframes bubble { to { transform: translateY(-650%); opacity: 0; } }
+  @keyframes tankGlow { to { box-shadow: 0 0 0 3px #8b96a3, 0 0 18px rgba(150,255,90,1), inset 0 -3px 6px rgba(0,50,0,.6); } }
+  .generator .nut {
+    width: 17%; height: 17%;
+    background: radial-gradient(circle, #2b3036 0 22%, #c3ccd5 24%, #6b747e);
+    clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0 50%);
+  }
+  .generator .n1 { left: 3%; top: 3%; } .generator .n2 { right: 3%; top: 3%; }
+  .generator .n3 { left: 3%; bottom: 3%; } .generator .n4 { right: 3%; bottom: 3%; }
+  .generator .crack polyline { stroke: #111; stroke-width: 4; }
+  .generator .smoke { left: 30%; top: -10%; width: 40%; height: 40%; display: none; z-index: 2; }
+  .generator .smoke::before, .generator .smoke::after {
+    content: ''; position: absolute; left: 0; top: 0; width: 70%; height: 70%; border-radius: 50%;
+    background: rgba(210,210,215,.7); animation: puff 1.4s linear infinite;
+  }
+  .generator .smoke::after { left: 35%; animation-delay: .7s; }
+  @keyframes puff { from { transform: translateY(0) scale(.4); opacity: .9; } to { transform: translateY(-160%) scale(1.5); opacity: 0; } }
+  .box.smoke1 .smoke { display: block; }
+  .box.smoke2 .smoke { display: block; left: 15%; top: -25%; width: 70%; height: 70%; }
+  .box.jitter .crate { animation: jitter .16s infinite; }
+  @keyframes jitter { 25% { translate: -1.5px 1px; } 50% { translate: 1.5px -1px; } 75% { translate: -1px -1.5px; } }
+  .box.pump .tank { animation: pump .45s; }
+  @keyframes pump { 40% { transform: scale(1.25); filter: brightness(1.5); } }
+
+  /* слиз */
+  .slime .crate {
+    inset: 1px;
+    background:
+      radial-gradient(circle at 30% 30%, rgba(255,255,255,.55) 0 7%, transparent 8%),
+      radial-gradient(circle at 70% 65%, rgba(255,255,255,.35) 0 5%, transparent 6%),
+      radial-gradient(circle at 45% 40%, #b6ff6a, #5fc93a 45%, #2f8a2a 80%);
+    box-shadow: inset 0 -4px 8px rgba(0,60,0,.45), 0 0 10px rgba(120,255,80,.35);
+    animation: ooze 2.4s ease-in-out infinite;
+  }
+  .slime .crate::before, .slime .crate::after {
+    content: ''; position: absolute; border-radius: 50%; background: #5fc93a;
+  }
+  .slime .crate::before { width: 26%; height: 30%; bottom: -12%; left: 18%; border-radius: 0 0 50% 50%; }
+  .slime .crate::after  { width: 16%; height: 22%; bottom: -9%; right: 22%; border-radius: 0 0 50% 50%; }
+  @keyframes ooze {
+    0%, 100% { border-radius: 42% 58% 50% 50% / 52% 44% 56% 48%; transform: scale(1, 1); }
+    50% { border-radius: 55% 45% 44% 56% / 46% 56% 44% 54%; transform: scale(1.04, .96); }
+  }
+  .box.slime.grow .crate { animation: slimeGrow .6s cubic-bezier(.3,1.5,.5,1), ooze 2.4s ease-in-out .6s infinite; }
+  @keyframes slimeGrow { 0% { transform: scale(0); } 60% { transform: scale(1.15, .9); } }
+  .box.slime.breaking .crate { animation: slimeSplat .35s forwards; }
+  @keyframes slimeSplat { 40% { transform: scale(1.3, .6); } to { transform: scale(1.6, .2); opacity: 0; } }
+  .crack { inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .crack polyline { fill: none; stroke: #3a200a; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 160; stroke-dashoffset: 160; opacity: 0; }
+  .box.crack1 .c1, .box.crack2 .c2 { opacity: 1; animation: drawCrack .35s forwards; }
+  @keyframes drawCrack { to { stroke-dashoffset: 0; } }
+
+  /* павутина поверх фішки */
+  .gem.webbed { z-index: 5; cursor: not-allowed; }
+  .web { position: absolute; inset: 0; pointer-events: none; }
+  .web svg { width: 100%; height: 100%; }
+  .web line, .web polygon { stroke: rgba(245,245,255,.9); stroke-width: 2; fill: none; }
+  .web.tear { animation: webTear .4s forwards; }
+  @keyframes webTear { 40% { transform: scale(1.15) rotate(8deg); } to { transform: scale(1.5) rotate(-10deg); opacity: 0; } }
+  .fly { animation: fly .7s cubic-bezier(.2,.6,.4,1) forwards !important; }
+  @keyframes fly { to { translate: var(--dx) var(--dy); rotate: var(--rot); opacity: 0; } }
+  .shard {
+    position: absolute; width: calc(var(--cell) * .22); height: calc(var(--cell) * .14);
+    border-radius: 2px; z-index: 8; pointer-events: none;
+    animation: shard .7s cubic-bezier(.2,.6,.4,1) forwards;
+  }
+  @keyframes shard {
+    60% { opacity: 1; }
+    to { translate: var(--dx) var(--dy); rotate: var(--rot); opacity: 0; }
+  }
+
+  .gem.selected .face { animation: pulse .6s infinite alternate; }
+  .t1.selected .face { animation-name: pulse1; }
+  .gem.charging .face { animation: pulse .12s infinite alternate; filter: brightness(1.8) drop-shadow(0 0 14px #fff); }
+  .gem.t6.charging .face { animation: spin .25s linear infinite; }
+  .gem.pop .face { animation: pop .3s forwards; }
+  .gem.t1.pop .face { animation-name: pop1; }
+  .gem.hint .face { animation: shake .5s 2; }
+  @keyframes pulse { to { transform: scale(1.15); filter: brightness(1.3); } }
+  @keyframes pulse1 { from { transform: rotate(45deg) scale(.8); } to { transform: rotate(45deg) scale(.95); filter: brightness(1.3); } }
+  @keyframes pop {
+    40% { transform: scale(1.35); filter: brightness(2); }
+    100% { transform: scale(0); opacity: 0; }
+  }
+  @keyframes pop1 {
+    40% { transform: rotate(45deg) scale(1.1); filter: brightness(2); }
+    100% { transform: rotate(45deg) scale(0); opacity: 0; }
+  }
+  @keyframes shake { 25% { translate: -4px 0; } 75% { translate: 4px 0; } }
+
+  /* Ефекти */
+  .beam {
+    position: absolute; height: 4px; margin-top: -2px; transform-origin: 0 50%;
+    background: linear-gradient(90deg, #fff, #ffe66d, transparent);
+    border-radius: 2px; pointer-events: none; z-index: 9; box-shadow: 0 0 8px #fff;
+    animation: beam .45s forwards;
+  }
+  @keyframes beam { 0% { transform: rotate(var(--a)) scaleX(0); } 50% { transform: rotate(var(--a)) scaleX(1); opacity: 1; } 100% { transform: rotate(var(--a)) scaleX(1); opacity: 0; } }
+  .bolt {
+    position: absolute; pointer-events: none; z-index: 9; border-radius: 4px;
+    background: linear-gradient(var(--dir), transparent, #9fd8ff 30%, #fff 50%, #9fd8ff 70%, transparent);
+    box-shadow: 0 0 16px #7cc8ff, 0 0 30px #fff;
+    animation: bolt .45s forwards;
+  }
+  .bolt.h { left: 0; width: 100%; height: calc(var(--cell) * .5); --dir: 180deg; }
+  .bolt.v { top: 0; height: 100%; width: calc(var(--cell) * .5); --dir: 90deg; }
+  @keyframes bolt { 0% { transform: var(--s0); opacity: 1; } 40% { transform: none; opacity: 1; } 100% { opacity: 0; } }
+  .shock {
+    position: absolute; pointer-events: none; z-index: 9; border-radius: 50%;
+    width: calc(var(--cell) * 5); height: calc(var(--cell) * 5);
+    background: radial-gradient(circle, rgba(255,240,180,.9), rgba(255,140,40,.6) 40%, rgba(255,80,20,0) 70%);
+    animation: shock .5s ease-out forwards;
+  }
+  @keyframes shock { from { transform: scale(.1); opacity: 1; } to { transform: scale(1.1); opacity: 0; } }
+  .float {
+    position: absolute; pointer-events: none; font-weight: 800; font-size: 20px; white-space: nowrap;
+    text-shadow: 0 2px 4px #000; animation: floatUp .9s forwards; z-index: 10;
+  }
+  @keyframes floatUp { to { transform: translateY(-50px); opacity: 0; } }
+  .combo {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 40px; font-weight: 900; color: #ffe66d; text-shadow: 0 3px 10px #000;
+    pointer-events: none; animation: comboAnim .8s forwards; z-index: 11;
+  }
+  @keyframes comboAnim { 0% { transform: scale(.3); opacity: 0; } 30% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1); opacity: 0; } }
+  .overlay {
+    position: absolute; inset: 0; background: rgba(10,8,25,.85); z-index: 20;
+    display: none; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+  }
+  .overlay.show { display: flex; animation: fade .4s; }
+  @keyframes fade { from { opacity: 0; } }
+  button {
+    background: linear-gradient(135deg,#ff6bb5,#8e44ad); color: #fff; border: 0;
+    padding: 10px 24px; font-size: 16px; font-weight: 700; border-radius: 999px; cursor: pointer;
+  }
+  button:hover { filter: brightness(1.15); }
+  .controls { margin-top: 14px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  .legend { margin-top: 14px; font-size: 13px; opacity: .8; text-align: center; line-height: 1.6; max-width: 480px; padding: 0 16px; }
+  .legend summary { cursor: pointer; font-weight: 700; margin-bottom: 4px; }
+  .overlay p { margin: 0; opacity: .85; text-align: center; padding: 0 16px; }
+
+  /* ===== Бонуси гравця ===== */
+  .boosters { display: flex; gap: 14px; margin-top: 14px; }
+  .booster {
+    position: relative; width: 58px; height: 58px; padding: 0; border-radius: 16px; font-size: 28px; line-height: 1;
+    background: linear-gradient(135deg, #4b3b8f, #2d2366);
+    box-shadow: inset 0 0 0 2px rgba(255,255,255,.15), 0 4px 10px rgba(0,0,0,.4);
+    transition: transform .15s, box-shadow .15s;
+  }
+  .booster .cnt {
+    position: absolute; right: -7px; top: -7px; min-width: 22px; height: 22px; line-height: 22px; padding: 0 5px;
+    border-radius: 999px; font-size: 12px; background: #ff6bb5; box-shadow: 0 2px 4px rgba(0,0,0,.4);
+  }
+  .booster.active { transform: scale(1.1); box-shadow: 0 0 0 3px #ffe66d, 0 0 18px #ffe66d; }
+  .booster:disabled { opacity: .4; filter: grayscale(1); cursor: not-allowed; }
+  .booster.bump { animation: bump .5s; }
+  @keyframes bump { 40% { transform: scale(1.3); } }
+  .tip { min-height: 20px; margin-top: 8px; font-size: 14px; color: #ffe66d; text-align: center; }
+  .gem.glovePick .face { animation: pulse .4s infinite alternate; filter: drop-shadow(0 0 8px #fff); }
+  .hammerFx {
+    position: absolute; z-index: 15; pointer-events: none; font-size: calc(var(--cell) * .95);
+    transform-origin: 85% 85%; animation: hammer .55s forwards;
+  }
+  @keyframes hammer {
+    0% { transform: rotate(-80deg); opacity: 0; }
+    25% { transform: rotate(-80deg); opacity: 1; }
+    55% { transform: rotate(18deg); }
+    70% { transform: rotate(4deg); opacity: 1; }
+    100% { transform: rotate(8deg); opacity: 0; }
+  }
+  .impact {
+    position: absolute; z-index: 14; pointer-events: none; border-radius: 50%;
+    width: var(--cell); height: var(--cell);
+    background: radial-gradient(circle, rgba(255,255,255,.9), rgba(255,230,120,.5) 40%, transparent 70%);
+    animation: impact .35s forwards;
+  }
+  @keyframes impact { from { transform: scale(.3); } to { transform: scale(1.6); opacity: 0; } }
+  .dart { position: absolute; left: 0; top: 0; z-index: 15; pointer-events: none; transform-origin: 0 50%;
+          width: calc(var(--cell) * .95); height: calc(var(--cell) * .24); margin-top: calc(var(--cell) * -.12);
+          transition: transform .35s cubic-bezier(.4,.1,.8,.6); }
+  .dart svg { width: 100%; height: 100%; display: block; filter: drop-shadow(0 2px 2px rgba(0,0,0,.5)); }
+  .dart.stuck { animation: dartFade .5s .25s forwards; }
+  @keyframes dartFade { to { opacity: 0; } }
+
+  /* ===== Лотерея ===== */
+  .modal {
+    position: fixed; inset: 0; z-index: 50; display: none; align-items: center; justify-content: center;
+    background: rgba(10,8,25,.82);
+  }
+  .modal.show { display: flex; animation: fade .3s; }
+  .ticket {
+    width: min(92vw, 340px); padding: 16px 16px 14px; border-radius: 18px; text-align: center; color: #5a3b00;
+    background:
+      radial-gradient(circle at 0 50%, rgba(10,8,25,.82) 0 10px, transparent 11px),
+      radial-gradient(circle at 100% 50%, rgba(10,8,25,.82) 0 10px, transparent 11px),
+      linear-gradient(135deg, #fff6d0, #ffd76a);
+    border: 3px dashed #c99a2e; box-shadow: 0 12px 40px rgba(0,0,0,.6);
+    animation: ticketIn .55s cubic-bezier(.3,1.5,.5,1);
+  }
+  @keyframes ticketIn { from { transform: scale(.3) rotate(-12deg); opacity: 0; } }
+  .ticket h2 { margin: 0; font-size: 24px; }
+  .ticket .sub { font-size: 13px; opacity: .8; margin-top: 2px; }
+  .lgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 12px 0 10px; touch-action: none; }
+  .lcell {
+    position: relative; aspect-ratio: 1; border-radius: 10px; overflow: hidden;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: #fffaf0; box-shadow: inset 0 0 0 2px #e0b85a; font-size: 26px; line-height: 1;
+  }
+  .lcell.gold { background: linear-gradient(135deg, #fff1a8, #f5c242 60%, #d99a14); }
+  .lcell.empty { color: #c9b07a; }
+  .lcell .lbl { font-size: 9px; font-weight: 800; margin-top: 3px; letter-spacing: .2px; }
+  .lcell canvas { position: absolute; inset: 0; width: 100%; height: 100%; cursor: crosshair; transition: opacity .4s; }
+  .lcell.revealed canvas { opacity: 0; pointer-events: none; }
+  .lcell.locked canvas { cursor: not-allowed; filter: brightness(.75) saturate(.6); }
+  .lcell.chosen { box-shadow: inset 0 0 0 3px #ff6bb5; }
+  .lcell.win { animation: winGlow .5s infinite alternate; z-index: 1; }
+  @keyframes winGlow { to { transform: scale(1.08); box-shadow: 0 0 0 3px #ff6bb5, 0 0 18px #fff; } }
+  .lresult { min-height: 40px; font-weight: 700; font-size: 15px; }
+  .ticket button:disabled { opacity: .5; cursor: default; }
+
+  /* ===== Цвяхозабивач ===== */
+  .nailgun .crate { background: none; box-shadow: none; inset: 2px; }
+  .nailgun .ng { inset: 0; width: 100%; height: 100%; filter: drop-shadow(0 3px 3px rgba(0,0,0,.5)); }
+  .nailgun .crack polyline { stroke: #1a1a1a; stroke-width: 4; }
+  .box.spawn .crate { animation: appear .5s cubic-bezier(.3,1.6,.5,1); }
+  .box.recoil .crate { animation: recoil .25s; }
+  @keyframes recoil { 30% { transform: scale(1.12) rotate(-6deg); } }
+  .nail {
+    position: absolute; left: 0; top: 0; z-index: 15; pointer-events: none;
+    width: calc(var(--cell) * .7); height: calc(var(--cell) * .16);
+    margin: calc(var(--cell) * -.08) 0 0 calc(var(--cell) * -.35);
+  }
+  .nail svg { width: 100%; height: 100%; display: block; filter: drop-shadow(0 0 3px #fff); }
+
+  /* синя картонна коробка з цвяхозабивачем */
+  .cardboard.ng-box .crate {
+    background:
+      linear-gradient(90deg, transparent 48%, rgba(20,50,110,.35) 48% 52%, transparent 52%),
+      linear-gradient(135deg, #8fb8ec, #5b8fd6 55%, #3f6fb8);
+    border-color: #2c5394;
+  }
+  .cardboard.ng-box.dented .crate {
+    background:
+      linear-gradient(60deg, transparent 40%, rgba(15,35,80,.4) 41% 43%, transparent 44%),
+      linear-gradient(-30deg, transparent 55%, rgba(15,35,80,.35) 56% 58%, transparent 59%),
+      linear-gradient(90deg, transparent 48%, rgba(20,50,110,.35) 48% 52%, transparent 52%),
+      linear-gradient(135deg, #82abe0, #4f82c8 55%, #3463a8);
+  }
+
+  /* ===== Ящик з вибухівкою ===== */
+  .tnt .crate {
+    background: repeating-linear-gradient(0deg, #d23a2a 0 31%, #9c2418 31% 34%);
+    border-color: #6e130b; box-shadow: inset 0 0 0 2px #ff7a63, 0 3px 6px rgba(0,0,0,.5);
+  }
+  .tnt .plank { background: linear-gradient(#b52a1d, #7d160d); border-color: #5a0d06; }
+  .tnt .crack polyline { stroke: #3a0a05; }
+  .tnt .tnt-label {
+    left: 0; right: 0; top: 50%; transform: translateY(-50%); text-align: center; z-index: 2;
+    font: 900 calc(var(--cell) * .27)/1 system-ui, sans-serif; color: #fff; letter-spacing: 1px;
+    text-shadow: 0 0 3px #000, 0 1px 0 #000, 0 0 6px #ffcc66;
+  }
+
+  /* ===== Павук ===== */
+  .spiderEl {
+    position: absolute; left: 0; top: 0; width: var(--cell); height: var(--cell); padding: 3px;
+    z-index: 7; pointer-events: none; transition: transform .5s ease-in-out;
+  }
+  .spiderEl svg { width: 100%; height: 100%; animation: spiderBob 1.2s ease-in-out infinite; filter: drop-shadow(0 3px 3px rgba(0,0,0,.5)); }
+  .spiderEl .legs { transform-origin: 50% 50%; animation: legs .35s ease-in-out infinite alternate; }
+  @keyframes spiderBob { 50% { transform: translateY(-3px); } }
+  @keyframes legs { to { transform: scale(.9, 1.06); } }
+  .spiderEl.dead svg { animation: spiderDie .5s forwards; }
+  @keyframes spiderDie { 30% { transform: scale(1.2, .6); } to { transform: scale(1.4, .1); opacity: 0; } }
+  .web { animation: webIn .45s ease-out; }
+  @keyframes webIn { from { transform: scale(.3); opacity: 0; } }
+
+  /* ===== Бонус з дерев'яного ящика ===== */
+  .loot {
+    position: fixed; z-index: 60; font-size: 34px; pointer-events: none; line-height: 1;
+    transition: transform .85s cubic-bezier(.5,-0.4,.6,1), opacity .2s .75s;
+    filter: drop-shadow(0 0 8px #ffe66d);
+  }
+
+  @media (max-width: 480px) {
+    h1 { font-size: 22px; margin-bottom: 6px; }
+    .hud { gap: 6px; margin-bottom: 8px; }
+    .stat { padding: 5px 8px; min-width: 0; flex: 1; }
+    .stat b { font-size: 18px; }
+    .stat small { font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    @media (max-width: 360px) { .stat small { font-size: 9.5px; } }
+    .hud { width: calc(100vw - 20px); }
+    .boosters { margin-top: 10px; gap: 12px; }
+    .booster { width: 52px; height: 52px; font-size: 25px; }
+    .controls { margin-top: 10px; gap: 8px; }
+    .controls button { padding: 9px 16px; font-size: 15px; }
+    .gem { padding: 4px; }
+  }
+
+  /* сірий фон під перешкодами */
+  .gem.box::before, .gem.webbed::before, .gem.spidered::before {
+    content: ''; position: absolute; inset: 1px; border-radius: 8px; z-index: -1;
+    background: linear-gradient(135deg, #8a8f9c, #5f6472);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.18), inset 0 -2px 4px rgba(0,0,0,.35);
+  }
+  .gem.box, .gem.webbed, .gem.spidered { isolation: isolate; }
+  .gem.box.breaking::before { animation: bgFade .35s .1s forwards; }
+  @keyframes bgFade { to { opacity: 0; } }
+</style>
+</head>
+<body>
+  <h1>💎 3 в ряд</h1>
+  <div class="hud">
+    <div class="stat"><small>Рівень</small><b id="level">1</b></div>
+    <div class="stat"><small>Очки</small><b id="score">0</b></div>
+    <div class="stat"><small>Ходи</small><b id="moves">0</b></div>
+    <div class="stat"><small>Перешкоди</small><b id="boxes">0</b></div>
+  </div>
+  <div class="board" id="board">
+    <div class="overlay" id="overlay">
+      <h2 style="margin:0" id="ovTitle"></h2>
+      <p id="ovText"></p>
+      <button id="again"></button>
+    </div>
+  </div>
+  <div class="boosters">
+    <button class="booster" id="b-hammer" title="Молоток: 1 удар у вибрану клітинку">🔨<span class="cnt">0</span></button>
+    <button class="booster" id="b-glove" title="Рукавичка: поміняти місцями будь-які дві фішки">🧤<span class="cnt">0</span></button>
+    <button class="booster" id="b-dart" title="Дротики: 3 дротики у випадкові перешкоди">🎯<span class="cnt">0</span></button>
+  </div>
+  <div class="tip" id="tip"></div>
+  <div class="controls">
+    <button id="hintBtn">Підказка</button>
+    <button id="restart">Заново</button>
+    <button id="soundBtn">🔊 Звук</button>
+    <button id="levelsBtn" title="Завантажити рівні з файлу levels.json">📂 Рівні</button>
+    <input type="file" id="levelsFile" accept=".json,application/json" hidden>
+  </div>
+  <details class="legend">
+    <summary>Правила</summary>
+    Мета рівня — прибрати всі перешкоди. Перешкода отримує удар, коли поруч збирають комбінацію, коли будь-який бонус прибирає фішку поруч із нею або зачіпає її саму.<br>
+    📦 картонна коробка — 2 удари · 🪵 дерев'яний ящик — 3 удари · 🛡️ армований ящик — 4 удари<br>
+    🕸️ павутина — фішку в ній не можна рухати, вона не падає; рветься з 1 удару (зокрема, коли фішка в павутині потрапляє в комбінацію)<br>
+    🟢 слиз — 1 удар, але якщо за хід жоден слиз не зачепили, він розростається на 1 сусідню клітинку<br>
+    ⚙️ слизогенератор — щоходу створює слиз у сусідній клітинці; якщо за хід його пошкодили — пропускає; 3 удари, а коли ламається — заливає слизом зону 3×3<br>
+    🔫 цвяхозабивач (лежить у синіх картонних коробках) — 3 удари; від кожного удару стріляє цвяхом в одному з 4 напрямків, а коли ламається — в усі 4. Цвях пролітає крізь фішки і б'є всі перешкоди на шляху<br>
+    🧨 ящик TNT — як дерев'яний (3 удари), але коли ламається — вибухає 3×3<br>
+    🕷️ павук — щоходу переповзає на сусідню фішку і лишає павутину; гине з 1 удару<br>
+    🎁 у дерев'яних ящиках зрідка трапляється бонус (молоток, рукавичка чи дротик)<br>
+    Коли всі перешкоди прибрано, бонуси, що лишилися на полі, по черзі спрацьовують згори вниз.<br>
+    🍀 З шансом 5% нові фішки після ходу падають одного кольору.<br>
+    Бонуси гравця (не витрачають хід): 🔨 молоток — 1 удар у вибрану клітинку · 🧤 рукавичка — поміняти місцями будь-які дві фішки ·
+    🎯 дротики — 3 дротики у випадкові перешкоди.<br>
+    Після рівня — лотерея: зітріть 4 клітинки, дві однакові дають приз.<br>
+    4 в ряд → ⚡ блискавка (зсув по горизонталі → б'є стовпчик, по вертикалі → рядок)<br>
+    Г / Т → 💣 бомба (вибух 5×5) · 5 в ряд → 🌈 куля (усі фішки одного кольору)<br>
+    Квадрат 2×2 → 🐸 жабка (з'їдає 3 випадкові фішки)<br>
+    🌈+💣 / 🌈+⚡ — один колір стає бомбами / блискавками · 🌈+🐸 — дві нові кулі<br>
+    💣+⚡ — вибух і 6 блискавок · 🐸+💣 / 🐸+⚡ — жабка ковтає бонус і ставить 3 таких<br>
+    Суперкомбінації: 🌈+🌈 — знищує все поле (перешкодам 1 удар) · 💣+💣 — велика бомба 7×7 ·
+    ⚡+⚡ — фіолетова блискавка в 4 напрямках · 🐸+🐸 — червона жабка з'їдає 10 фішок
+  </details>
+
+  <div class="modal" id="lottery">
+    <div class="ticket">
+      <h2>🎟️ Лотерея</h2>
+      <div class="sub" id="lsub">Зітріть 4 клітинки — якщо дві співпадуть, приз ваш!</div>
+      <div class="lgrid" id="lgrid"></div>
+      <div class="lresult" id="lresult"></div>
+      <button id="lnext" disabled>Зітріть 4 клітинки</button>
+    </div>
+  </div>
+
+<script>
+// ===== Звук (Web Audio, м'які синтезовані тони) =====
+let actx = null, muted = false, master = null;
+function audio() {
+  if (!actx) {
+    actx = new (window.AudioContext || window.webkitAudioContext)();
+    master = actx.createGain();
+    master.gain.value = 0.35;
+    const delay = actx.createDelay(); delay.delayTime.value = 0.12;
+    const fb = actx.createGain(); fb.gain.value = 0.25;
+    const lp = actx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2500;
+    master.connect(actx.destination);
+    master.connect(delay); delay.connect(lp); lp.connect(fb); fb.connect(delay); lp.connect(actx.destination);
+  }
+  if (actx.state === 'suspended') actx.resume();
+  return actx;
+}
+function noise(dur = 0.05, vol = 0.03, freq = 4000) {
+  if (muted) return;
+  const ctx = audio(), len = Math.floor(ctx.sampleRate * dur);
+  const buf = ctx.createBuffer(1, len, ctx.sampleRate), d = buf.getChannelData(0);
+  for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / len);
+  const src = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain();
+  src.buffer = buf; f.type = 'bandpass'; f.frequency.value = freq; g.gain.value = vol;
+  src.connect(f); f.connect(g); g.connect(master); src.start();
+}
+function tone(freq, { dur = 0.25, type = 'sine', vol = 0.3, delay = 0, slide = 0 } = {}) {
+  if (muted) return;
+  const ctx = audio(), t = ctx.currentTime + delay;
+  const o = ctx.createOscillator(), g = ctx.createGain();
+  o.type = type;
+  o.frequency.setValueAtTime(freq, t);
+  if (slide) o.frequency.exponentialRampToValueAtTime(freq * slide, t + dur);
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(vol, t + 0.015);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g); g.connect(master);
+  o.start(t); o.stop(t + dur + 0.05);
+}
+const PENTA = [523.25, 587.33, 659.25, 783.99, 880, 1046.5, 1174.66, 1318.5, 1567.98];
+const sfx = {
+  select: () => tone(880, { dur: 0.08, vol: 0.12, type: 'triangle' }),
+  swap:   () => tone(440, { dur: 0.18, vol: 0.12, type: 'sine', slide: 1.5 }),
+  wrong:  () => { tone(330, { dur: 0.15, vol: 0.12, type: 'triangle' }); tone(294, { dur: 0.2, vol: 0.1, type: 'triangle', delay: 0.1 }); },
+  match: combo => {
+    const base = Math.min(combo - 1, PENTA.length - 3);
+    [0, 2].forEach((s, i) => {
+      tone(PENTA[base + s], { dur: 0.45, vol: 0.18, delay: i * 0.06 });
+      tone(PENTA[base + s] * 2, { dur: 0.3, vol: 0.04, delay: i * 0.06, type: 'triangle' });
+    });
+  },
+  land:   () => tone(220, { dur: 0.1, vol: 0.06, type: 'sine', slide: 0.7 }),
+  hint:   () => { tone(1046.5, { dur: 0.2, vol: 0.08 }); tone(1318.5, { dur: 0.25, vol: 0.08, delay: 0.1 }); },
+  shuffle:() => [0,1,2,3,4].forEach(i => tone(PENTA[i * 2 % 9], { dur: 0.15, vol: 0.07, type: 'triangle', delay: i * 0.05 })),
+  start:  () => [0, 2, 4].forEach((n, i) => tone(PENTA[n], { dur: 0.3, vol: 0.12, delay: i * 0.08 })),
+  end:    () => [4, 2, 3, 5].forEach((n, i) => tone(PENTA[n], { dur: i === 3 ? 0.9 : 0.35, vol: 0.15, delay: i * 0.18 })),
+  special: () => PENTA.forEach((f, i) => tone(f, { dur: 0.3, vol: 0.07, type: 'triangle', delay: i * 0.04 })),
+  rainbow: () => { tone(180, { dur: 0.6, vol: 0.12, slide: 4 }); tone(1567.98, { dur: 0.8, vol: 0.05, delay: 0.1 }); },
+  zap: (i, delay) => tone(PENTA[i % PENTA.length], { dur: 0.25, vol: 0.06, delay }),
+  lightning: () => {
+    tone(1800, { dur: 0.3, vol: 0.08, type: 'triangle', slide: 0.25 });
+    [0, 2, 4, 7].forEach((n, i) => tone(PENTA[n], { dur: 0.25, vol: 0.06, delay: 0.05 + i * 0.04 }));
+  },
+  bomb: () => {
+    tone(140, { dur: 0.6, vol: 0.35, type: 'sine', slide: 0.35 });
+    tone(70, { dur: 0.7, vol: 0.25, type: 'sine', slide: 0.6 });
+    [4, 2, 0].forEach((n, i) => tone(PENTA[n], { dur: 0.4, vol: 0.05, delay: 0.12 + i * 0.06 }));
+  },
+  tongue: () => tone(500, { dur: 0.12, vol: 0.1, type: 'triangle', slide: 2.2 }),
+  gulp:   i => { tone(260, { dur: 0.15, vol: 0.18, slide: 0.5 }); tone(PENTA[(2 + i * 2) % PENTA.length], { dur: 0.25, vol: 0.06, delay: 0.08 }); },
+  cardHit: () => { tone(140, { dur: 0.12, vol: 0.22, type: 'triangle', slide: 0.7 }); tone(1800, { dur: 0.12, vol: 0.03, type: 'triangle', slide: 0.4, delay: 0.03 }); },
+  cardBreak: () => { [0, 1, 2].forEach(i => tone(2200 - i * 400, { dur: 0.1, vol: 0.04, type: 'triangle', slide: 0.35, delay: i * 0.05 })); tone(120, { dur: 0.15, vol: 0.2, type: 'triangle', slide: 0.6 }); },
+  webTear: () => { tone(2400, { dur: 0.14, vol: 0.04, type: 'triangle', slide: 0.3 }); tone(1600, { dur: 0.16, vol: 0.04, type: 'triangle', slide: 0.4, delay: 0.05 }); tone(PENTA[6], { dur: 0.3, vol: 0.05, delay: 0.1 }); },
+  woodHit: () => { tone(190, { dur: 0.09, vol: 0.25, type: 'triangle', slide: 0.6 }); tone(330, { dur: 0.06, vol: 0.08, type: 'triangle', delay: 0.02 }); },
+  woodBreak: () => [0, 1, 2, 3].forEach(i => tone(220 - i * 30, { dur: 0.1, vol: 0.2, type: 'triangle', slide: 0.6, delay: i * 0.05 })),
+  metalHit: () => { tone(1480, { dur: 0.35, vol: 0.06 }); tone(2220, { dur: 0.25, vol: 0.035, delay: 0.01 }); tone(160, { dur: 0.08, vol: 0.15, type: 'triangle', slide: 0.7 }); },
+  metalBreak: () => {
+    tone(120, { dur: 0.3, vol: 0.25, slide: 0.5 });
+    [7, 5, 8, 4, 6].forEach((n, i) => tone(PENTA[n] * 1.5, { dur: 0.3, vol: 0.04, delay: 0.04 + i * 0.05 }));
+  },
+  slimeBreak: () => { tone(300, { dur: 0.18, vol: 0.18, slide: 0.4 }); tone(900, { dur: 0.12, vol: 0.05, type: 'triangle', slide: 0.5, delay: 0.05 }); },
+  slimeGrow: () => { tone(150, { dur: 0.35, vol: 0.18, slide: 1.8 }); tone(520, { dur: 0.1, vol: 0.05, delay: 0.25 }); tone(700, { dur: 0.1, vol: 0.04, delay: 0.33 }); },
+  hammer: () => { tone(110, { dur: 0.3, vol: 0.35, slide: 0.5 }); noise(0.1, 0.25, 900); },
+  gloveSwap: () => { tone(500, { dur: 0.25, vol: 0.1, type: 'triangle', slide: 1.6 }); tone(PENTA[4], { dur: 0.3, vol: 0.06, delay: 0.2 }); },
+  dartThrow: () => { noise(0.15, 0.06, 2500); tone(1200, { dur: 0.15, vol: 0.03, type: 'triangle', slide: 0.6 }); },
+  dartHit: () => { tone(420, { dur: 0.08, vol: 0.2, type: 'triangle', slide: 0.7 }); noise(0.04, 0.1, 1500); },
+  scratch: () => noise(0.06, 0.05, 5000),
+  reveal: i => { tone(PENTA[i * 2 % PENTA.length], { dur: 0.25, vol: 0.1 }); tone(PENTA[(i * 2 + 2) % PENTA.length], { dur: 0.3, vol: 0.06, delay: 0.06 }); },
+  lottoLose: () => { tone(392, { dur: 0.25, vol: 0.1, type: 'triangle' }); tone(330, { dur: 0.4, vol: 0.1, type: 'triangle', delay: 0.18 }); },
+  nail: () => { tone(1700, { dur: 0.09, vol: 0.07, type: 'triangle', slide: 0.5 }); noise(0.05, 0.08, 3000); },
+  spiderMove: () => [0, 1, 2, 3].forEach(i => tone(2200 + i * 150, { dur: 0.03, vol: 0.025, type: 'triangle', delay: i * 0.07 })),
+  spiderDie: () => { tone(700, { dur: 0.25, vol: 0.12, type: 'triangle', slide: 0.3 }); noise(0.08, 0.08, 1200); },
+  loot: () => [0, 2, 4, 7].forEach((n, i) => tone(PENTA[n], { dur: 0.25, vol: 0.1, delay: i * 0.07 })),
+  win: () => [0, 2, 4, 5, 7, 8].forEach((n, i) => tone(PENTA[n], { dur: i === 5 ? 1 : 0.3, vol: 0.14, delay: i * 0.1 })),
+  frogBye:() => { tone(330, { dur: 0.12, vol: 0.12, type: 'triangle', slide: 1.3 }); tone(392, { dur: 0.3, vol: 0.12, type: 'triangle', slide: 2, delay: 0.12 }); },
+};
+
+// ===== Гра =====
+const N = 8, TYPES = 6;
+const RAINBOW = 6, BOMB = 7, LIGHTNING = 8, FROG = 9;
+const CARDBOARD = 10, WOOD = 11, REINFORCED = 12, SLIME = 13, GENERATOR = 14, NAILGUN = 15, TNT = 16;
+const isNormal = t => t < TYPES;
+const isSpecial = t => t >= RAINBOW && t <= FROG;
+const isBox = t => t >= CARDBOARD;
+
+// Рівні: . — фішка, c — картонна коробка, w — дерев'яний ящик, r — армований ящик,
+//        s — слиз, g — слизогенератор, x — фішка в павутині
+// Вбудовані рівні — використовуються, якщо не завантажено levels.json
+const DEFAULT_LEVELS = [
+  { moves: 18, map: ['........','........','........','.cc..cc.','.cc..cc.','........','........','........'] },
+  { moves: 22, map: ['........','........','..w..w..','.ccwwcc.','........','..w..w..','........','........'] },
+  { moves: 22, map: ['........','..x..x..','........','x.cccc.x','........','..x..x..','........','........'] },
+  { moves: 22, map: ['........','........','........','........','.c....c.','...ss...','..ssss..','........'] },
+  { moves: 28, map: ['........','........','..r..r..','...ww...','...ww...','..r..r..','........','........'] },
+  { moves: 35, map: ['........','........','..rrrr..','..rxxr..','..rxxr..','..rrrr..','........','........'] },
+  { moves: 32, map: ['ss....ss','s.x..x.s','..w..w..','...rr...','...cc...','..w..w..','.x....x.','........'] },
+  { moves: 25, map: ['........','........','........','...g....','........','........','........','........'] },
+  { moves: 32, map: ['........','.g....g.','........','..cccc..','..wwww..','........','........','........'] },
+  { moves: 28, map: ['........','........','.cn..nc.','........','..wwww..','........','.nc..cn.','........'] },
+  { moves: 25, map: ['........','........','...p....','........','....p...','........','..c..c..','........'] },
+  { moves: 30, map: ['........','..t..t..','..wwww..','..wttw..','..wwww..','..t..t..','........','........'] },
+];
+let LEVELS = DEFAULT_LEVELS.slice();
+function randomLevel() {
+  const map = Array.from({ length: N }, () => Array(N).fill('.'));
+  const count = 8 + Math.floor(Math.random() * 6);
+  for (let i = 0; i < count; i++) {
+    const r = 1 + Math.floor(Math.random() * (N - 2)), c = Math.floor(Math.random() * N);
+    const x = Math.random();
+    map[r][c] = x < .2 ? 'c' : x < .27 ? 'n' : x < .42 ? 'w' : x < .5 ? 't' : x < .62 ? 'r' : x < .77 ? 's' : x < .92 ? 'x' : 'p';
+  }
+  if (Math.random() < .3) map[2 + Math.floor(Math.random() * 4)][Math.floor(Math.random() * N)] = 'g';
+  return { moves: 30, map: map.map(row => row.join('')) };
+}
+const board = document.getElementById('board');
+const $ = id => document.getElementById(id);
+let grid = [], score = 0, moves = 0, busy = false, selected = null;
+let level = 0, levelStartScore = 0, overlayAction = null;
+const wait = ms => new Promise(r => setTimeout(r, ms));
+const rand = () => Math.floor(Math.random() * TYPES);
+const key = (r, c) => r * N + c;
+
+function setPos(gem, r, c) {
+  gem.el.style.transform = `translate(${c * 100}%, ${r * 100}%)`;
+}
+
+function createGem(r, c, type, fromRow = r) {
+  const el = document.createElement('div');
+  el.className = 'gem t' + type;
+  el.innerHTML = '<div class="face"></div>';
+  const gem = { type, el };
+  setPos(gem, fromRow, c);
+  board.appendChild(el);
+  if (fromRow !== r) {
+    el.getBoundingClientRect(); // reflow, щоб спрацювала анімація падіння
+    setPos(gem, r, c);
+  }
+  return gem;
+}
+
+const BOX_CHARS = { c: CARDBOARD, n: CARDBOARD, w: WOOD, r: REINFORCED, s: SLIME, g: GENERATOR, t: TNT };
+function startLevel(i) {
+  level = i;
+  const def = LEVELS[i] || randomLevel();
+  board.querySelectorAll('.gem, .beam, .bolt, .shock, .float, .combo, .shard, .tongue, .spiderEl, .nail, .dart').forEach(e => e.remove());
+  pendingFill.length = pendingClear.length = pendingDet.length = 0;
+  inFlight = 0;
+  levelStartScore = score;
+  cancelBooster();
+  moves = def.moves; selected = null; busy = false;
+  grid = [];
+  for (let r = 0; r < N; r++) {
+    grid[r] = [];
+    for (let c = 0; c < N; c++) {
+      const ch = def.map[r][c];
+      if (ch in BOX_CHARS) {
+        grid[r][c] = createBox(r, c, BOX_CHARS[ch]);
+        if (ch === 'n') { grid[r][c].nailgun = true; grid[r][c].el.classList.add('ng-box'); }   // синя коробка з цвяхозабивачем
+        continue;
+      }
+      let t;
+      do { t = rand(); } while (
+        (c >= 2 && grid[r][c-1].type === t && grid[r][c-2].type === t) ||
+        (r >= 2 && grid[r-1][c].type === t && grid[r-2][c].type === t) ||
+        (r >= 1 && c >= 1 && grid[r-1][c].type === t && grid[r][c-1].type === t && grid[r-1][c-1].type === t)
+      );
+      grid[r][c] = createGem(r, c, t, r - N);
+      if (ch === 'x') addWeb(grid[r][c]);
+      if (ch === 'p') addSpider(r, c);
+    }
+  }
+  $('overlay').classList.remove('show');
+  updateHud();
+  if (!findMove()) shuffle();
+}
+
+function updateHud() {
+  $('level').textContent = level + 1;
+  $('score').textContent = score;
+  $('moves').textContent = moves;
+  $('boxes').textContent = boxesLeft();
+}
+
+function showOverlay(title, text, btn, action) {
+  $('ovTitle').textContent = title;
+  $('ovText').textContent = text;
+  $('again').textContent = btn;
+  overlayAction = action;
+  $('overlay').classList.add('show');
+}
+
+// Перевірка кінця рівня після ходу
+function firstSpecial() {
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++)
+    if (grid[r][c] && isSpecial(grid[r][c].type)) return [r, c];
+  return null;
+}
+
+// Перешкоди скінчились — бонуси, що лишились, спрацьовують по черзі згори вниз
+async function finale() {
+  if (!firstSpecial()) return;
+  const cd = fx('combo', {});
+  cd.textContent = '✨ Фінал!';
+  await wait(700);
+  let p;
+  while ((p = firstSpecial())) {
+    await detonate([{ r: p[0], c: p[1], dir: randDir() }]);
+    await resolve();
+    await settle();
+  }
+}
+
+async function checkEnd() {
+  if (boxesLeft() === 0) {
+    await finale();
+    const bonus = moves * 50;
+    score += bonus;
+    updateHud();
+    sfx.win();
+    showOverlay(`${LEVELS[level]?.name ? '«' + LEVELS[level].name + '»' : 'Рівень ' + (level + 1)} пройдено! 🎉`, `Бонус за ${moves} невикористаних ходів: +${bonus}. Рахунок: ${score}`,
+      'Далі 🎟️', () => showLottery(() => startLevel(level + 1)));
+  } else if (moves <= 0) {
+    sfx.end();
+    showOverlay('Ходи закінчились', `Залишилось перешкод: ${boxesLeft()}. Спробуйте ще раз!`,
+      'Спробувати ще', () => { score = levelStartScore; startLevel(level); });
+  }
+}
+
+// Усі лінії (3+ однакових звичайних фішки): { cells, vertical }
+function findRuns() {
+  const runs = [];
+  const at = (r, c, vertical) => vertical ? grid[c]?.[r] : grid[r]?.[c];
+  for (const vertical of [false, true]) {
+    for (let r = 0; r < N; r++) {
+      let c = 0;
+      while (c < N) {
+        const t = at(r, c, vertical)?.type;
+        let e = c + 1;
+        const ok = t != null && isNormal(t);
+        if (ok) while (e < N && at(r, e, vertical)?.type === t) e++;
+        if (ok && e - c >= 3)
+          runs.push({ vertical, cells: Array.from({ length: e - c }, (_, i) => vertical ? [c + i, r] : [r, c + i]) });
+        c = e;
+      }
+    }
+  }
+  return runs;
+}
+
+function uniqueCells(cells) {
+  const m = new Map();
+  cells.forEach(([r, c]) => m.set(key(r, c), [r, c]));
+  return [...m.values()];
+}
+
+// Квадрати 2×2 з однакових фішок
+function findSquares() {
+  const sq = [];
+  for (let r = 0; r < N - 1; r++) for (let c = 0; c < N - 1; c++) {
+    const t = grid[r][c]?.type;
+    if (t != null && isNormal(t) && grid[r][c+1]?.type === t && grid[r+1][c]?.type === t && grid[r+1][c+1]?.type === t)
+      sq.push([[r, c], [r, c + 1], [r + 1, c], [r + 1, c + 1]]);
+  }
+  return sq;
+}
+
+const findMatches = () => uniqueCells([...findRuns().flatMap(r => r.cells), ...findSquares().flat()]);
+
+// Визначаємо, які бонуси з'являються з поточних ліній і квадратів
+function planSpecials(runs, squares, swap) {
+  const out = [];
+  const used = new Set();
+  const inSwap = run => swap && run.cells.find(([r, c]) => swap.some(([sr, sc]) => sr === r && sc === c));
+  const middle = run => run.cells[Math.floor(run.cells.length / 2)];
+  const add = (p, type, group) => {
+    if (locked(grid[p[0]][p[1]])) p = group.find(([r, c]) => !locked(grid[r][c]));
+    if (p && !out.some(s => s.r === p[0] && s.c === p[1])) out.push({ r: p[0], c: p[1], type });
+  };
+
+  // 1) 5+ в ряд → кольорова куля
+  runs.forEach((run, i) => {
+    if (run.cells.length >= 5) { add(inSwap(run) || middle(run), RAINBOW, run.cells); used.add(i); }
+  });
+  // 2) Г / Т — перетин горизонтальної та вертикальної лінії → бомба
+  runs.forEach((h, i) => {
+    if (h.vertical || used.has(i)) return;
+    runs.forEach((v, j) => {
+      if (!v.vertical || used.has(j) || used.has(i)) return;
+      const cross = h.cells.find(([r, c]) => v.cells.some(([r2, c2]) => r === r2 && c === c2));
+      if (cross && grid[cross[0]][cross[1]].type === grid[v.cells[0][0]][v.cells[0][1]].type) {
+        add(cross, BOMB, [...h.cells, ...v.cells]); used.add(i); used.add(j);
+      }
+    });
+  });
+  // 3) 4 в ряд → блискавка
+  runs.forEach((run, i) => {
+    if (!used.has(i) && run.cells.length === 4) { add(inSwap(run) || middle(run), LIGHTNING, run.cells); used.add(i); }
+  });
+  // 4) квадрат 2×2 → жабка (якщо його фішки не пішли на сильніший бонус)
+  const claimed = new Set();
+  runs.forEach((run, i) => used.has(i) && run.cells.forEach(([r, c]) => claimed.add(key(r, c))));
+  squares.forEach(sq => {
+    if (sq.some(([r, c]) => claimed.has(key(r, c)))) return;
+    add(inSwap({ cells: sq }) || sq[2], FROG, sq);
+    sq.forEach(([r, c]) => claimed.add(key(r, c)));
+  });
+  return out;
+}
+
+function removeCells(cells) {
+  cells.forEach(([r, c]) => { if (grid[r][c]) { grid[r][c].el.remove(); grid[r][c] = null; } });
+}
+
+// Гравітація + нові фішки. Ящики стоять на місці і ділять стовпчик на відрізки:
+// у верхньому фішки падають згори, під ящиком — «випадають» з-під нього.
+let monoNext = null;   // тип для «щасливого» падіння (5% після ходу)
+function collapse() {
+  sweepBroken();
+  applyPendingFill();
+  applyPendingClear();
+  const mono = monoNext;
+  monoNext = null;
+  let created = 0;
+  const boxAt = (r, c) => grid[r][c] && (isBox(grid[r][c].type) || locked(grid[r][c]));
+  for (let c = 0; c < N; c++) {
+    let bottom = N - 1;
+    while (bottom >= 0) {
+      if (boxAt(bottom, c)) { bottom--; continue; }
+      let top = bottom;
+      while (top > 0 && !boxAt(top - 1, c)) top--;
+      let write = bottom;
+      for (let r = bottom; r >= top; r--) {
+        if (grid[r][c]) {
+          if (r !== write) {
+            grid[write][c] = grid[r][c];
+            grid[r][c] = null;
+            setPos(grid[write][c], write, c);
+          }
+          write--;
+        }
+      }
+      const missing = write - top + 1;
+      for (let r = write; r >= top; r--) { grid[r][c] = createGem(r, c, mono ?? rand(), top === 0 ? r - missing : top - 1); created++; }
+      bottom = top - 1;
+    }
+  }
+  if (mono != null && created) floatText('🍀 Удача!', 3.5, 2.6, '#6bff95');
+}
+
+// ===== Перешкоди =====
+const BOX_INFO = {
+  [CARDBOARD]:  { cls: 'cardboard',  hp: 2, pts: 60,  shards: ['#e2b77a', '#c99357', '#94632e', '#f0e1b4'] },
+  [WOOD]:       { cls: 'wood',       hp: 3, pts: 100, shards: ['#c08546', '#8d5a27', '#6b3f16'] },
+  [REINFORCED]: { cls: 'reinforced', hp: 4, pts: 200, shards: ['#c08546', '#8d5a27', '#8b96a3', '#5d6772'] },
+  [SLIME]:      { cls: 'slime',      hp: 1, pts: 50,  shards: ['#b6ff6a', '#5fc93a', '#2f8a2a'] },
+  [GENERATOR]:  { cls: 'generator',  hp: 3, pts: 300, shards: ['#6d7682', '#3e454e', '#b6ff6a', '#3fae2e'] },
+  [NAILGUN]:    { cls: 'nailgun',    hp: 3, pts: 150, shards: ['#f2c230', '#2b2b2b', '#8b96a3'] },
+  [TNT]:        { cls: 'wood tnt',   hp: 3, pts: 150, shards: ['#d23a2a', '#9c2418', '#ffcc66'] },
+};
+const CRACKS = '<svg class="crack" viewBox="0 0 100 100">' +
+  '<polyline class="c1" points="24,10 40,34 30,52 52,70 46,92"/>' +
+  '<polyline class="c2" points="80,14 64,36 74,52 58,76"/></svg>';
+
+const NAILGUN_SVG = '<svg class="ng" viewBox="0 0 100 100">' +
+  '<polygon points="30,56 52,56 47,90 27,90" fill="#2f2f33" stroke="#111" stroke-width="2"/>' +
+  '<rect x="31" y="66" width="14" height="4" fill="#555"/><rect x="30" y="74" width="14" height="4" fill="#555"/>' +
+  '<rect x="54" y="56" width="26" height="11" rx="2" fill="#8b96a3" stroke="#3d444c" stroke-width="2"/>' +
+  '<rect x="8" y="22" width="74" height="36" rx="9" fill="#f2c230" stroke="#8a6a00" stroke-width="3"/>' +
+  '<rect x="8" y="38" width="74" height="7" fill="#2b2b2b"/>' +
+  '<rect x="14" y="27" width="22" height="6" rx="3" fill="#fff3b0" opacity=".7"/>' +
+  '<rect x="80" y="29" width="13" height="14" rx="2" fill="#8b96a3" stroke="#3d444c" stroke-width="2"/>' +
+  '<rect x="91" y="33" width="6" height="6" fill="#5d6772"/></svg>';
+
+function createBox(r, c, type) {
+  const el = document.createElement('div');
+  el.className = 'gem box ' + BOX_INFO[type].cls;
+  let inner = '';
+  if (type === CARDBOARD) inner = '<i class="tape"></i>';
+  if (type === WOOD) inner = CRACKS + '<i class="plank p1"></i><i class="plank p2"></i>';
+  if (type === REINFORCED) inner = CRACKS +
+    '<i class="band x1"></i><i class="band x2"></i>' +
+    '<i class="band b-left"></i><i class="band b-right"></i><i class="band b-top"></i><i class="band b-bottom"></i>';
+  if (type === TNT) inner = CRACKS + '<i class="plank p1"></i><i class="plank p2"></i><i class="tnt-label">TNT</i>';
+  if (type === NAILGUN) inner = NAILGUN_SVG + CRACKS;
+  if (type === GENERATOR) inner = '<i class="tank"></i>' + CRACKS +
+    '<i class="nut n1"></i><i class="nut n2"></i><i class="nut n3"></i><i class="nut n4"></i><i class="smoke"></i>';
+  el.innerHTML = `<div class="crate">${inner}</div>`;
+  const box = { type, el, hp: BOX_INFO[type].hp, broken: false };
+  // у дерев'яному ящику зрідка лежить бонус
+  if (type === WOOD && Math.random() < 0.08) box.loot = ['hammer', 'glove', 'dart'][Math.floor(Math.random() * 3)];
+  setPos(box, r, c);
+  board.appendChild(box.el);
+  return box;
+}
+
+// Павутина — «накидка» на звичайну фішку
+function addWeb(gem) {
+  gem.web = true;
+  gem.el.classList.add('webbed');
+  const w = document.createElement('div');
+  w.className = 'web';
+  const pts = [...Array(8)].map((_, i) => [50 + 46 * Math.cos(i * Math.PI / 4), 50 + 46 * Math.sin(i * Math.PI / 4)]);
+  const ring = k => pts.map(([x, y]) => `${50 + (x - 50) * k},${50 + (y - 50) * k}`).join(' ');
+  w.innerHTML = '<svg viewBox="0 0 100 100">' +
+    pts.map(([x, y]) => `<line x1="50" y1="50" x2="${x}" y2="${y}"/>`).join('') +
+    `<polygon points="${ring(.35)}"/><polygon points="${ring(.7)}"/><polygon points="${ring(1)}"/></svg>`;
+  gem.el.appendChild(w);
+}
+function tearWeb(gem, r, c) {
+  gem.web = false;
+  gem.el.classList.remove('webbed');
+  const w = gem.el.querySelector('.web');
+  if (w) { w.classList.add('tear'); setTimeout(() => w.remove(), 400); }
+  sfx.webTear();
+  score += 30;
+  floatText('+30', r, c, '#e8e8ff');
+  updateHud();
+}
+const locked = g => g && (g.web || g.spider);
+const isObstacle = g => g && ((isBox(g.type) && !g.broken) || locked(g));
+const movable = g => g && !isBox(g.type) && !locked(g);
+const isFree = (r, c) => isNormal(grid[r][c].type) && !locked(grid[r][c]);
+
+const boxesLeft = () => grid.flat().filter(isObstacle).length;
+
+function flyOff(part) {
+  if (!part) return;
+  part.style.setProperty('--dx', (Math.random() * 80 - 40) + 'px');
+  part.style.setProperty('--dy', (-30 - Math.random() * 40) + 'px');
+  part.style.setProperty('--rot', (Math.random() * 720 - 360) + 'deg');
+  part.classList.add('fly');
+  setTimeout(() => part.remove(), 700);
+}
+
+function shatter(r, c, colors, n = 8) {
+  for (let i = 0; i < n; i++) {
+    const a = (i / n) * Math.PI * 2 + Math.random() * .5;
+    const d = fx('shard', {
+      left: `calc(var(--cell) * ${c + 0.4})`, top: `calc(var(--cell) * ${r + 0.45})`,
+      background: colors[i % colors.length],
+    });
+    d.style.setProperty('--dx', Math.cos(a) * (30 + Math.random() * 30) + 'px');
+    d.style.setProperty('--dy', Math.sin(a) * (30 + Math.random() * 30) + 20 + 'px');
+    d.style.setProperty('--rot', (Math.random() * 540 - 270) + 'deg');
+  }
+}
+
+// Один удар по перешкоді
+function hitBox(r, c) {
+  const box = grid[r][c];
+  if (!box) return;
+  if (box.spider) { killSpider(box, r, c); return; }
+  if (box.web) { tearWeb(box, r, c); return; }
+  if (!isBox(box.type) || box.broken) return;
+  box.hp--;
+  if (box.type === SLIME) slimeHit = true;
+  const el = box.el;
+  el.classList.remove('hit'); el.getBoundingClientRect(); el.classList.add('hit');
+  const q = sel => el.querySelectorAll(sel).forEach(flyOff);
+
+  if (box.hp <= 0) {
+    box.broken = true;
+    el.classList.add('breaking');
+    const info = BOX_INFO[box.type];
+    ({ [CARDBOARD]: sfx.cardBreak, [WOOD]: sfx.woodBreak, [SLIME]: sfx.slimeBreak,
+       [REINFORCED]: () => { sfx.woodBreak(); sfx.metalBreak(); },
+       [GENERATOR]: () => { sfx.metalBreak(); sfx.slimeBreak(); },
+       [NAILGUN]: () => sfx.metalBreak(), [TNT]: () => sfx.woodBreak() })[box.type]();
+    shatter(r, c, box.nailgun ? ['#8fb8ec', '#5b8fd6', '#2c5394', '#f0e1b4'] : info.shards, box.type === REINFORCED || box.type === GENERATOR ? 12 : 8);
+    if (box.type === NAILGUN) [[0,1],[0,-1],[1,0],[-1,0]].forEach(d => fireNail(r, c, d));   // цвяхи в усі 4 боки
+    if (box.type === TNT) tntExplode(r, c);
+    if (box.loot) lootFly(r, c, box.loot);
+    if (box.type === CARDBOARD && box.nailgun) {
+      // з коробки випадає цвяхозабивач
+      score += info.pts; floatText('+' + info.pts, r, c, '#ffd27a');
+      setTimeout(() => el.remove(), 400);
+      grid[r][c] = createBox(r, c, NAILGUN);
+      grid[r][c].el.classList.add('spawn');
+      floatText('🔫', r, c);
+      updateHud();
+      return;
+    }
+    if (box.type === GENERATOR) pendingFill.push([r, c]);   // зона 3×3 заллється слизом
+    score += info.pts;
+    floatText('+' + info.pts, r, c, '#ffd27a');
+    setTimeout(() => el.remove(), 400);
+    updateHud();
+    return;
+  }
+
+  if (box.type === CARDBOARD) {
+    // 1: коробка мнеться, відривається скотч
+    sfx.cardHit(); q('.tape'); el.classList.add('dented');
+  } else if (box.type === WOOD || box.type === TNT) {
+    sfx.woodHit();
+    if (box.hp === 2) { q('.p1'); el.classList.add('crack1'); }   // 1: тріщина + перша дошка
+    else { q('.p2'); el.classList.add('crack2'); }                // 2: друга тріщина + друга дошка
+  } else if (box.type === REINFORCED) {
+    sfx.woodHit(); sfx.metalHit();
+    if (box.hp === 3) q('.b-top, .x1');                          // 1: зовнішня + хрестова смуга
+    else if (box.hp === 2) { q('.b-right'); el.classList.add('crack1'); } // 2: ще зовнішня + тріщина
+    else { q('.band'); el.classList.add('crack2', 'dented'); }    // 3: решта смуг, тріщина, пом'ятий
+  } else if (box.type === NAILGUN) {
+    sfx.metalHit();
+    el.classList.add(box.hp === 2 ? 'crack1' : 'crack2');
+    el.classList.remove('recoil'); el.getBoundingClientRect(); el.classList.add('recoil');
+    const dirs = [[0,1],[0,-1],[1,0],[-1,0]].filter(([dr, dc]) => {
+      const rr = r + dr, cc = c + dc; return rr >= 0 && rr < N && cc >= 0 && cc < N;
+    });
+    fireNail(r, c, dirs[Math.floor(Math.random() * dirs.length)]);
+  } else if (box.type === GENERATOR) {
+    box.skip = true;            // пошкоджений генератор пропускає наступне створення слизу
+    sfx.metalHit();
+    if (box.hp === 2) { q('.n1, .n2'); el.classList.add('dented', 'smoke1'); }            // 1: гайки, пом'ятий, димок
+    else { q('.n3, .n4'); el.classList.add('crack1', 'smoke2', 'jitter'); }              // 2: тріщина, гайки, більше диму, труситься
+  }
+}
+
+// Цілі перешкоди навколо клітинки (зліва/справа/зверху/знизу)
+function neighborBoxes(r, c) {
+  const out = [];
+  [[1,0],[-1,0],[0,1],[0,-1]].forEach(([dr, dc]) => {
+    const rr = r + dr, cc = c + dc;
+    if (rr < 0 || rr >= N || cc < 0 || cc >= N) return;
+    if (isObstacle(grid[rr][cc])) out.push([rr, cc]);
+  });
+  return out;
+}
+
+// Перешкоди поруч із комбінацією — по одному удару
+function hitAdjacent(cells) {
+  const hit = new Set();
+  cells.forEach(([r, c]) => neighborBoxes(r, c).forEach(([rr, cc]) => {
+    if (!hit.has(key(rr, cc))) { hit.add(key(rr, cc)); hitBox(rr, cc); }
+  }));
+}
+
+// Слиз: якщо за хід його ніхто не зачепив — одна випадкова клітинка поруч заражається
+let slimeHit = false;
+async function spreadSlime() {
+  const options = [];
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
+    const g = grid[r][c];
+    if (!g || g.type !== SLIME || g.broken) continue;
+    [[1,0],[-1,0],[0,1],[0,-1]].forEach(([dr, dc]) => {
+      const rr = r + dr, cc = c + dc;
+      if (rr >= 0 && rr < N && cc >= 0 && cc < N && isFree(rr, cc)) options.push([r, c, rr, cc]);
+    });
+  }
+  if (!options.length) return;
+  const [, , r, c] = options[Math.floor(Math.random() * options.length)];
+  await makeSlime([[r, c]]);
+  if (!findMove()) await shuffle();
+}
+
+// Перетворює фішки на слиз (з анімацією)
+async function makeSlime(cells) {
+  if (!cells.length) return;
+  cells.forEach(([r, c]) => grid[r][c].el.classList.add('pop'));
+  sfx.slimeGrow();
+  await wait(250);
+  cells.forEach(([r, c]) => {
+    grid[r][c].el.remove();
+    grid[r][c] = createBox(r, c, SLIME);
+    grid[r][c].el.classList.add('grow');
+  });
+  updateHud();
+  await wait(600);
+}
+
+// ⚙️ Кожен генератор щоходу перетворює одну фішку поруч (включно з діагоналями) на слиз
+async function runGenerators() {
+  const targets = [];
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
+    const g = grid[r][c];
+    if (!g || g.type !== GENERATOR || g.broken) continue;
+    if (g.skip) { g.skip = false; continue; }   // його пошкодили — цей хід без слизу
+    const opts = [];
+    for (const [dr, dc] of [[1,0],[-1,0],[0,1],[0,-1]]) {
+      const rr = r + dr, cc = c + dc;
+      if (rr >= 0 && rr < N && cc >= 0 && cc < N && isFree(rr, cc) &&
+          !targets.some(([a, b]) => a === rr && b === cc)) opts.push([rr, cc]);
+    }
+    if (!opts.length) continue;
+    g.el.classList.remove('pump'); g.el.getBoundingClientRect(); g.el.classList.add('pump');
+    targets.push(opts[Math.floor(Math.random() * opts.length)]);
+  }
+  if (!targets.length) return;
+  await wait(200);
+  await makeSlime(targets);
+  if (!findMove()) await shuffle();
+}
+
+// ===================== Цвяхи, TNT, павуки, бонуси з ящиків =====================
+let inFlight = 0;                 // скільки відкладених ударів ще в дорозі (цвяхи, вибухи TNT)
+const pendingClear = [];          // фішки, знищені вибухом TNT (прибираються в collapse)
+const pendingDet = [];            // бонуси, зачеплені вибухом TNT (спрацюють у settle)
+const findGem = g => { for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) if (grid[r][c] === g) return [r, c]; return null; };
+
+function applyPendingClear() {
+  pendingClear.splice(0).forEach(g => {
+    const p = findGem(g);
+    if (p) { g.el.remove(); grid[p[0]][p[1]] = null; }
+  });
+}
+
+const NAIL_SVG = '<svg viewBox="0 0 40 10"><rect x="0" y="1" width="3" height="8" rx="1" fill="#b8c0c8"/>' +
+  '<rect x="3" y="4" width="30" height="2" fill="#dfe6ee"/><polygon points="33,4 40,5 33,6" fill="#dfe6ee"/></svg>';
+// Цвях летить від (r,c) у напрямку d крізь фішки і б'є кожну перешкоду на шляху
+function fireNail(r, c, [dr, dc]) {
+  const cell = board.clientWidth / N;
+  let len = 0;
+  while (r + dr * (len + 1) >= 0 && r + dr * (len + 1) < N && c + dc * (len + 1) >= 0 && c + dc * (len + 1) < N) len++;
+  const step = 55;
+  const el = document.createElement('div');
+  el.className = 'nail';
+  el.innerHTML = NAIL_SVG;
+  const ang = Math.atan2(dr, dc) * 180 / Math.PI;
+  const x0 = (c + .5) * cell, y0 = (r + .5) * cell;
+  el.style.transform = `translate(${x0}px, ${y0}px) rotate(${ang}deg)`;
+  el.style.transition = `transform ${(len + 1) * step}ms linear`;
+  board.appendChild(el);
+  el.getBoundingClientRect();
+  el.style.transform = `translate(${x0 + dc * (len + 1) * cell}px, ${y0 + dr * (len + 1) * cell}px) rotate(${ang}deg)`;
+  sfx.nail();
+  inFlight++;
+  for (let i = 1; i <= len; i++) {
+    const rr = r + dr * i, cc = c + dc * i;
+    setTimeout(() => { if (isObstacle(grid[rr][cc])) hitBox(rr, cc); }, i * step);
+  }
+  setTimeout(() => { el.remove(); inFlight--; }, (len + 1) * step + 30);
+}
+
+// 🧨 Вибух TNT 3×3: фішки знищуються, перешкоди — 1 удар, бонуси спрацьовують
+function tntExplode(r, c) {
+  sfx.bomb(); shakeBoard();
+  fx('shock', { left: `calc(var(--cell) * ${c - 1})`, top: `calc(var(--cell) * ${r - 1})`,
+                width: `calc(var(--cell) * 3)`, height: `calc(var(--cell) * 3)` });
+  for (let rr = r - 1; rr <= r + 1; rr++) for (let cc = c - 1; cc <= c + 1; cc++) {
+    if (rr < 0 || rr >= N || cc < 0 || cc >= N || (rr === r && cc === c)) continue;
+    const g = grid[rr][cc];
+    if (!g) continue;
+    if (isObstacle(g)) { inFlight++; setTimeout(() => { hitBox(rr, cc); inFlight--; }, 120); }
+    else if (isSpecial(g.type)) pendingDet.push(g);
+    else if (isNormal(g.type) && !pendingClear.includes(g)) { g.el.classList.add('pop'); pendingClear.push(g); score += 10; }
+  }
+  updateHud();
+}
+
+// Добиваємо все відкладене: цвяхи в польоті, вибухи TNT, зламані перешкоди
+async function settle() {
+  for (let guard = 0; guard < 30; guard++) {
+    while (inFlight > 0) await wait(50);
+    const dets = pendingDet.splice(0).map(findGem).filter(p => p && isSpecial(grid[p[0]][p[1]].type));
+    const dirty = pendingClear.length || pendingFill.length || grid.flat().some(g => g && g.broken);
+    if (!dets.length && !dirty) return;
+    if (dets.length) await detonate(dets.map(([r, c]) => ({ r, c, dir: randDir() })));
+    else { collapse(); setTimeout(sfx.land, 250); await wait(400); }
+    await resolve();
+  }
+}
+
+// 🎁 Бонус із дерев'яного ящика летить на панель
+function lootFly(r, c, k) {
+  const br = board.getBoundingClientRect(), cell = br.width / N;
+  const x = br.left + (c + .5) * cell, y = br.top + (r + .5) * cell;
+  const el = document.createElement('div');
+  el.className = 'loot';
+  el.textContent = { hammer: '🔨', glove: '🧤', dart: '🎯' }[k];
+  el.style.left = (x - 17) + 'px'; el.style.top = (y - 17) + 'px';
+  document.body.appendChild(el);
+  floatText('🎁 Бонус!', r, c, '#ffe66d');
+  sfx.loot();
+  const t = $('b-' + k).getBoundingClientRect();
+  el.getBoundingClientRect();
+  el.style.transform = `translate(${t.left + t.width / 2 - x}px, ${t.top + t.height / 2 - y}px) scale(.8)`;
+  setTimeout(() => { el.remove(); inv[k]++; updateBoosters([k]); }, 850);
+}
+
+// 🕷️ Павук сидить на фішці: її не можна рухати, вона не падає
+const SPIDER_SVG = '<svg viewBox="0 0 100 100"><g class="legs" stroke="#1b1622" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round">' +
+  '<polyline points="42,48 24,30 10,38"/><polyline points="41,55 20,48 6,60"/><polyline points="42,62 22,66 10,82"/><polyline points="44,68 30,80 26,96"/>' +
+  '<polyline points="58,48 76,30 90,38"/><polyline points="59,55 80,48 94,60"/><polyline points="58,62 78,66 90,82"/><polyline points="56,68 70,80 74,96"/></g>' +
+  '<ellipse cx="50" cy="64" rx="17" ry="19" fill="#2a2235"/>' +
+  '<path d="M44,60 L56,60 L50,68 L56,76 L44,76 L50,68 Z" fill="#c0303a"/>' +
+  '<circle cx="50" cy="40" r="11" fill="#3a3048"/>' +
+  '<circle cx="45" cy="37" r="3.6" fill="#fff"/><circle cx="55" cy="37" r="3.6" fill="#fff"/>' +
+  '<circle cx="45.6" cy="37.6" r="1.8" fill="#111"/><circle cx="55.6" cy="37.6" r="1.8" fill="#111"/></svg>';
+function placeSpider(el, r, c) { el.style.transform = `translate(${c * 100}%, ${r * 100}%)`; }
+function addSpider(r, c) {
+  const g = grid[r][c];
+  g.spider = true;
+  g.el.classList.add('spidered');
+  const el = document.createElement('div');
+  el.className = 'spiderEl';
+  el.innerHTML = SPIDER_SVG;
+  placeSpider(el, r, c);
+  board.appendChild(el);
+  g.spiderEl = el;
+}
+function killSpider(g, r, c) {
+  g.spider = false;
+  g.el.classList.remove('spidered');
+  const el = g.spiderEl;
+  g.spiderEl = null;
+  if (el) { el.classList.add('dead'); setTimeout(() => el.remove(), 550); }
+  sfx.spiderDie();
+  score += 80;
+  floatText('+80', r, c, '#ffd27a');
+  updateHud();
+}
+// Щоходу кожен павук переповзає на сусідню вільну фішку і лишає павутину
+async function moveSpiders() {
+  const list = [];
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) if (grid[r][c]?.spider) list.push([r, c]);
+  const taken = new Set();
+  let moved = false;
+  for (const [r, c] of list) {
+    const opts = [[1,0],[-1,0],[0,1],[0,-1]].map(([dr, dc]) => [r + dr, c + dc])
+      .filter(([rr, cc]) => rr >= 0 && rr < N && cc >= 0 && cc < N && isFree(rr, cc) && !taken.has(key(rr, cc)));
+    if (!opts.length) continue;
+    const [nr, nc] = opts[Math.floor(Math.random() * opts.length)];
+    taken.add(key(nr, nc));
+    const from = grid[r][c], to = grid[nr][nc];
+    to.spider = true; to.spiderEl = from.spiderEl; to.el.classList.add('spidered');
+    from.spider = false; from.spiderEl = null; from.el.classList.remove('spidered');
+    placeSpider(to.spiderEl, nr, nc);
+    setTimeout(() => addWeb(from), 180);   // лишає павутину там, де сидів
+    moved = true;
+  }
+  if (!moved) return;
+  sfx.spiderMove();
+  await wait(550);
+  updateHud();
+  if (!findMove()) await shuffle();
+}
+
+// Зламаний генератор заливає слизом зону 3×3 (застосовується в collapse)
+const pendingFill = [];
+function applyPendingFill() {
+  let any = false;
+  pendingFill.splice(0).forEach(([cr, cc]) => {
+    for (let r = cr - 1; r <= cr + 1; r++) for (let c = cc - 1; c <= cc + 1; c++) {
+      if (r < 0 || r >= N || c < 0 || c >= N) continue;
+      const g = grid[r][c];
+      if (g && !(isNormal(g.type) && !locked(g))) continue;  // інші перешкоди, бонуси, павутину не чіпаємо
+      if (g) g.el.remove();
+      grid[r][c] = createBox(r, c, SLIME);
+      grid[r][c].el.classList.add('grow');
+      any = true;
+    }
+  });
+  if (any) { sfx.slimeGrow(); updateHud(); }
+}
+
+// Зламані ящики звільняють клітинку
+function sweepBroken() {
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++)
+    if (grid[r][c]?.broken) grid[r][c] = null;
+}
+
+function swapCells(a, b) {
+  const tmp = grid[a[0]][a[1]];
+  grid[a[0]][a[1]] = grid[b[0]][b[1]];
+  grid[b[0]][b[1]] = tmp;
+  setPos(grid[a[0]][a[1]], a[0], a[1]);
+  setPos(grid[b[0]][b[1]], b[0], b[1]);
+}
+
+// ===== Візуальні ефекти =====
+function fx(cls, styles) {
+  const d = document.createElement('div');
+  d.className = cls;
+  Object.assign(d.style, styles);
+  board.appendChild(d);
+  setTimeout(() => d.remove(), 700);
+  return d;
+}
+function beam(r1, c1, r2, c2) {
+  const d = fx('beam', {
+    left: `calc(var(--cell) * ${c1 + 0.5})`, top: `calc(var(--cell) * ${r1 + 0.5})`,
+    width: `calc(var(--cell) * ${Math.hypot(r2 - r1, c2 - c1)})`,
+  });
+  d.style.setProperty('--a', Math.atan2(r2 - r1, c2 - c1) + 'rad');
+}
+function floatText(text, r, c, color = '#fff') {
+  const d = fx('float', { left: `calc(var(--cell) * ${c} + 4px)`, top: `calc(var(--cell) * ${r})`, color });
+  d.textContent = text;
+}
+function shakeBoard() {
+  board.classList.remove('shake'); board.getBoundingClientRect(); board.classList.add('shake');
+}
+
+// Жабка висовує язик, хапає фішку і ковтає її
+// convert = тип бонуса: замість ковтання язик перетворює фішку на цей бонус
+// speed < 1 — швидше (червона жабка)
+async function frogEat(f, [r, c], frogEl, i, convert = false, speed = 1) {
+  const ang = Math.atan2(r - f.r, c - f.c) + 'rad';
+  const tongue = document.createElement('div');
+  tongue.className = 'tongue';
+  tongue.style.left = `calc(var(--cell) * ${f.c + 0.5})`;
+  tongue.style.top = `calc(var(--cell) * ${f.r + 0.58})`;   // з відкритого рота
+  tongue.style.width = `calc(var(--cell) * ${Math.hypot(r - f.r, c - f.c)} - 6px)`;
+  tongue.style.transform = `rotate(${ang}) scaleX(0)`;
+  tongue.style.transition = `transform ${.18 * speed}s ease-out`;
+  board.appendChild(tongue);
+  tongue.getBoundingClientRect();
+  sfx.tongue();
+  tongue.style.transform = `rotate(${ang}) scaleX(1)`;   // язик вилітає
+  await wait(190 * speed);
+
+  if (convert) {
+    grid[r][c].el.remove();
+    grid[r][c] = createGem(r, c, convert);
+    grid[r][c].el.classList.add('appear');
+    sfx.special();
+    tongue.style.transition = 'transform .22s ease-in';
+    tongue.style.transform = `rotate(${ang}) scaleX(0)`;
+    await wait(300);
+    tongue.remove();
+    return;
+  }
+
+  const el = grid[r][c].el;
+  el.classList.add('eaten');
+  el.style.setProperty('transition', `transform ${.22 * speed}s ease-in, opacity .1s ${.2 * speed}s`, 'important');
+  el.style.transform = `translate(${f.c * 100}%, ${f.r * 100}%) scale(.15)`;  // фішку тягне до рота
+  el.style.opacity = 0;
+  tongue.style.transition = `transform ${.22 * speed}s ease-in`;
+  tongue.style.transform = `rotate(${ang}) scaleX(0)`;   // язик повертається
+  await wait(230 * speed);
+  tongue.remove();
+
+  frogEl.classList.remove('gulp'); frogEl.getBoundingClientRect(); frogEl.classList.add('gulp');
+  sfx.gulp(i);
+  await wait(180 * speed);
+}
+
+// Найчастіший звичайний тип на полі (для кулі, яку зачепило вибухом)
+function mostCommonType(exclude) {
+  const cnt = {};
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
+    const t = grid[r][c]?.type;
+    if (t != null && isNormal(t) && !exclude.has(key(r, c))) cnt[t] = (cnt[t] || 0) + 1;
+  }
+  return +Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a])[0] || 0;
+}
+
+// Активація бонусів хвилями: усі бонуси однієї хвилі спрацьовують одночасно,
+// зачеплені ними бонуси — наступною хвилею (ланцюгова реакція).
+// trigger: { r, c, dir: 'h'|'v', target: тип | 'all' }
+// consumed: клітинки, вже використані комбінацією (рахуються і прибираються в кінці)
+async function detonate(triggers, consumed = []) {
+  const destroyed = new Set(consumed.map(([r, c]) => key(r, c)));
+  const fired = new Set();
+  const [or, oc] = [triggers[0].r, triggers[0].c];
+  if (consumed.length) hitAdjacent(consumed);  // бонуси, «витрачені» в комбінації, теж шкодять ящикам поруч
+  let wave = triggers;
+
+  while (wave.length) {
+    wave = wave.filter(t => {
+      const k = key(t.r, t.c);
+      if (fired.has(k)) return false;
+      fired.add(k); destroyed.add(k);
+      return true;
+    });
+    const next = [];
+    await Promise.all(wave.map((t, idx) => fire(t, idx, destroyed, next)));
+    wave = next;
+  }
+
+  const pts = destroyed.size * 20;
+  score += pts;
+  updateHud();
+  floatText('+' + pts, or, oc, '#ffe66d');
+  removeCells([...destroyed].map(k => [Math.floor(k / N), k % N]));
+  collapse();
+  setTimeout(sfx.land, 250);
+  await wait(400);
+}
+
+async function fire(t, idx, destroyed, next) {
+  const gem = grid[t.r][t.c];
+  const type = gem.type;
+  const loud = idx < 3; // щоб при масових вибухах звук не був оглушливим
+
+  if (type === FROG) {
+    const pool = [];
+    for (let r = 0; r < N; r++) for (let c = 0; c < N; c++)
+      if (!destroyed.has(key(r, c)) && isFree(r, c)) pool.push([r, c]);
+    pool.sort(() => Math.random() - .5);
+    gem.el.classList.add('eating');
+    // ящики поруч із з'їденими фішками (і з самою жабкою) — по одному удару
+    const hitSet = new Set();
+    const hitAround = (r, c) => neighborBoxes(r, c).forEach(([rr, cc]) => {
+      if (!hitSet.has(key(rr, cc))) { hitSet.add(key(rr, cc)); hitBox(rr, cc); }
+    });
+    await wait(120);
+    let eaten = 0;
+    for (const cell of pool) {
+      if (eaten >= (t.count ?? 3)) break;
+      if (destroyed.has(key(...cell))) continue; // могли забрати паралельні вибухи
+      destroyed.add(key(...cell));
+      await frogEat(t, cell, gem.el, eaten++, false, t.fast ? .45 : 1);
+      hitAround(...cell);
+    }
+    hitAround(t.r, t.c);
+    if (loud) sfx.frogBye();
+    gem.el.classList.add('leave');
+    await wait(450);
+    return;
+  }
+
+  // які клітинки зачіпає
+  let cells = [];
+  if (type === LIGHTNING) {
+    if (t.dir === 'all') {
+      // фіолетова: рядок, стовпчик і обидві діагоналі
+      for (let i = 0; i < N; i++) {
+        cells.push([t.r, i], [i, t.c]);
+        const d1 = i - t.r + t.c, d2 = t.r + t.c - i;
+        if (d1 >= 0 && d1 < N) cells.push([i, d1]);
+        if (d2 >= 0 && d2 < N) cells.push([i, d2]);
+      }
+      cells = uniqueCells(cells);
+    } else {
+      for (let i = 0; i < N; i++) cells.push(t.dir === 'v' ? [i, t.c] : [t.r, i]);
+    }
+  } else if (type === BOMB) {
+    const rad = t.radius ?? 2;
+    for (let r = t.r - rad; r <= t.r + rad; r++) for (let c = t.c - rad; c <= t.c + rad; c++)
+      if (r >= 0 && r < N && c >= 0 && c < N) cells.push([r, c]);
+  } else if (type === RAINBOW) {
+    const target = t.target ?? mostCommonType(destroyed);
+    for (let r = 0; r < N; r++) for (let c = 0; c < N; c++)
+      if (target === 'all' || grid[r][c].type === target) cells.push([r, c]);
+  }
+  cells = cells.filter(([r, c]) => !(r === t.r && c === t.c));
+
+  gem.el.classList.add('charging');
+  await wait(type === RAINBOW ? 250 : 150);
+  gem.el.classList.remove('charging');
+  gem.el.classList.add('pop');
+
+  if (type === LIGHTNING) {
+    if (loud) sfx.lightning();
+    if (t.dir === 'all') {
+      sfx.lightning(); shakeBoard();
+      boltFx(t.r, t.c, 'h', true); boltFx(t.r, t.c, 'v', true);
+      boltFx(t.r, t.c, 45, true); boltFx(t.r, t.c, -45, true);
+    } else boltFx(t.r, t.c, t.dir);
+  } else if (type === BOMB) {
+    const rad = t.radius ?? 2;
+    if (loud) sfx.bomb();
+    if (rad > 2) { sfx.bomb(); tone(50, { dur: 1, vol: 0.3, slide: 0.5 }); }
+    shakeBoard();
+    fx('shock', { left: `calc(var(--cell) * ${t.c - rad})`, top: `calc(var(--cell) * ${t.r - rad})`,
+                  width: `calc(var(--cell) * ${rad * 2 + 1})`, height: `calc(var(--cell) * ${rad * 2 + 1})` });
+  } else if (loud) {
+    sfx.rainbow();
+  }
+
+  // Ящики, які зачепить цей бонус: ті, що в зоні дії, і ті, що поруч із прибраними фішками.
+  // Кожен ящик отримує від одного бонуса рівно один удар.
+  const boxHits = new Map();
+  const markBox = (r, c, d) => { const k = key(r, c); if (!boxHits.has(k) || boxHits.get(k) > d) boxHits.set(k, d); };
+  const markAround = (r, c, d) => neighborBoxes(r, c).forEach(([rr, cc]) => markBox(rr, cc, d));
+  markAround(t.r, t.c, 0);
+
+  let maxDelay = 0;
+  cells.forEach(([r, c], i) => {
+    const ck = key(r, c);
+    if (destroyed.has(ck)) return;
+    const g = grid[r][c];
+    const delay = Math.hypot(r - t.r, c - t.c) * (type === RAINBOW ? 60 : 40);
+    maxDelay = Math.max(maxDelay, delay);
+    if (type === RAINBOW) {
+      setTimeout(() => beam(t.r, t.c, r, c), delay);
+      if (loud && i < 16) sfx.zap(i, delay / 1000);
+    }
+    if (isBox(g.type) || locked(g)) {
+      markBox(r, c, delay);                    // перешкода в зоні дії бонуса (фішка в павутині вціліє)
+    } else if (isSpecial(g.type)) {
+      // ланцюгова реакція: зачеплений бонус спрацює наступною хвилею
+      next.push({ r, c, dir: t.dir === 'h' ? 'v' : 'h' });
+    } else {
+      destroyed.add(ck);
+      markAround(r, c, delay);                 // ящики поруч із прибраною фішкою
+      setTimeout(() => g.el.classList.add('pop'), delay);
+    }
+  });
+  boxHits.forEach((d, k) => setTimeout(() => hitBox(Math.floor(k / N), k % N), d));
+  await wait(maxDelay + 250);
+}
+
+const randDir = () => Math.random() < .5 ? 'h' : 'v';
+
+// Розряд блискавки: dir = 'h' | 'v' | 45 | -45 (діагоналі)
+function boltFx(r, c, dir, purple = false) {
+  if (dir === 'h' || dir === 'v') {
+    const b = fx('bolt ' + dir + (purple ? ' purple' : ''), dir === 'h'
+      ? { top: `calc(var(--cell) * ${r + 0.25})` }
+      : { left: `calc(var(--cell) * ${c + 0.25})` });
+    const origin = ((dir === 'h' ? c : r) + 0.5) / N * 100;
+    b.style.transformOrigin = dir === 'h' ? `${origin}% 50%` : `50% ${origin}%`;
+    b.style.setProperty('--s0', dir === 'h' ? 'scaleX(0)' : 'scaleY(0)');
+  } else {
+    const b = fx('bolt d' + (purple ? ' purple' : ''), {
+      left: `calc(var(--cell) * ${c + 0.5 - 6})`, top: `calc(var(--cell) * ${r + 0.25})`, rotate: dir + 'deg',
+    });
+    b.style.setProperty('--s0', 'scaleX(0)');
+  }
+}
+
+// Друга фішка «влітає» в першу
+async function mergeInto(fromPos, toPos) {
+  const g = grid[fromPos[0]][fromPos[1]];
+  g.el.style.zIndex = 11;
+  setPos(g, toPos[0], toPos[1]);
+  sfx.special();
+  await wait(300);
+  g.el.classList.add('pop');
+  await wait(200);
+}
+
+// 🌈+🌈 : знищує всі фішки на полі, кожній перешкоді — 1 удар
+async function superRainbow(p1, p2) {
+  const [cr, cc] = p1;
+  grid[p1[0]][p1[1]].el.classList.add('charging');
+  grid[p2[0]][p2[1]].el.classList.add('charging');
+  sfx.rainbow(); sfx.special();
+  await wait(500);
+  fx('flash', {});
+  shakeBoard();
+  const remove = [];
+  let maxD = 0, z = 0;
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
+    const g = grid[r][c];
+    const d = Math.hypot(r - cr, c - cc) * 70;
+    maxD = Math.max(maxD, d);
+    if (!(r === cr && c === cc)) setTimeout(() => beam(cr, cc, r, c), d);
+    if (z < 20 && (r + c) % 3 === 0) sfx.zap(z++, d / 1000);
+    if (isObstacle(g)) setTimeout(() => hitBox(r, c), d);
+    else { remove.push([r, c]); setTimeout(() => g.el.classList.add('pop'), d); }
+  }
+  await wait(maxD + 350);
+  const pts = remove.length * 20;
+  score += pts;
+  updateHud();
+  floatText('+' + pts, cr, cc, '#ffe66d');
+  removeCells(remove);
+  collapse();
+  setTimeout(sfx.land, 250);
+  await wait(450);
+}
+
+// 💣+💣 / ⚡+⚡ / 🐸+🐸 : дві однакові фішки зливаються в одну суперфішку
+async function superCombo(type, target, other) {
+  await mergeInto(other, target);
+  const g = grid[target[0]][target[1]];
+  const t = { r: target[0], c: target[1] };
+  if (type === BOMB) { g.el.classList.add('big'); t.radius = 3; }
+  if (type === LIGHTNING) { g.el.classList.add('purple'); t.dir = 'all'; }
+  if (type === FROG) { g.el.classList.add('red'); t.count = 10; t.fast = true; }
+  sfx.special();
+  await wait(450);
+  await detonate([t], [other]);
+}
+function presentTypes() {
+  return [...new Set(grid.flat().map(g => g.type).filter(isNormal))];
+}
+
+// 🌈 + 💣 / 🌈 + ⚡ : усі фішки випадкового типу стають бомбами / блискавками і спрацьовують разом
+async function rainbowConvert(rbPos, otherPos, newType, dir) {
+  const types = presentTypes();
+  const target = types[Math.floor(Math.random() * types.length)];
+  const [rr, rc] = rbPos;
+  const rb = grid[rr][rc];
+  const cells = [];
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++)
+    if (grid[r][c].type === target && !locked(grid[r][c])) cells.push([r, c]);
+
+  rb.el.classList.add('charging');
+  sfx.rainbow();
+  let maxDelay = 0;
+  cells.forEach(([r, c], i) => {
+    const delay = 200 + Math.hypot(r - rr, c - rc) * 70;
+    maxDelay = Math.max(maxDelay, delay);
+    sfx.zap(i, delay / 1000);
+    setTimeout(() => {
+      beam(rr, rc, r, c);
+      grid[r][c].el.remove();
+      grid[r][c] = createGem(r, c, newType);
+      grid[r][c].el.classList.add('appear');
+    }, delay);
+  });
+  await wait(maxDelay + 600);
+  rb.el.classList.remove('charging');
+  rb.el.classList.add('pop');
+  await wait(150);
+
+  const triggers = [{ r: otherPos[0], c: otherPos[1], dir },
+                    ...cells.map(([r, c]) => ({ r, c, dir: randDir() }))];
+  await detonate(triggers, [rbPos]);
+}
+
+// 💣 + ⚡ : вибух бомби, потім в області вибуху з'являються 6 блискавок і б'ють у випадкових напрямках
+async function bombLightning(bombPos, lightPos) {
+  grid[lightPos[0]][lightPos[1]].el.classList.add('pop'); // блискавка «зливається» з бомбою
+  await detonate([{ r: bombPos[0], c: bombPos[1], dir: 'h' }], [lightPos]);
+
+  const area = [];
+  for (let r = bombPos[0] - 2; r <= bombPos[0] + 2; r++) for (let c = bombPos[1] - 2; c <= bombPos[1] + 2; c++)
+    if (r >= 0 && r < N && c >= 0 && c < N && isFree(r, c)) area.push([r, c]);
+  area.sort(() => Math.random() - .5);
+  const picks = area.slice(0, 6);
+  picks.forEach(([r, c], i) => setTimeout(() => {
+    grid[r][c].el.remove();
+    grid[r][c] = createGem(r, c, LIGHTNING);
+    grid[r][c].el.classList.add('appear');
+    sfx.zap(i, 0);
+  }, i * 90));
+  await wait(picks.length * 90 + 450);
+  await detonate(picks.map(([r, c]) => ({ r, c, dir: randDir() })));
+}
+
+// 🐸 + 💣 / 🐸 + ⚡ : жабка ковтає бонус і язиком ставить 3 такі ж на випадкові клітинки, вони одразу спрацьовують
+async function frogSpawn(frogPos, specPos, newType) {
+  const frog = grid[frogPos[0]][frogPos[1]];
+  const f = { r: frogPos[0], c: frogPos[1] };
+  frog.el.classList.add('eating');
+  await wait(120);
+  await frogEat(f, specPos, frog.el, 0);              // ковтає пересунутий бонус
+
+  const pool = [];
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++)
+    if (isFree(r, c)) pool.push([r, c]);
+  pool.sort(() => Math.random() - .5);
+  const picks = pool.slice(0, 3);
+  for (const [i, cell] of picks.entries()) await frogEat(f, cell, frog.el, i + 1, newType);
+
+  sfx.frogBye();
+  frog.el.classList.add('leave');
+  await wait(450);
+  await detonate(picks.map(([r, c]) => ({ r, c, dir: randDir() })), [frogPos, specPos]);
+}
+
+// 🌈 + 🐸 : жабка язиком перетворює 2 випадкові фішки на кулі, ті спрацьовують з випадковими типами
+async function rainbowFrog(rbPos, frogPos) {
+  const frog = grid[frogPos[0]][frogPos[1]];
+  const rb = grid[rbPos[0]][rbPos[1]];
+  const pool = [];
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++)
+    if (isFree(r, c)) pool.push([r, c]);
+  pool.sort(() => Math.random() - .5);
+  const picks = pool.slice(0, 2);
+
+  rb.el.classList.add('charging');
+  frog.el.classList.add('eating');
+  await wait(150);
+  const f = { r: frogPos[0], c: frogPos[1] };
+  for (const [i, cell] of picks.entries()) await frogEat(f, cell, frog.el, i, RAINBOW);
+  sfx.frogBye();
+  frog.el.classList.add('leave');
+  rb.el.classList.remove('charging');
+  rb.el.classList.add('pop');
+  await wait(450);
+
+  const types = presentTypes().sort(() => Math.random() - .5);
+  const triggers = picks.map(([r, c], i) => ({ r, c, target: types[i % types.length] }));
+  await detonate(triggers, [rbPos, frogPos]);
+}
+
+async function trySwap(a, b) {
+  if (busy || moves <= 0 || $('overlay').classList.contains('show')) return;
+  if (!movable(grid[a[0]][a[1]]) || !movable(grid[b[0]][b[1]])) return;
+  busy = true;
+  slimeHit = false;
+  monoNext = Math.random() < 0.05 ? rand() : null;
+  clearSelection();
+  sfx.swap();
+  const ga = grid[a[0]][a[1]], gb = grid[b[0]][b[1]];
+  const sa = isSpecial(ga.type), sb = isSpecial(gb.type);
+  // блискавка б'є перпендикулярно до зсуву: зсунули по горизонталі → б'є стовпчик, і навпаки
+  const dir = a[0] === b[0] ? 'v' : 'h';
+  swapCells(a, b);           // тепер ga стоїть у b, gb — у a
+  await wait(280);
+
+  if (sa || sb) {
+    moves--;
+    updateHud();
+    // Якщо звичайна фішка, яку зсунули на місце бонуса, утворила комбінацію —
+    // спершу відпрацьовує вона (разом з каскадами), а вже потім бонус.
+    if (sa !== sb && findMatches().length) await resolve([a, b]);
+    // бонус міг опуститися вниз після падіння фішок — шукаємо, де він тепер
+    const posOf = g => {
+      for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) if (grid[r][c] === g) return [r, c];
+      return null;
+    };
+    const pb = posOf(ga), pa = posOf(gb);   // ga зсунули в b, gb — в a
+
+    if (ga.type === RAINBOW || gb.type === RAINBOW) {
+      // pos — де тепер куля, otherPos — де тепер друга фішка
+      const [pos, other, otherPos] = ga.type === RAINBOW ? [pb, gb, pa] : [pa, ga, pb];
+      if (other.type === BOMB || other.type === LIGHTNING) await rainbowConvert(pos, otherPos, other.type, dir);
+      else if (other.type === FROG) await rainbowFrog(pos, otherPos);
+      else if (other.type === RAINBOW) await superRainbow(pos, otherPos);
+      else await detonate([{ r: pos[0], c: pos[1], dir, target: other.type }]);
+    } else {
+      const has = t => ga.type === t || gb.type === t;
+      const posT = t => ga.type === t ? pb : pa;
+      if (sa && sb && ga.type === gb.type) await superCombo(ga.type, pb, pa);   // gb влітає в ga
+      else if (has(BOMB) && has(LIGHTNING)) await bombLightning(posT(BOMB), posT(LIGHTNING));
+      else if (has(FROG) && has(BOMB)) await frogSpawn(posT(FROG), posT(BOMB), BOMB);
+      else if (has(FROG) && has(LIGHTNING)) await frogSpawn(posT(FROG), posT(LIGHTNING), LIGHTNING);
+      else {
+        const triggers = [];
+        if (sa) triggers.push({ r: pb[0], c: pb[1], dir });
+        if (sb) triggers.push({ r: pa[0], c: pa[1], dir });
+        await detonate(triggers);
+      }
+    }
+    await resolve();
+  } else if (findMatches().length === 0) {
+    sfx.wrong();
+    swapCells(a, b); // повертаємо назад
+    await wait(280);
+    busy = false;
+    return;
+  } else {
+    moves--;
+    updateHud();
+    await resolve([a, b]);
+  }
+  await settle();
+  if (boxesLeft() > 0 && moves > 0) {
+    await runGenerators();
+    if (!slimeHit) await spreadSlime();
+    await moveSpiders();
+  }
+  await checkEnd();
+  busy = false;
+}
+
+async function resolve(swap = null) {
+  let combo = 1;
+  while (true) {
+    const runs = findRuns();
+    const squares = findSquares();
+    if (!runs.length && !squares.length) break;
+    const matches = uniqueCells([...runs.flatMap(r => r.cells), ...squares.flat()]);
+    const specials = planSpecials(runs, squares, swap);
+    swap = null;
+
+    const pts = matches.length * 10 * combo;
+    score += pts;
+    updateHud();
+    sfx.match(combo);
+    if (combo > 1) {
+      const cd = fx('combo', {});
+      cd.textContent = `Комбо x${combo}!`;
+    }
+    const [mr, mc] = matches[Math.floor(matches.length / 2)];
+    floatText('+' + pts, mr, mc, combo > 1 ? '#ffe66d' : '#fff');
+
+    // фішки в павутині не зникають — рветься павутина
+    const webbed = matches.filter(([r, c]) => locked(grid[r][c]));
+    const clear = matches.filter(([r, c]) => !locked(grid[r][c]));
+    webbed.forEach(([r, c]) => hitBox(r, c));   // павутина рветься / павук гине, фішка лишається
+    clear.forEach(([r, c]) => grid[r][c].el.classList.add('pop'));
+    hitAdjacent(clear);
+    await wait(300);
+    removeCells(clear);
+
+    if (specials.length) {
+      const names = { [RAINBOW]: '🌈 Куля!', [BOMB]: '💣 Бомба!', [LIGHTNING]: '⚡ Блискавка!', [FROG]: '🐸 Жабка!' };
+      specials.forEach(({ r, c, type }) => {
+        grid[r][c] = createGem(r, c, type);
+        grid[r][c].el.classList.add('appear');
+        floatText(names[type], r, c);
+      });
+      sfx.special();
+      await wait(450);
+    }
+
+    collapse();
+    setTimeout(sfx.land, 250);
+    await wait(380);
+    combo++;
+  }
+  if (!findMove()) await shuffle();
+}
+
+function findMove() {
+  // будь-який бонус — це завжди хід
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
+    if (!isSpecial(grid[r][c].type)) continue;
+    for (const [dr, dc] of [[0,1],[0,-1],[1,0],[-1,0]]) {
+      const r2 = r + dr, c2 = c + dc;
+      if (r2 >= 0 && r2 < N && c2 >= 0 && c2 < N && movable(grid[r2][c2])) return [[r, c], [r2, c2]];
+    }
+  }
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
+    for (const [dr, dc] of [[0,1],[1,0]]) {
+      const r2 = r + dr, c2 = c + dc;
+      if (r2 >= N || c2 >= N) continue;
+      if (!movable(grid[r][c]) || !movable(grid[r2][c2])) continue;
+      [grid[r][c], grid[r2][c2]] = [grid[r2][c2], grid[r][c]];
+      const ok = findMatches().length > 0;
+      [grid[r][c], grid[r2][c2]] = [grid[r2][c2], grid[r][c]];
+      if (ok) return [[r, c], [r2, c2]];
+    }
+  }
+  return null;
+}
+
+async function shuffle() {
+  floatText('Перемішуємо…', 3.5, 2, '#6bc5ff');
+  sfx.shuffle();
+  // перемішуємо лише фішки, ящики лишаються на місці
+  const cells = [];
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) if (movable(grid[r][c])) cells.push([r, c]);
+  const gems = cells.map(([r, c]) => grid[r][c]);
+  let tries = 0;
+  do {
+    gems.sort(() => Math.random() - .5);
+    cells.forEach(([r, c], i) => grid[r][c] = gems[i]);
+  } while ((findMatches().length || !findMove()) && ++tries < 300);
+  cells.forEach(([r, c]) => setPos(grid[r][c], r, c));
+  await wait(400);
+}
+
+function clearSelection() {
+  if (selected) grid[selected[0]][selected[1]]?.el.classList.remove('selected');
+  selected = null;
+}
+
+function cellFromEvent(e) {
+  const rect = board.getBoundingClientRect();
+  const size = rect.width / N;
+  const c = Math.floor((e.clientX - rect.left) / size);
+  const r = Math.floor((e.clientY - rect.top) / size);
+  return (r >= 0 && r < N && c >= 0 && c < N) ? [r, c] : null;
+}
+
+// Керування: клік-клік або свайп
+let start = null;
+board.addEventListener('pointerdown', e => {
+  if (busy || $('overlay').classList.contains('show')) return;
+  const cell = cellFromEvent(e);
+  if (cell) start = { cell, x: e.clientX, y: e.clientY };
+});
+board.addEventListener('pointerup', e => {
+  if (!start || busy) { start = null; return; }
+  const dx = e.clientX - start.x, dy = e.clientY - start.y;
+  const [r, c] = start.cell;
+  start = null;
+  if (boosterMode) { onBoosterCell(r, c); return; }
+  if (!movable(grid[r][c])) return;
+  if (Math.hypot(dx, dy) > 20) {
+    let tr = r, tc = c;
+    if (Math.abs(dx) > Math.abs(dy)) tc += Math.sign(dx); else tr += Math.sign(dy);
+    if (tr >= 0 && tr < N && tc >= 0 && tc < N) trySwap([r, c], [tr, tc]);
+    return;
+  }
+  if (selected) {
+    const [sr, sc] = selected;
+    if (Math.abs(sr - r) + Math.abs(sc - c) === 1) return trySwap(selected, [r, c]);
+    clearSelection();
+    if (sr === r && sc === c) return;
+  }
+  selected = [r, c];
+  grid[r][c].el.classList.add('selected');
+  sfx.select();
+});
+
+// ===================== Бонуси гравця =====================
+const inv = { hammer: 1, glove: 1, dart: 1 };     // стартовий запас
+let boosterMode = null, gloveFirst = null;
+const setTip = t => { $('tip').textContent = t; };
+
+function updateBoosters(bumped = []) {
+  for (const k of ['hammer', 'glove', 'dart']) {
+    const b = $('b-' + k);
+    b.querySelector('.cnt').textContent = inv[k];
+    b.disabled = inv[k] <= 0;
+    b.classList.toggle('active', boosterMode === k);
+    if (bumped.includes(k)) { b.classList.remove('bump'); b.getBoundingClientRect(); b.classList.add('bump'); }
+  }
+}
+function cancelBooster() {
+  if (gloveFirst) grid[gloveFirst[0]]?.[gloveFirst[1]]?.el.classList.remove('glovePick');
+  boosterMode = null; gloveFirst = null;
+  setTip('');
+  updateBoosters();
+}
+function boardLocked() { return busy || $('overlay').classList.contains('show') || $('lottery').classList.contains('show'); }
+
+function pickBooster(k) {
+  if (boardLocked() || inv[k] <= 0) return;
+  if (boosterMode === k) { cancelBooster(); return; }
+  cancelBooster();
+  clearSelection();
+  if (k === 'dart') { useDarts(); return; }
+  boosterMode = k;
+  setTip(k === 'hammer' ? '🔨 Оберіть клітинку для удару (натисніть ще раз, щоб скасувати)'
+                        : '🧤 Оберіть дві будь-які фішки, щоб поміняти їх місцями');
+  sfx.select();
+  updateBoosters();
+}
+$('b-hammer').onclick = () => pickBooster('hammer');
+$('b-glove').onclick = () => pickBooster('glove');
+$('b-dart').onclick = () => pickBooster('dart');
+
+function onBoosterCell(r, c) {
+  if (boosterMode === 'hammer') { useHammer(r, c); return; }
+  // рукавичка
+  const g = grid[r][c];
+  if (!movable(g)) { sfx.wrong(); return; }                  // перешкоди не можна
+  if (!gloveFirst) { gloveFirst = [r, c]; g.el.classList.add('glovePick'); sfx.select(); setTip('🧤 Тепер оберіть другу фішку'); return; }
+  const [fr, fc] = gloveFirst;
+  if (fr === r && fc === c) { g.el.classList.remove('glovePick'); gloveFirst = null; setTip('🧤 Оберіть дві будь-які фішки'); return; }
+  useGlove([fr, fc], [r, c]);
+}
+
+async function afterBooster() {
+  await resolve();
+  await settle();
+  await checkEnd();
+  busy = false;
+}
+
+// 🔨 Молоток: 1 удар у клітинку
+async function useHammer(r, c) {
+  busy = true;
+  inv.hammer--; cancelBooster();
+  fx('hammerFx', { left: `calc(var(--cell) * ${c + 0.15})`, top: `calc(var(--cell) * ${r - 0.55})` }).textContent = '🔨';
+  await wait(300);
+  sfx.hammer(); shakeBoard();
+  fx('impact', { left: `calc(var(--cell) * ${c})`, top: `calc(var(--cell) * ${r})` });
+  const g = grid[r][c];
+  if (isObstacle(g)) {                       // перешкода / павутина — 1 удар
+    hitBox(r, c);
+    await wait(400);
+    collapse();
+    await wait(380);
+  } else if (isSpecial(g.type)) {            // бонус — спрацьовує
+    await detonate([{ r, c, dir: randDir() }]);
+  } else {                                   // звичайна фішка розбивається
+    g.el.classList.add('pop');
+    hitAdjacent([[r, c]]);
+    await wait(300);
+    score += 10; updateHud();
+    removeCells([[r, c]]);
+    collapse();
+    await wait(380);
+  }
+  await afterBooster();
+}
+
+// 🧤 Рукавичка: міняє місцями будь-які дві фішки
+async function useGlove(a, b) {
+  busy = true;
+  grid[a[0]][a[1]].el.classList.remove('glovePick');
+  inv.glove--; cancelBooster();
+  sfx.gloveSwap();
+  const ea = grid[a[0]][a[1]].el, eb = grid[b[0]][b[1]].el;
+  ea.style.zIndex = eb.style.zIndex = 11;
+  ea.style.transition = eb.style.transition = 'transform .45s cubic-bezier(.4,1.4,.5,1)';
+  swapCells(a, b);
+  await wait(480);
+  ea.style.zIndex = eb.style.zIndex = ea.style.transition = eb.style.transition = '';
+  await resolve([a, b]);
+  await settle();
+  await checkEnd();
+  busy = false;
+}
+
+// 🎯 Дротики: 3 дротики у випадкові перешкоди
+const DART_SVG = '<svg viewBox="0 0 40 10"><polygon points="0,5 9,3.2 9,6.8" fill="#dfe6ee"/>' +
+  '<rect x="9" y="3.4" width="17" height="3.2" rx="1" fill="#3d444c"/><rect x="13" y="3" width="6" height="4" rx="1" fill="#e8b23a"/>' +
+  '<polygon points="25,5 40,0 36,5 40,10" fill="#e84a4a"/></svg>';
+async function useDarts() {
+  const live = () => {
+    const o = [];
+    for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) if (isObstacle(grid[r][c])) o.push([r, c]);
+    return o;
+  };
+  if (!live().length) { setTip('🎯 На полі немає перешкод'); setTimeout(() => setTip(''), 1500); return; }
+  busy = true;
+  inv.dart--; updateBoosters();
+  const cell = board.clientWidth / N;
+  const sx = board.clientWidth / 2, sy = board.clientWidth + cell;
+  const used = [];
+  const throws = [];
+  for (let i = 0; i < 3; i++) {
+    let opts = live().filter(([r, c]) => !used.some(([a, b]) => a === r && b === c));
+    if (!opts.length) opts = live();
+    if (!opts.length) break;
+    const [r, c] = opts[Math.floor(Math.random() * opts.length)];
+    used.push([r, c]);
+    const tx = (c + .5) * cell, ty = (r + .5) * cell;
+    const ang = Math.atan2(ty - sy, tx - sx) * 180 / Math.PI + 180;
+    const d = document.createElement('div');
+    d.className = 'dart';
+    d.innerHTML = DART_SVG;
+    d.style.transform = `translate(${sx}px, ${sy}px) rotate(${ang}deg)`;
+    board.appendChild(d);
+    d.getBoundingClientRect();
+    sfx.dartThrow();
+    d.style.transform = `translate(${tx}px, ${ty}px) rotate(${ang}deg)`;
+    throws.push(wait(360).then(() => {
+      sfx.dartHit();
+      fx('impact', { left: `calc(var(--cell) * ${c})`, top: `calc(var(--cell) * ${r})` });
+      hitBox(r, c);
+      d.classList.add('stuck');
+      setTimeout(() => d.remove(), 800);
+    }));
+    await wait(250);
+  }
+  await Promise.all(throws);
+  await wait(450);
+  collapse();
+  await wait(380);
+  await afterBooster();
+}
+
+// ===================== Лотерея =====================
+const PRIZES = {
+  hammer:  { icon: '🔨',   label: 'МОЛОТОК',   give: { hammer: 1 }, w: 3 },
+  glove:   { icon: '🧤',   label: 'РУКАВИЧКА', give: { glove: 1 },  w: 3 },
+  dart:    { icon: '🎯',   label: 'ДРОТИК',    give: { dart: 1 },   w: 3 },
+  hammer2: { icon: '🔨🔨', label: '2 МОЛОТКИ', give: { hammer: 2 }, w: 2 },
+  gold:    { icon: '🎁',   label: 'ЗОЛОТА',    give: { hammer: 1, glove: 1, dart: 1 }, w: 1 },
+  empty:   { icon: '✖',   label: 'ПОРОЖНЬО',  give: null, w: 4 },
+};
+// Склад квитка фіксований (кожен приз мінімум двічі, тож співпадіння можливе завжди),
+// перемішується випадково. Шанс виграти хоч щось ≈ 48%, золоту коробку ≈ 5%.
+const TICKET = { gold: 2, hammer2: 2, hammer: 3, glove: 3, dart: 3, empty: 3 };
+function makeTicket() {
+  const list = Object.entries(TICKET).flatMap(([k, n]) => Array(n).fill(k));
+  for (let i = list.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [list[i], list[j]] = [list[j], list[i]];
+  }
+  return list;
+}
+
+function showLottery(done) {
+  const grid4 = $('lgrid');
+  grid4.innerHTML = '';
+  $('lresult').textContent = '';
+  $('lnext').disabled = true;
+  $('lnext').textContent = 'Зітріть 4 клітинки';
+  $('lottery').classList.add('show');
+  const cells = makeTicket().map(prize => ({ prize, chosen: false, revealed: false }));
+  let chosen = 0, revealedN = 0, drawing = false, lastSnd = 0;
+
+  cells.forEach((cellData, i) => {
+    const pz = PRIZES[cellData.prize];
+    const el = document.createElement('div');
+    el.className = 'lcell' + (cellData.prize === 'gold' ? ' gold' : '') + (cellData.prize === 'empty' ? ' empty' : '');
+    el.innerHTML = `<div>${pz.icon}</div><div class="lbl">${pz.label}</div>`;
+    const cv = document.createElement('canvas');
+    el.appendChild(cv);
+    grid4.appendChild(el);
+    cellData.el = el; cellData.cv = cv;
+  });
+  // малюємо захисний шар після того, як клітинки отримали розмір
+  requestAnimationFrame(() => cells.forEach(cd => {
+    const w = cd.el.clientWidth, h = cd.el.clientHeight;
+    cd.cv.width = w; cd.cv.height = h;
+    const ctx = cd.cv.getContext('2d');
+    const g = ctx.createLinearGradient(0, 0, w, h);
+    g.addColorStop(0, '#d9dde3'); g.addColorStop(.5, '#a9b0ba'); g.addColorStop(1, '#cfd4db');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = 'rgba(255,255,255,.35)';
+    for (let k = 0; k < 6; k++) ctx.fillRect(Math.random() * w, Math.random() * h, 2, 2);
+    ctx.fillStyle = '#7d8590'; ctx.font = `bold ${Math.round(w * .45)}px system-ui`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('?', w / 2, h / 2 + 2);
+    ctx.globalCompositeOperation = 'destination-out';
+  }));
+
+  function scratchAt(x, y) {
+    const t = document.elementFromPoint(x, y);
+    const cd = cells.find(c => c.cv === t);
+    if (!cd || cd.revealed) return;
+    if (!cd.chosen) {
+      if (chosen >= 4) return;               // не більше 4 клітинок
+      cd.chosen = true; chosen++;
+      cd.el.classList.add('chosen');
+      if (chosen === 4) cells.forEach(c => { if (!c.chosen) c.el.classList.add('locked'); });
+    }
+    const rect = cd.cv.getBoundingClientRect();
+    const ctx = cd.cv.getContext('2d');
+    ctx.beginPath();
+    ctx.arc((x - rect.left) * cd.cv.width / rect.width, (y - rect.top) * cd.cv.height / rect.height, cd.cv.width * .16, 0, Math.PI * 2);
+    ctx.fill();
+    const now = performance.now();
+    if (now - lastSnd > 70) { sfx.scratch(); lastSnd = now; }
+    // скільки стерто?
+    const data = ctx.getImageData(0, 0, cd.cv.width, cd.cv.height).data;
+    let clear = 0;
+    for (let k = 3; k < data.length; k += 16) if (data[k] === 0) clear++;
+    if (clear / (data.length / 16) > .5) reveal(cd);
+  }
+
+  function reveal(cd) {
+    cd.revealed = true;
+    cd.el.classList.add('revealed');
+    sfx.reveal(revealedN++);
+    if (revealedN === 4) setTimeout(finish, 450);
+  }
+
+  function finish() {
+    const open = cells.filter(c => c.revealed);
+    const count = {};
+    open.forEach(c => { if (c.prize !== 'empty') count[c.prize] = (count[c.prize] || 0) + 1; });
+    const won = Object.keys(count).filter(k => count[k] >= 2);
+    // відкриваємо решту квитка, щоб було видно, що там було
+    cells.forEach(c => { if (!c.revealed) { c.el.classList.add('revealed'); c.el.style.opacity = .45; } });
+    if (won.length) {
+      const bumped = [];
+      won.forEach(k => {
+        open.filter(c => c.prize === k).forEach(c => c.el.classList.add('win'));
+        for (const [b, n] of Object.entries(PRIZES[k].give)) { inv[b] += n; bumped.push(b); }
+      });
+      const txt = won.map(k => `${PRIZES[k].icon} ${PRIZES[k].label.toLowerCase()}`).join(', ');
+      $('lresult').textContent = `🎉 Виграш: ${txt}!`;
+      sfx.win();
+      updateBoosters(bumped);
+    } else {
+      $('lresult').textContent = 'Цього разу нічого не співпало 🙃';
+      sfx.lottoLose();
+    }
+    $('lnext').disabled = false;
+    $('lnext').textContent = 'Наступний рівень →';
+  }
+
+  grid4.onpointerdown = e => { drawing = true; grid4.releasePointerCapture?.(e.pointerId); scratchAt(e.clientX, e.clientY); };
+  grid4.onpointermove = e => { if (drawing) scratchAt(e.clientX, e.clientY); };
+  window.onpointerup = () => { drawing = false; };
+  $('lnext').onclick = () => { $('lottery').classList.remove('show'); done(); sfx.start(); };
+}
+
+$('hintBtn').onclick = () => {
+  if (busy) return;
+  const m = findMove();
+  if (m) sfx.hint();
+  if (m) m.forEach(([r, c]) => {
+    const el = grid[r][c].el;
+    el.classList.remove('hint'); el.getBoundingClientRect(); el.classList.add('hint');
+    setTimeout(() => el.classList.remove('hint'), 1000);
+  });
+};
+$('restart').onclick = () => { if (busy) return; score = levelStartScore; startLevel(level); sfx.start(); };
+$('again').onclick = () => { if (overlayAction) overlayAction(); sfx.start(); };
+$('soundBtn').onclick = () => {
+  muted = !muted;
+  $('soundBtn').textContent = muted ? '🔇 Звук' : '🔊 Звук';
+  if (!muted) sfx.select();
+};
+
+// ===================== Рівні з JSON =====================
+// Формат: { "levels": [ { "name": "...", "moves": 20, "map": ["........", ... 8 рядків по 8 символів] } ] }
+const MAP_CHARS = '.cnwtrsgxp';
+function parseLevels(data) {
+  const list = Array.isArray(data) ? data : data?.levels;
+  if (!Array.isArray(list) || !list.length) throw new Error('у файлі немає списку "levels"');
+  return list.map((lv, i) => {
+    const moves = Math.round(Number(lv.moves));
+    if (!(moves > 0 && moves < 1000)) throw new Error(`рівень ${i + 1}: некоректна кількість ходів`);
+    if (!Array.isArray(lv.map) || lv.map.length !== N) throw new Error(`рівень ${i + 1}: карта має бути ${N} рядків`);
+    const map = lv.map.map((row, r) => {
+      row = String(row);
+      if (row.length !== N) throw new Error(`рівень ${i + 1}, рядок ${r + 1}: має бути ${N} символів`);
+      return [...row].map(ch => MAP_CHARS.includes(ch) ? ch : '.').join('');
+    });
+    return { name: lv.name ? String(lv.name) : '', moves, map };
+  });
+}
+function useLevels(list, startAt = 0, note = '') {
+  LEVELS = list;
+  score = 0;
+  startLevel(Math.min(startAt, list.length - 1));
+  if (note) { setTip(note); setTimeout(() => setTip(''), 3000); }
+}
+
+// 1) levels.json поруч із грою (працює, коли гра відкрита з сервера / хостингу)
+fetch('levels.json', { cache: 'no-store' })
+  .then(r => r.ok ? r.json() : Promise.reject())
+  .then(d => { if (!busy && moves === LEVELS[level]?.moves) useLevels(parseLevels(d), 0, '📂 Рівні завантажено з levels.json'); })
+  .catch(() => {});
+
+// 2) кнопка «📂 Рівні» — вибрати файл вручну
+$('levelsBtn').onclick = () => { if (!busy) $('levelsFile').click(); };
+$('levelsFile').onchange = async e => {
+  const f = e.target.files[0];
+  e.target.value = '';
+  if (!f) return;
+  try {
+    const list = parseLevels(JSON.parse(await f.text()));
+    useLevels(list, 0, `📂 Завантажено рівнів: ${list.length}`);
+  } catch (err) {
+    setTip('⚠️ Не вдалося прочитати файл: ' + err.message);
+    setTimeout(() => setTip(''), 5000);
+  }
+};
+
+// 3) тест із редактора: редактор відкриває гру і надсилає їй рівні
+window.addEventListener('message', e => {
+  if (e.data?.type !== 'match3-levels') return;
+  try { useLevels(parseLevels(e.data.data), e.data.start || 0, '🧪 Тест рівня з редактора'); } catch (err) { setTip('⚠️ ' + err.message); }
+});
+if (window.opener) try { window.opener.postMessage({ type: 'match3-ready' }, '*'); } catch (e) {}
+
+startLevel(0);
+</script>
+</body>
+</html>
