@@ -526,6 +526,22 @@
   .box.regen .crate { animation: regen .8s; }
   @keyframes regen { 40% { filter: brightness(1.5) drop-shadow(0 0 10px #7cffb0); transform: scale(1.1); } }
 
+  /* ===== Бетономішалка ===== */
+  .mixer .crate { background: none; box-shadow: none; inset: 0; }
+  .mixer .mframe { inset: 0; width: 100%; height: 100%; filter: drop-shadow(0 3px 3px rgba(0,0,0,.5)); }
+  .mixer .drum {
+    left: 14%; top: 8%; width: 66%; height: 66%; border-radius: 50%; z-index: 1;
+    background:
+      radial-gradient(circle at 50% 50%, #2a2d33 0 17%, transparent 18%),
+      repeating-conic-gradient(from 0deg, #f2a33a 0 30deg, #c97a1e 30deg 45deg, #8b96a3 45deg 75deg, #5d6772 75deg 90deg);
+    box-shadow: 0 0 0 3px #3d444c, inset 0 -4px 6px rgba(0,0,0,.45), inset 0 4px 5px rgba(255,255,255,.3);
+  }
+  .box.spin1 .drum { animation: drumSpin 2.4s linear infinite; }
+  .box.spin2 .drum { animation: drumSpin .3s linear infinite; }
+  .box.mixer.spin2 .crate { animation: jitter .12s infinite; }
+  @keyframes drumSpin { to { rotate: 360deg; } }
+  .box.mixer.spin1 .drum { box-shadow: 0 0 0 3px #3d444c, 0 0 8px rgba(255,200,90,.5), inset 0 -4px 6px rgba(0,0,0,.45); }
+
   /* ===== Камінь і камінь з кіркою ===== */
   .stone .crate { background: none; box-shadow: none; inset: 1px; }
   .stone .rock {
@@ -716,6 +732,7 @@
     ⚙️ слизогенератор — щоходу створює слиз у сусідній клітинці; якщо за хід його пошкодили — пропускає; 3 удари, а коли ламається — заливає слизом зону 3×3<br>
     🔫 цвяхозабивач (лежить у синіх картонних коробках) — 3 удари; від кожного удару стріляє цвяхом в одному з 4 напрямків, а коли ламається — в усі 4. Цвях пролітає крізь фішки і б'є всі перешкоди на шляху<br>
     🧨 ящик TNT — як дерев'яний (3 удари), але коли ламається — вибухає 3×3<br>
+    🔄 бетономішалка — 1-й удар: починає повільно крутитися; 2-й: крутиться швидко, затягує всі звичайні фішки довкола (3×3) — разом із павутиною, павуками й яйцями на них — і розвалюється. Затягнуті фішки рахуються за кольором, і до кожного кольору додається +1: 5+ → 🌈 куля, 4 → 💣 бомба, 3 → 🐸 жабка (тобто вистачить 4, 3 і 2 однакових); бонуси з'являються поруч і чекають на гравця<br>
     🪨 камінь — 4 удари, з кожним тріщин більше, а камінь меншає; стоїть на місці<br>
     ⛏️ камінь з кіркою — те саме, але коли ламається, кірка літає полем і завдає 10 ударів іншим каменям (а якщо їх немає — іншим перешкодам)<br>
     🤡 шкатулка з клоуном — 3 удари (від кожного крутиться рукоятка); коли ламається — вискакує клоун і розкидає по полю 3 випадкові перешкоди<br>
@@ -843,6 +860,9 @@ const sfx = {
     tone(strong ? 700 : 1100, { dur: strong ? 0.3 : 0.15, vol: strong ? 0.05 : 0.03, type: 'square', slide: 1.5 });
     noise(strong ? 0.2 : 0.1, strong ? 0.1 : 0.05, 6000);
   },
+  mixerSlow: () => { noise(0.5, 0.06, 300); tone(70, { dur: 0.5, vol: 0.12, slide: 1.3 }); },
+  mixerFast: () => { tone(90, { dur: 0.8, vol: 0.12, slide: 3 }); noise(0.8, 0.08, 500); },
+  mixerDone: () => { [0, 2, 4, 7].forEach((n, i) => tone(PENTA[n], { dur: 0.25, vol: 0.09, delay: i * 0.07 })); noise(0.15, 0.1, 800); },
   stoneHit: () => { tone(150, { dur: 0.12, vol: 0.25, type: 'triangle', slide: 0.6 }); noise(0.07, 0.12, 900); },
   stoneBreak: () => { [0, 1, 2, 3].forEach(i => tone(130 - i * 15, { dur: 0.12, vol: 0.2, type: 'triangle', slide: 0.6, delay: i * 0.05 })); noise(0.25, 0.15, 600); },
   pickClink: () => { tone(1900, { dur: 0.12, vol: 0.05 }); tone(2850, { dur: 0.08, vol: 0.025, delay: 0.01 }); noise(0.04, 0.08, 2500); },
@@ -871,8 +891,8 @@ const sfx = {
 // ===== Гра =====
 const N = 8, TYPES = 6;
 const RAINBOW = 6, BOMB = 7, LIGHTNING = 8, FROG = 9;
-const CARDBOARD = 10, WOOD = 11, REINFORCED = 12, SLIME = 13, GENERATOR = 14, NAILGUN = 15, TNT = 16, TESLA = 17, CORE = 18, JACK = 19, STONE = 20, STONEPICK = 21;
-const isNormal = t => t < TYPES;
+const CARDBOARD = 10, WOOD = 11, REINFORCED = 12, SLIME = 13, GENERATOR = 14, NAILGUN = 15, TNT = 16, TESLA = 17, CORE = 18, JACK = 19, STONE = 20, STONEPICK = 21, MIXER = 22;
+const isNormal = t => t >= 0 && t < TYPES;   // -1 — фішку вже «затягнула» бетономішалка
 const isSpecial = t => t >= RAINBOW && t <= FROG;
 const isBox = t => t >= CARDBOARD;
 
@@ -938,7 +958,7 @@ function createGem(r, c, type, fromRow = r) {
   return gem;
 }
 
-const BOX_CHARS = { c: CARDBOARD, n: CARDBOARD, w: WOOD, r: REINFORCED, s: SLIME, g: GENERATOR, t: TNT, e: TESLA, o: CORE, j: JACK, k: STONE, q: STONEPICK };
+const BOX_CHARS = { c: CARDBOARD, n: CARDBOARD, w: WOOD, r: REINFORCED, s: SLIME, g: GENERATOR, t: TNT, e: TESLA, o: CORE, j: JACK, k: STONE, q: STONEPICK, m: MIXER };
 function startLevel(i) {
   level = i;
   const def = LEVELS[i] || randomLevel();
@@ -947,6 +967,8 @@ function startLevel(i) {
   inFlight = 0;
   turn = 0;
   pendingJack.length = 0;
+  pendingMixer.length = 0;
+  pendingSuck.length = 0;
   levelStartScore = score;
   cancelBooster();
   moves = def.moves; selected = null; busy = false;
@@ -1163,6 +1185,7 @@ const BOX_INFO = {
   [JACK]:       { cls: 'jack',       hp: 3, pts: 200, shards: ['#e8402a', '#ffcc33', '#3a7bd5', '#fff'] },
   [STONE]:      { cls: 'stone',      hp: 4, pts: 150, shards: ['#9a9fa8', '#6c717b', '#4a4e56', '#c3c7cd'] },
   [STONEPICK]:  { cls: 'stone',      hp: 4, pts: 200, shards: ['#9a9fa8', '#6c717b', '#4a4e56', '#c3c7cd'] },
+  [MIXER]:      { cls: 'mixer',      hp: 2, pts: 250, shards: ['#f2a33a', '#8b96a3', '#5d6772', '#c8c2b4'] },
 };
 const CRACKS = '<svg class="crack" viewBox="0 0 100 100">' +
   '<polyline class="c1" points="24,10 40,34 30,52 52,70 46,92"/>' +
@@ -1199,6 +1222,15 @@ const CORE_SVG = '<svg class="ball" viewBox="0 0 100 100"><defs>' +
   '<path d="M10,52 Q50,66 90,52" fill="none" stroke="#6b747e" stroke-width="2" transform="translate(0,-3)"/>' +
   [18, 34, 50, 66, 82].map(x => `<circle cx="${x}" cy="${52 + (x === 50 ? 7 : x === 34 || x === 66 ? 5 : 2)}" r="2.6" fill="#c3ccd5"/>`).join('') +
   '<ellipse cx="36" cy="32" rx="11" ry="6" fill="#fff" opacity=".35" transform="rotate(-30 36 32)"/></svg>';
+
+// Бетономішалка: рама з колесами, барабан (окремий елемент, що крутиться)
+const MIXER_SVG = '<svg class="mframe" viewBox="0 0 100 100">' +
+  '<path d="M24,58 L16,88 M70,58 L80,88" stroke="#3d444c" stroke-width="6" stroke-linecap="round"/>' +
+  '<rect x="12" y="84" width="74" height="7" rx="3" fill="#5d6772" stroke="#2a2d33" stroke-width="2"/>' +
+  '<circle cx="20" cy="90" r="7" fill="#2a2d33"/><circle cx="20" cy="90" r="3" fill="#8b96a3"/>' +
+  '<circle cx="78" cy="90" r="7" fill="#2a2d33"/><circle cx="78" cy="90" r="3" fill="#8b96a3"/>' +
+  '<path d="M80,40 L94,30" stroke="#3d444c" stroke-width="5" stroke-linecap="round"/>' +
+  '<circle cx="94" cy="30" r="4" fill="#e8402a" stroke="#7a1a10" stroke-width="1.5"/></svg>';
 
 // Камінь: сіра брила з тріщинами, що проявляються з кожним ударом
 const STONE_SVG = '<svg class="rock" viewBox="0 0 100 100"><defs>' +
@@ -1257,6 +1289,7 @@ function createBox(r, c, type) {
   if (type === CORE) inner = CORE_SVG + '<i class="down"></i>';
   if (type === JACK) inner = JACK_SVG + '<i class="crank">' + CRANK_SVG + '</i>';
   if (type === STONE) inner = STONE_SVG;
+  if (type === MIXER) inner = MIXER_SVG + '<i class="drum"></i>';
   if (type === STONEPICK) inner = STONE_SVG + '<i class="pick">' + PICK_STUCK_SVG + '</i>';
   if (type === TESLA) inner = '<i class="glow"></i>' + TESLA_SVG + '<i class="zap">' + ZAP_SVG + '</i>';
   if (type === GENERATOR) inner = '<i class="tank"></i>' + CRACKS +
@@ -1326,6 +1359,7 @@ function shatter(r, c, colors, n = 8) {
 function hitBox(r, c) {
   const box = grid[r][c];
   if (!box) return;
+  if (box.type === MIXER && box.mixing) return;     // уже затягує фішки
   if (box.type === CORE) {
     // ядро нічим не пошкодити — лише «дзенькає»
     box.el.classList.remove('tink'); box.el.getBoundingClientRect(); box.el.classList.add('tink');
@@ -1344,6 +1378,7 @@ function hitBox(r, c) {
   el.classList.remove('hit'); el.getBoundingClientRect(); el.classList.add('hit');
   const q = sel => el.querySelectorAll(sel).forEach(flyOff);
 
+  if (box.hp <= 0 && box.type === MIXER) { mixerArm(box); return; }
   if (box.hp <= 0) {
     box.broken = true;
     el.classList.add('breaking');
@@ -1353,7 +1388,7 @@ function hitBox(r, c) {
        [GENERATOR]: () => { sfx.metalBreak(); sfx.slimeBreak(); },
        [NAILGUN]: () => sfx.metalBreak(), [TNT]: () => sfx.woodBreak(),
        [TESLA]: () => { sfx.lightning(); sfx.teslaZap(true); },
-       [JACK]: () => sfx.cardBreak(), [STONE]: () => sfx.stoneBreak(), [STONEPICK]: () => sfx.stoneBreak() })[box.type]?.();
+       [JACK]: () => sfx.cardBreak(), [STONE]: () => sfx.stoneBreak(), [STONEPICK]: () => sfx.stoneBreak(), [MIXER]: () => sfx.metalBreak() })[box.type]?.();
     shatter(r, c, box.nailgun ? ['#8fb8ec', '#5b8fd6', '#2c5394', '#f0e1b4'] : info.shards, box.type === REINFORCED || box.type === GENERATOR ? 12 : 8);
     if (box.type === NAILGUN) [[0,1],[0,-1],[1,0],[-1,0]].forEach(d => fireNail(r, c, d));   // цвяхи в усі 4 боки
     if (box.type === TNT) tntExplode(r, c);
@@ -1398,6 +1433,9 @@ function hitBox(r, c) {
     if (box.hp === 3) q('.b-top, .x1');                          // 1: зовнішня + хрестова смуга
     else if (box.hp === 2) { q('.b-right'); el.classList.add('crack1'); } // 2: ще зовнішня + тріщина
     else { q('.band'); el.classList.add('crack2', 'dented'); }    // 3: решта смуг, тріщина, пом'ятий
+  } else if (box.type === MIXER) {
+    el.classList.add('spin1');           // 1-й удар: барабан повільно закрутився
+    sfx.mixerSlow();
   } else if (box.type === STONE || box.type === STONEPICK) {
     // з кожним ударом — нова тріщина, сам камінь меншає (кірка — ні)
     const stage = BOX_INFO[box.type].hp - box.hp;
@@ -1566,6 +1604,94 @@ function landCores() {
   return any;
 }
 
+// 🔄 Бетономішалка: швидко крутиться, затягує звичайні фішки 3×3, рахує однакові і розвалюється.
+// Бонуси з'являються поруч пізніше (у settle), коли фішки вже впали.
+const pendingMixer = [];
+const pendingSuck = [];
+// 2-й удар: барабан розкручується і чекає, поки фішки довкола обсиплються й зупиняться
+function mixerArm(box) {
+  box.mixing = true;
+  box.el.classList.remove('spin1');
+  box.el.classList.add('spin2');
+  sfx.mixerFast();
+  pendingSuck.push(box);
+}
+// Поле заспокоїлось — затягуємо звичайні фішки 3×3, рахуємо однакові, мішалка розвалюється
+async function mixerSuck(box) {
+  const pos = findGem(box);
+  if (!pos) return;
+  const [r, c] = pos;
+  const el = box.el;
+  const counts = {};
+  for (let rr = r - 1; rr <= r + 1; rr++) for (let cc = c - 1; cc <= c + 1; cc++) {
+    if (rr < 0 || rr >= N || cc < 0 || cc >= N || (rr === r && cc === c)) continue;
+    const g = grid[rr][cc];
+    if (!g || !isNormal(g.type)) continue;
+    // павутина, павук і яйця не заважають — мішалка затягує їх разом із фішкою
+    if (g.spider && g.spiderEl) {
+      const sel = g.spiderEl;
+      sel.style.transition = 'transform .55s cubic-bezier(.5,0,.8,.5), opacity .2s .4s';
+      sel.style.transform = `translate(${c * 100}%, ${r * 100}%) scale(.1) rotate(540deg)`;
+      sel.style.opacity = 0;
+      setTimeout(() => sel.remove(), 700);
+      score += 80;
+    }
+    if (g.web) score += 30;
+    if (g.eggs) score += 60;
+    g.spider = false; g.spiderEl = null; g.web = false; g.eggs = null; g.eggsEl = null;
+    g.el.classList.remove('spidered', 'webbed', 'egged');
+    counts[g.type] = (counts[g.type] || 0) + 1;
+    g.type = -1;                                  // фішка вже не бере участі в комбінаціях
+    g.el.style.zIndex = 4;
+    g.el.style.transition = 'transform .55s cubic-bezier(.5,0,.8,.5), opacity .2s .4s';
+    g.el.style.transform = `translate(${c * 100}%, ${r * 100}%) scale(.1) rotate(540deg)`;
+    g.el.style.opacity = 0;
+    pendingClear.push(g);
+  }
+  sfx.mixerFast();
+  const made = [];
+  // при змішуванні кожен наявний тип отримує +1
+  Object.values(counts).forEach(n => {
+    n += 1;
+    if (n >= 5) made.push(RAINBOW); else if (n === 4) made.push(BOMB); else if (n === 3) made.push(FROG);
+  });
+  await wait(800);
+  box.broken = true;
+  el.classList.add('breaking');
+  shatter(r, c, BOX_INFO[MIXER].shards, 12);
+  sfx.metalBreak();
+  score += BOX_INFO[MIXER].pts;
+  floatText('+' + BOX_INFO[MIXER].pts, r, c, '#ffd27a');
+  setTimeout(() => el.remove(), 400);
+  if (made.length) pendingMixer.push({ r, c, made });
+  else floatText('нічого не змішалось', r, c, '#ccc');
+  updateHud();
+  await wait(250);
+}
+// Готові бонуси з'являються на випадкових клітинках поруч із місцем бетономішалки і чекають на гравця
+async function mixerDeliver({ r, c, made }) {
+  const near = [], far = [];
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+    if (!grid[y][x] || !isFree(y, x)) continue;
+    (Math.abs(y - r) <= 1 && Math.abs(x - c) <= 1 ? near : far).push([y, x]);
+  }
+  near.sort(() => Math.random() - .5);
+  far.sort((a, b) => Math.hypot(a[0] - r, a[1] - c) - Math.hypot(b[0] - r, b[1] - c));
+  const spots = [...near, ...far];
+  const names = { [RAINBOW]: '🌈', [BOMB]: '💣', [FROG]: '🐸' };
+  sfx.mixerDone();
+  made.forEach((type, i) => {
+    const p = spots[i];
+    if (!p) return;
+    const [y, x] = p;
+    grid[y][x].el.remove();
+    grid[y][x] = createGem(y, x, type);
+    grid[y][x].el.classList.add('appear');
+    floatText(names[type], y, x);
+  });
+  await wait(600);
+}
+
 // ⛏️ Кірка з розбитого каменя: 10 ударів по випадкових каменях, а як їх немає — по інших перешкодах
 async function pickaxeRun(r, c) {
   inFlight++;
@@ -1610,8 +1736,8 @@ async function pickaxeRun(r, c) {
 // 🤡 Шкатулка розкидає 3 випадкові перешкоди (крім шкатулки)
 let turn = 0;                     // скільки ходів зроблено на рівні
 const pendingJack = [];
-const SCATTER = ['c', 'c', 'n', 'w', 'w', 't', 'r', 's', 'g', 'x', 'x', 'p', 'e', 'o', 'k', 'q'];
-const SCATTER_ICON = { c: '📦', n: '📦', w: '🪵', t: '🧨', r: '🛡️', s: '🟢', g: '⚙️', x: '🕸️', p: '🕷️', e: '⚡', o: '⚫', k: '🪨', q: '⛏️' };
+const SCATTER = ['c', 'c', 'n', 'w', 'w', 't', 'r', 's', 'g', 'x', 'x', 'p', 'e', 'o', 'k', 'q', 'm'];
+const SCATTER_ICON = { c: '📦', n: '📦', w: '🪵', t: '🧨', r: '🛡️', s: '🟢', g: '⚙️', x: '🕸️', p: '🕷️', e: '⚡', o: '⚫', k: '🪨', q: '⛏️', m: '🔄' };
 async function jackScatter([jr, jc]) {
   const free = [];
   for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) if (grid[r][c] && isFree(r, c)) free.push([r, c]);
@@ -1796,8 +1922,13 @@ async function settle() {
     const dets = pendingDet.splice(0).map(findGem).filter(p => p && isSpecial(grid[p[0]][p[1]].type));
     const dirty = pendingClear.length || pendingFill.length || grid.flat().some(g => g && g.broken);
     if (!dets.length && !dirty) {
-      if (!pendingJack.length) return;
+      if (pendingSuck.length) {                       // поле стабільне — мішалки затягують фішки
+        for (const box of pendingSuck.splice(0)) await mixerSuck(box);
+        continue;
+      }
+      if (!pendingJack.length && !pendingMixer.length) return;
       for (const pos of pendingJack.splice(0)) await jackScatter(pos);
+      for (const m of pendingMixer.splice(0)) await mixerDeliver(m);
       continue;
     }
     if (dets.length) await detonate(dets.map(([r, c]) => ({ r, c, dir: randDir() })));
@@ -2911,7 +3042,7 @@ $('soundBtn').onclick = () => {
 
 // ===================== Рівні з JSON =====================
 // Формат: { "levels": [ { "name": "...", "moves": 20, "map": ["........", ... 8 рядків по 8 символів] } ] }
-const MAP_CHARS = '.cnwtrsgxpeojkq';
+const MAP_CHARS = '.cnwtrsgxpeojkqm';
 function parseLevels(data) {
   const list = Array.isArray(data) ? data : data?.levels;
   if (!Array.isArray(list) || !list.length) throw new Error('у файлі немає списку "levels"');
