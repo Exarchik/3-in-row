@@ -526,6 +526,60 @@
   .box.regen .crate { animation: regen .8s; }
   @keyframes regen { 40% { filter: brightness(1.5) drop-shadow(0 0 10px #7cffb0); transform: scale(1.1); } }
 
+  /* ===== Робот ===== */
+  .robot .crate { background: none; box-shadow: none; inset: 0; overflow: visible; }
+  .robot .rbody { inset: 0; width: 100%; height: 100%; filter: drop-shadow(0 3px 3px rgba(0,0,0,.5)); }
+  .robot .rhead { left: 28%; top: 4%; width: 44%; height: 36%; z-index: 3; transform-origin: 50% 100%; }
+  .robot .rhead svg, .robot .rarm svg { width: 100%; height: 100%; overflow: visible; }
+  .robot .rspring { left: 44%; top: 30%; width: 12%; height: 16%; z-index: 2; opacity: 0; }
+  .robot .rspring svg { width: 100%; height: 100%; }
+  .robot .rarm { top: 46%; width: 18%; height: 34%; z-index: 2; }
+  .robot .rarm.l { left: 6%; transform-origin: 80% 10%; rotate: 12deg; }
+  .robot .rarm.r { right: 6%; transform-origin: 20% 10%; rotate: -12deg; }
+  .robot .rnut {
+    width: 12%; height: 12%; top: 50%; z-index: 3;
+    background: radial-gradient(circle, #2b3036 0 22%, #c3ccd5 24%, #6b747e);
+    clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0 50%);
+  }
+  .robot .rnut.n1 { left: 30%; } .robot .rnut.n2 { right: 30%; }
+  .robot .rsmoke { left: 52%; top: -6%; width: 34%; height: 34%; display: none; z-index: 4; }
+  .robot .rsmoke::before, .robot .rsmoke::after {
+    content: ''; position: absolute; left: 0; top: 0; width: 70%; height: 70%; border-radius: 50%;
+    background: rgba(190,190,200,.7); animation: puff 1.3s linear infinite;
+  }
+  .robot .rsmoke::after { left: 30%; animation-delay: .65s; }
+  .box.smoke1 .rsmoke { display: block; }
+  .box.smoke2 .rsmoke { display: block; left: 40%; top: -22%; width: 60%; height: 60%; }
+  .box.smoke2 .rsmoke::before, .box.smoke2 .rsmoke::after { background: rgba(110,110,120,.75); animation-duration: .9s; }
+  .box.wobble .rhead { animation: headBob .5s ease-in-out infinite alternate; }
+  .box.wobble .rspring { opacity: 1; }
+  .box.wobble .rhead { top: -6%; }
+  @keyframes headBob { from { transform: rotate(-16deg) translateY(2px); } to { transform: rotate(16deg) translateY(-3px); } }
+  .robot .rspark { left: 20%; top: 30%; width: 60%; height: 40%; display: none; z-index: 5; }
+  .robot .rspark i {
+    position: absolute; width: 3px; height: 3px; border-radius: 50%; background: #fff6a0;
+    box-shadow: 0 0 4px #ffcc33, 0 0 8px #ff8a00; animation: spark2 .5s linear infinite;
+  }
+  .robot .rspark i:nth-child(2) { left: 30%; animation-delay: .15s; }
+  .robot .rspark i:nth-child(3) { left: 70%; animation-delay: .3s; }
+  .robot .rspark i:nth-child(4) { left: 50%; animation-delay: .4s; }
+  @keyframes spark2 { 0% { transform: translate(0, 0); opacity: 1; } 100% { transform: translate(var(--sx, 8px), -18px); opacity: 0; } }
+  .robot .rspark i:nth-child(odd) { --sx: -10px; }
+  .box.sparks .rspark { display: block; }
+  .robot .rfire { left: 18%; top: -12%; width: 64%; height: 60%; display: none; z-index: 5; }
+  .robot .rfire::before, .robot .rfire::after {
+    content: ''; position: absolute; left: 20%; bottom: 0; width: 60%; height: 100%;
+    background: radial-gradient(ellipse at 50% 85%, #fff6a0 0 18%, #ffb020 40%, #ff4a1a 65%, transparent 72%);
+    border-radius: 50% 50% 40% 40%; animation: flame .18s ease-in-out infinite alternate; transform-origin: 50% 100%;
+  }
+  .robot .rfire::after { left: 5%; width: 40%; height: 70%; animation-delay: .09s; }
+  @keyframes flame { from { transform: scaleY(.85) skewX(-4deg); } to { transform: scaleY(1.1) skewX(5deg); } }
+  .box.burning .rfire { display: block; }
+  .box.robot.running .crate { animation: robotRun .16s ease-in-out infinite alternate; }
+  @keyframes robotRun { from { rotate: -7deg; translate: 0 -2px; } to { rotate: 7deg; translate: 0 1px; } }
+  .box.robot.bump .crate { animation: robotBump .3s; }
+  @keyframes robotBump { 30% { scale: .85 1.1; } 60% { scale: 1.08 .92; } }
+
   /* ===== Бетономішалка ===== */
   .mixer .crate { background: none; box-shadow: none; inset: 0; }
   .mixer .mframe { inset: 0; width: 100%; height: 100%; filter: drop-shadow(0 3px 3px rgba(0,0,0,.5)); }
@@ -732,6 +786,7 @@
     ⚙️ слизогенератор — щоходу створює слиз у сусідній клітинці; якщо за хід його пошкодили — пропускає; 3 удари, а коли ламається — заливає слизом зону 3×3<br>
     🔫 цвяхозабивач (лежить у синіх картонних коробках) — 3 удари; від кожного удару стріляє цвяхом в одному з 4 напрямків, а коли ламається — в усі 4. Цвях пролітає крізь фішки і б'є всі перешкоди на шляху<br>
     🧨 ящик TNT — як дерев'яний (3 удари), але коли ламається — вибухає 3×3<br>
+    🤖 робот — 4 удари. Після 1-го і 2-го удару стріляє цвяхом, який застрягає в першій перешкоді на шляху, після 3-го і 4-го — розганяється і біжить по прямій (перешкода, у яку врізався, отримує 1 удар). Напрямок — насамперед у бік перешкоди, яку можна пошкодити, а в стінку лише якщо інших варіантів нема; серед можливих завжди найдовший шлях. 1: відлітають гайки, дим; 2: голова гойдається на пружині; 3: відпадають руки, іскри; 4: відлітає голова, робот спалахує, біжить і вибухає 3×3<br>
     🔄 бетономішалка — 1-й удар: починає повільно крутитися; 2-й: крутиться швидко, затягує всі звичайні фішки довкола (3×3) — разом із павутиною, павуками й яйцями на них — і розвалюється. Затягнуті фішки рахуються за кольором, і до кожного кольору додається +1: 5+ → 🌈 куля, 4 → 💣 бомба, 3 → 🐸 жабка (тобто вистачить 4, 3 і 2 однакових); бонуси з'являються поруч і чекають на гравця<br>
     🪨 камінь — 4 удари, з кожним тріщин більше, а камінь меншає; стоїть на місці<br>
     ⛏️ камінь з кіркою — те саме, але коли ламається, кірка літає полем і завдає 10 ударів іншим каменям (а якщо їх немає — іншим перешкодам)<br>
@@ -860,6 +915,10 @@ const sfx = {
     tone(strong ? 700 : 1100, { dur: strong ? 0.3 : 0.15, vol: strong ? 0.05 : 0.03, type: 'square', slide: 1.5 });
     noise(strong ? 0.2 : 0.1, strong ? 0.1 : 0.05, 6000);
   },
+  robotHit: () => { tone(900, { dur: 0.06, vol: 0.06, type: 'square' }); tone(600, { dur: 0.08, vol: 0.05, type: 'square', delay: 0.07 }); noise(0.06, 0.1, 2000); },
+  robotRun: n => { for (let i = 0; i < Math.min(n, 7); i++) tone(i % 2 ? 260 : 220, { dur: 0.04, vol: 0.06, type: 'square', delay: i * 0.08 }); },
+  robotBonk: () => { tone(180, { dur: 0.18, vol: 0.2, type: 'triangle', slide: 0.5 }); noise(0.08, 0.12, 1200); },
+  robotFire: () => { noise(0.4, 0.08, 700); tone(400, { dur: 0.35, vol: 0.06, type: 'sawtooth', slide: 2 }); },
   mixerSlow: () => { noise(0.5, 0.06, 300); tone(70, { dur: 0.5, vol: 0.12, slide: 1.3 }); },
   mixerFast: () => { tone(90, { dur: 0.8, vol: 0.12, slide: 3 }); noise(0.8, 0.08, 500); },
   mixerDone: () => { [0, 2, 4, 7].forEach((n, i) => tone(PENTA[n], { dur: 0.25, vol: 0.09, delay: i * 0.07 })); noise(0.15, 0.1, 800); },
@@ -891,7 +950,7 @@ const sfx = {
 // ===== Гра =====
 const N = 8, TYPES = 6;
 const RAINBOW = 6, BOMB = 7, LIGHTNING = 8, FROG = 9;
-const CARDBOARD = 10, WOOD = 11, REINFORCED = 12, SLIME = 13, GENERATOR = 14, NAILGUN = 15, TNT = 16, TESLA = 17, CORE = 18, JACK = 19, STONE = 20, STONEPICK = 21, MIXER = 22;
+const CARDBOARD = 10, WOOD = 11, REINFORCED = 12, SLIME = 13, GENERATOR = 14, NAILGUN = 15, TNT = 16, TESLA = 17, CORE = 18, JACK = 19, STONE = 20, STONEPICK = 21, MIXER = 22, ROBOT = 23;
 const isNormal = t => t >= 0 && t < TYPES;   // -1 — фішку вже «затягнула» бетономішалка
 const isSpecial = t => t >= RAINBOW && t <= FROG;
 const isBox = t => t >= CARDBOARD;
@@ -915,6 +974,23 @@ const DEFAULT_LEVELS = [
   { moves: 26, map: ['........','........','..c..c..','........','...e....','........','..w..w..','........'] },
 ];
 let LEVELS = DEFAULT_LEVELS.slice();
+// Що може випасти зі шкатулки з клоуном: { символ: з якого рівня (1…), 0 — ніколи }.
+// null — автоматично: перешкода випадає, починаючи з рівня, де вона вперше з'являється на полі.
+let JACK_DROPS = null;
+function parseDrops(data) {
+  const d = data && !Array.isArray(data) ? data.jackDrops : null;
+  if (!d || typeof d !== 'object') return null;
+  const out = {};
+  for (const [ch, v] of Object.entries(d)) out[ch] = Math.max(0, Math.round(Number(v)) || 0);
+  return out;
+}
+function canDrop(ch) {
+  const lv = level + 1;
+  if (JACK_DROPS) return JACK_DROPS[ch] > 0 && lv >= JACK_DROPS[ch];
+  // автоматично: перешкода вже траплялась на цьому або попередніх рівнях
+  for (let i = 0; i <= level && i < LEVELS.length; i++) if (LEVELS[i].map.some(row => row.includes(ch))) return true;
+  return false;
+}
 function randomLevel() {
   const map = Array.from({ length: N }, () => Array(N).fill('.'));
   const count = 8 + Math.floor(Math.random() * 6);
@@ -958,7 +1034,7 @@ function createGem(r, c, type, fromRow = r) {
   return gem;
 }
 
-const BOX_CHARS = { c: CARDBOARD, n: CARDBOARD, w: WOOD, r: REINFORCED, s: SLIME, g: GENERATOR, t: TNT, e: TESLA, o: CORE, j: JACK, k: STONE, q: STONEPICK, m: MIXER };
+const BOX_CHARS = { c: CARDBOARD, n: CARDBOARD, w: WOOD, r: REINFORCED, s: SLIME, g: GENERATOR, t: TNT, e: TESLA, o: CORE, j: JACK, k: STONE, q: STONEPICK, m: MIXER, b: ROBOT };
 function startLevel(i) {
   level = i;
   const def = LEVELS[i] || randomLevel();
@@ -969,6 +1045,7 @@ function startLevel(i) {
   pendingJack.length = 0;
   pendingMixer.length = 0;
   pendingSuck.length = 0;
+  pendingRun.length = 0;
   levelStartScore = score;
   cancelBooster();
   moves = def.moves; selected = null; busy = false;
@@ -1186,6 +1263,7 @@ const BOX_INFO = {
   [STONE]:      { cls: 'stone',      hp: 4, pts: 150, shards: ['#9a9fa8', '#6c717b', '#4a4e56', '#c3c7cd'] },
   [STONEPICK]:  { cls: 'stone',      hp: 4, pts: 200, shards: ['#9a9fa8', '#6c717b', '#4a4e56', '#c3c7cd'] },
   [MIXER]:      { cls: 'mixer',      hp: 2, pts: 250, shards: ['#f2a33a', '#8b96a3', '#5d6772', '#c8c2b4'] },
+  [ROBOT]:      { cls: 'robot',      hp: 4, pts: 300, shards: ['#9aa5b1', '#5d6772', '#2d3340', '#ff4a1a'] },
 };
 const CRACKS = '<svg class="crack" viewBox="0 0 100 100">' +
   '<polyline class="c1" points="24,10 40,34 30,52 52,70 46,92"/>' +
@@ -1222,6 +1300,23 @@ const CORE_SVG = '<svg class="ball" viewBox="0 0 100 100"><defs>' +
   '<path d="M10,52 Q50,66 90,52" fill="none" stroke="#6b747e" stroke-width="2" transform="translate(0,-3)"/>' +
   [18, 34, 50, 66, 82].map(x => `<circle cx="${x}" cy="${52 + (x === 50 ? 7 : x === 34 || x === 66 ? 5 : 2)}" r="2.6" fill="#c3ccd5"/>`).join('') +
   '<ellipse cx="36" cy="32" rx="11" ry="6" fill="#fff" opacity=".35" transform="rotate(-30 36 32)"/></svg>';
+
+// Робот: тулуб із панеллю, ноги; голова й руки — окремі деталі, що відвалюються
+const ROBOT_SVG = '<svg class="rbody" viewBox="0 0 100 100">' +
+  '<rect x="32" y="80" width="13" height="14" rx="3" fill="#5d6772" stroke="#2a2d33" stroke-width="2"/>' +
+  '<rect x="55" y="80" width="13" height="14" rx="3" fill="#5d6772" stroke="#2a2d33" stroke-width="2"/>' +
+  '<rect x="24" y="40" width="52" height="44" rx="8" fill="#9aa5b1" stroke="#3d444c" stroke-width="2.5"/>' +
+  '<rect x="34" y="50" width="32" height="18" rx="3" fill="#2d3340"/>' +
+  '<circle cx="42" cy="59" r="3.5" fill="#ff4a4a"/><circle cx="50" cy="59" r="3.5" fill="#ffcc33"/><circle cx="58" cy="59" r="3.5" fill="#6bff95"/>' +
+  '<rect x="30" y="72" width="40" height="4" rx="2" fill="#6b747e"/></svg>';
+const ROBOT_HEAD = '<svg viewBox="0 0 50 40"><line x1="25" y1="6" x2="25" y2="-4" stroke="#3d444c" stroke-width="2.5"/>' +
+  '<circle cx="25" cy="-5" r="3.5" fill="#ff4a4a"/>' +
+  '<rect x="5" y="6" width="40" height="30" rx="7" fill="#b8c0c8" stroke="#3d444c" stroke-width="2.5"/>' +
+  '<rect x="11" y="13" width="28" height="12" rx="5" fill="#1d2129"/>' +
+  '<circle cx="19" cy="19" r="3.4" fill="#7cc8ff"/><circle cx="31" cy="19" r="3.4" fill="#7cc8ff"/>' +
+  '<rect x="18" y="29" width="14" height="3" rx="1.5" fill="#3d444c"/></svg>';
+const ROBOT_ARM = '<svg viewBox="0 0 20 40"><rect x="5" y="0" width="10" height="30" rx="5" fill="#8b96a3" stroke="#3d444c" stroke-width="2"/>' +
+  '<circle cx="10" cy="34" r="5.5" fill="#5d6772" stroke="#2a2d33" stroke-width="2"/></svg>';
 
 // Бетономішалка: рама з колесами, барабан (окремий елемент, що крутиться)
 const MIXER_SVG = '<svg class="mframe" viewBox="0 0 100 100">' +
@@ -1289,6 +1384,11 @@ function createBox(r, c, type) {
   if (type === CORE) inner = CORE_SVG + '<i class="down"></i>';
   if (type === JACK) inner = JACK_SVG + '<i class="crank">' + CRANK_SVG + '</i>';
   if (type === STONE) inner = STONE_SVG;
+  if (type === ROBOT) inner = ROBOT_SVG +
+    '<i class="rarm l">' + ROBOT_ARM + '</i><i class="rarm r">' + ROBOT_ARM + '</i>' +
+    '<i class="rspring">' + SPRING_SVG + '</i><i class="rhead">' + ROBOT_HEAD + '</i>' +
+    '<i class="rnut n1"></i><i class="rnut n2"></i><i class="rsmoke"></i>' +
+    '<i class="rspark"><i></i><i></i><i></i><i></i></i><i class="rfire"></i>';
   if (type === MIXER) inner = MIXER_SVG + '<i class="drum"></i>';
   if (type === STONEPICK) inner = STONE_SVG + '<i class="pick">' + PICK_STUCK_SVG + '</i>';
   if (type === TESLA) inner = '<i class="glow"></i>' + TESLA_SVG + '<i class="zap">' + ZAP_SVG + '</i>';
@@ -1359,7 +1459,8 @@ function shatter(r, c, colors, n = 8) {
 function hitBox(r, c) {
   const box = grid[r][c];
   if (!box) return;
-  if (box.type === MIXER && box.mixing) return;     // уже затягує фішки
+  if (box.type === MIXER && box.mixing) return;
+  if (box.type === ROBOT && box.final) return;      // уже біжить на вибух     // уже затягує фішки
   if (box.type === CORE) {
     // ядро нічим не пошкодити — лише «дзенькає»
     box.el.classList.remove('tink'); box.el.getBoundingClientRect(); box.el.classList.add('tink');
@@ -1379,6 +1480,17 @@ function hitBox(r, c) {
   const q = sel => el.querySelectorAll(sel).forEach(flyOff);
 
   if (box.hp <= 0 && box.type === MIXER) { mixerArm(box); return; }
+  if (box.hp <= 0 && box.type === ROBOT) {
+    // 4: голова відлітає, робот спалахує і біжить на вибух
+    box.final = true;
+    const q = sel => el.querySelectorAll(sel).forEach(flyOff);
+    q('.rhead, .rspring');
+    el.classList.remove('wobble');
+    el.classList.add('burning', 'smoke2', 'sparks');
+    sfx.robotFire();
+    pendingRun.push({ box, shoot: false });
+    return;
+  }
   if (box.hp <= 0) {
     box.broken = true;
     el.classList.add('breaking');
@@ -1433,6 +1545,12 @@ function hitBox(r, c) {
     if (box.hp === 3) q('.b-top, .x1');                          // 1: зовнішня + хрестова смуга
     else if (box.hp === 2) { q('.b-right'); el.classList.add('crack1'); } // 2: ще зовнішня + тріщина
     else { q('.band'); el.classList.add('crack2', 'dented'); }    // 3: решта смуг, тріщина, пом'ятий
+  } else if (box.type === ROBOT) {
+    sfx.robotHit();
+    if (box.hp === 3) { q('.rnut'); el.classList.add('smoke1'); }                        // 1: гайки, дим
+    else if (box.hp === 2) { el.classList.add('wobble', 'smoke2'); }                     // 2: голова на пружині, більше диму
+    else { q('.rarm'); el.classList.add('sparks'); }                                     // 3: руки відпадають, іскри
+    pendingRun.push({ box, shoot: box.hp >= 2 });                                        // 1–2 удари: стріляє цвяхом, 3-й: біжить
   } else if (box.type === MIXER) {
     el.classList.add('spin1');           // 1-й удар: барабан повільно закрутився
     sfx.mixerSlow();
@@ -1559,10 +1677,14 @@ function applyPendingClear() {
 const NAIL_SVG = '<svg viewBox="0 0 40 10"><rect x="0" y="1" width="3" height="8" rx="1" fill="#b8c0c8"/>' +
   '<rect x="3" y="4" width="30" height="2" fill="#dfe6ee"/><polygon points="33,4 40,5 33,6" fill="#dfe6ee"/></svg>';
 // Цвях летить від (r,c) у напрямку d крізь фішки і б'є кожну перешкоду на шляху
-function fireNail(r, c, [dr, dc]) {
+// stopAtFirst — цвях робота: застрягає в першій перешкоді
+function fireNail(r, c, [dr, dc], stopAtFirst = false) {
   const cell = board.clientWidth / N;
-  let len = 0;
-  while (r + dr * (len + 1) >= 0 && r + dr * (len + 1) < N && c + dc * (len + 1) >= 0 && c + dc * (len + 1) < N) len++;
+  let len = 0, stuck = false;
+  while (r + dr * (len + 1) >= 0 && r + dr * (len + 1) < N && c + dc * (len + 1) >= 0 && c + dc * (len + 1) < N) {
+    len++;
+    if (stopAtFirst && isObstacle(grid[r + dr * len][c + dc * len])) { stuck = true; break; }
+  }
   const step = 55;
   const el = document.createElement('div');
   el.className = 'nail';
@@ -1570,17 +1692,18 @@ function fireNail(r, c, [dr, dc]) {
   const ang = Math.atan2(dr, dc) * 180 / Math.PI;
   const x0 = (c + .5) * cell, y0 = (r + .5) * cell;
   el.style.transform = `translate(${x0}px, ${y0}px) rotate(${ang}deg)`;
-  el.style.transition = `transform ${(len + 1) * step}ms linear`;
+  const fly = stuck ? len - .3 : len + 1;          // застряглий цвях зупиняється біля перешкоди
+  el.style.transition = `transform ${fly * step}ms linear`;
   board.appendChild(el);
   el.getBoundingClientRect();
-  el.style.transform = `translate(${x0 + dc * (len + 1) * cell}px, ${y0 + dr * (len + 1) * cell}px) rotate(${ang}deg)`;
+  el.style.transform = `translate(${x0 + dc * fly * cell}px, ${y0 + dr * fly * cell}px) rotate(${ang}deg)`;
   sfx.nail();
   inFlight++;
   for (let i = 1; i <= len; i++) {
     const rr = r + dr * i, cc = c + dc * i;
     setTimeout(() => { if (isObstacle(grid[rr][cc])) hitBox(rr, cc); }, i * step);
   }
-  setTimeout(() => { el.remove(); inFlight--; }, (len + 1) * step + 30);
+  setTimeout(() => { el.remove(); inFlight--; }, fly * step + (stuck ? 250 : 30));
 }
 
 // 🧨 Вибух TNT 3×3: фішки знищуються, перешкоди — 1 удар, бонуси спрацьовують
@@ -1606,6 +1729,84 @@ function landCores() {
 
 // 🔄 Бетономішалка: швидко крутиться, затягує звичайні фішки 3×3, рахує однакові і розвалюється.
 // Бонуси з'являються поруч пізніше (у settle), коли фішки вже впали.
+// 🤖 Робот біжить по прямій у випадковому напрямку до стінки або перешкоди.
+// Фішки на шляху «розступаються» — зсуваються на клітинку назад.
+const pendingRun = [];
+async function robotRun(box, shoot = false) {
+  const pos = findGem(box);
+  if (!pos || box.broken) return;
+  let [r, c] = pos;
+  const dirs = [[0,1],[0,-1],[1,0],[-1,0]].filter(([dr, dc]) => {
+    const rr = r + dr, cc = c + dc; return rr >= 0 && rr < N && cc >= 0 && cc < N;
+  });
+  // спершу — напрямки, де в кінці шляху є перешкода, яку можна пошкодити; у стінку — лише якщо вибору нема
+  // і серед них — найдовший шлях (рівні — випадково)
+  const scan = ([dr, dc]) => {
+    let y = r + dr, x = c + dc, len = 0;
+    while (y >= 0 && y < N && x >= 0 && x < N && grid[y][x] && !isObstacle(grid[y][x])) { y += dr; x += dc; len++; }
+    const g = (y >= 0 && y < N && x >= 0 && x < N) ? grid[y][x] : null;
+    return { d: [dr, dc], len, good: !!(g && isObstacle(g) && g.type !== CORE && !g.mixing && !g.final) };
+  };
+  const opts = dirs.map(scan);
+  const good = opts.filter(o => o.good);
+  const pool = good.length ? good : opts;
+  const maxLen = Math.max(...pool.map(o => o.len));
+  const longest = pool.filter(o => o.len === maxLen);
+  const [dr, dc] = longest[Math.floor(Math.random() * longest.length)].d;
+  if (shoot) {
+    // після 1-го і 2-го удару робот не біжить, а стріляє цвяхом у вибраний бік
+    box.el.classList.remove('recoil'); box.el.getBoundingClientRect(); box.el.classList.add('recoil');
+    fireNail(r, c, [dr, dc], true);
+    await wait(250);
+    return;
+  }
+  // шлях — поки клітинки не є перешкодами
+  const path = [];
+  let rr = r + dr, cc = c + dc;
+  while (rr >= 0 && rr < N && cc >= 0 && cc < N && grid[rr][cc] && !isObstacle(grid[rr][cc])) { path.push([rr, cc]); rr += dr; cc += dc; }
+  const hitTarget = (rr >= 0 && rr < N && cc >= 0 && cc < N && isObstacle(grid[rr][cc])) ? [rr, cc] : null;
+  const el = box.el;
+  el.classList.add('running');
+  if (path.length) {
+    sfx.robotRun(path.length);
+    // фішки зсуваються назад, робот займає останню клітинку шляху
+    let prev = [r, c];
+    for (const [pr, pc] of path) {
+      grid[prev[0]][prev[1]] = grid[pr][pc];
+      setPos(grid[prev[0]][prev[1]], prev[0], prev[1]);
+      prev = [pr, pc];
+    }
+    const [er, ec] = path[path.length - 1];
+    grid[er][ec] = box;
+    el.style.transition = `transform ${path.length * 110}ms linear`;
+    setPos(box, er, ec);
+    await wait(path.length * 110 + 40);
+    el.style.transition = '';
+    r = er; c = ec;
+  } else await wait(120);
+  el.classList.remove('running');
+  el.classList.remove('bump'); el.getBoundingClientRect(); el.classList.add('bump');
+  sfx.robotBonk();
+  if (box.final) {
+    // вибух 3×3 при зіткненні
+    box.broken = true;
+    el.classList.add('breaking');
+    shatter(r, c, BOX_INFO[ROBOT].shards, 14);
+    score += BOX_INFO[ROBOT].pts;
+    floatText('+' + BOX_INFO[ROBOT].pts, r, c, '#ffd27a');
+    setTimeout(() => el.remove(), 400);
+    tntExplode(r, c);
+    updateHud();
+    await wait(300);
+    return;
+  }
+  if (hitTarget) {
+    fx('impact', { left: `calc(var(--cell) * ${hitTarget[1]})`, top: `calc(var(--cell) * ${hitTarget[0]})` });
+    hitBox(hitTarget[0], hitTarget[1]);
+  }
+  await wait(200);
+}
+
 const pendingMixer = [];
 const pendingSuck = [];
 // 2-й удар: барабан розкручується і чекає, поки фішки довкола обсиплються й зупиняться
@@ -1736,22 +1937,28 @@ async function pickaxeRun(r, c) {
 // 🤡 Шкатулка розкидає 3 випадкові перешкоди (крім шкатулки)
 let turn = 0;                     // скільки ходів зроблено на рівні
 const pendingJack = [];
-const SCATTER = ['c', 'c', 'n', 'w', 'w', 't', 'r', 's', 'g', 'x', 'x', 'p', 'e', 'o', 'k', 'q', 'm'];
-const SCATTER_ICON = { c: '📦', n: '📦', w: '🪵', t: '🧨', r: '🛡️', s: '🟢', g: '⚙️', x: '🕸️', p: '🕷️', e: '⚡', o: '⚫', k: '🪨', q: '⛏️', m: '🔄' };
+const SCATTER = ['c', 'c', 'n', 'w', 'w', 't', 'r', 's', 'g', 'x', 'x', 'p', 'e', 'o', 'k', 'q', 'm', 'b'];
+const SCATTER_ICON = { c: '📦', n: '📦', w: '🪵', t: '🧨', r: '🛡️', s: '🟢', g: '⚙️', x: '🕸️', p: '🕷️', e: '⚡', o: '⚫', k: '🪨', q: '⛏️', m: '🔄', b: '🤖' };
 async function jackScatter([jr, jc]) {
   const free = [];
   for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) if (grid[r][c] && isFree(r, c)) free.push([r, c]);
   free.sort(() => Math.random() - .5);
+  // лише ті перешкоди, які дозволено на цьому рівні
+  const allowed = SCATTER.filter(canDrop);
+  if (!allowed.length) { floatText('🤡 порожньо!', jr, jc, '#ffe66d'); return; }
   const picks = free.slice(0, 3).map(([r, c]) => {
-    let ch = SCATTER[Math.floor(Math.random() * SCATTER.length)];
+    let ch = allowed[Math.floor(Math.random() * allowed.length)];
     // ядро — лише туди, звідки воно зможе впасти до дна
     if (ch === 'o') {
       let ok = r < N - 1;
       for (let k = r + 1; k < N && ok; k++) { const g = grid[k][c]; if (g && (isBox(g.type) && g.type !== CORE || locked(g))) ok = false; }
-      if (!ok) ch = 'c';
+      if (!ok) {
+        const rest = allowed.filter(x => x !== 'o');
+        ch = rest.length ? rest[Math.floor(Math.random() * rest.length)] : null;
+      }
     }
     return [r, c, ch];
-  });
+  }).filter(p => p[2]);
   if (!picks.length) return;
   sfx.scatter();
   picks.forEach(([r, c, ch], i) => {
@@ -1916,12 +2123,17 @@ function tntExplode(r, c) {
 
 // Добиваємо все відкладене: цвяхи в польоті, вибухи TNT, зламані перешкоди
 async function settle() {
-  for (let guard = 0; guard < 30; guard++) {
+  for (let guard = 0; guard < 80; guard++) {
     while (inFlight > 0) await wait(50);
     if (landCores()) { await wait(250); while (inFlight > 0) await wait(50); }
     const dets = pendingDet.splice(0).map(findGem).filter(p => p && isSpecial(grid[p[0]][p[1]].type));
     const dirty = pendingClear.length || pendingFill.length || grid.flat().some(g => g && g.broken);
     if (!dets.length && !dirty) {
+      if (pendingRun.length) {                        // поле стабільне — роботи біжать
+        for (const job of pendingRun.splice(0)) { while (inFlight > 0) await wait(50); await robotRun(job.box, job.shoot); }
+        await resolve();
+        continue;
+      }
       if (pendingSuck.length) {                       // поле стабільне — мішалки затягують фішки
         for (const box of pendingSuck.splice(0)) await mixerSuck(box);
         continue;
@@ -3042,7 +3254,7 @@ $('soundBtn').onclick = () => {
 
 // ===================== Рівні з JSON =====================
 // Формат: { "levels": [ { "name": "...", "moves": 20, "map": ["........", ... 8 рядків по 8 символів] } ] }
-const MAP_CHARS = '.cnwtrsgxpeojkqm';
+const MAP_CHARS = '.cnwtrsgxpeojkqmb';
 function parseLevels(data) {
   const list = Array.isArray(data) ? data : data?.levels;
   if (!Array.isArray(list) || !list.length) throw new Error('у файлі немає списку "levels"');
@@ -3068,7 +3280,7 @@ function useLevels(list, startAt = 0, note = '') {
 // 1) levels.json поруч із грою (працює, коли гра відкрита з сервера / хостингу)
 fetch('levels.json', { cache: 'no-store' })
   .then(r => r.ok ? r.json() : Promise.reject())
-  .then(d => { if (!busy && moves === LEVELS[level]?.moves) useLevels(parseLevels(d), 0, '📂 Рівні завантажено з levels.json'); })
+  .then(d => { if (!busy && moves === LEVELS[level]?.moves) { JACK_DROPS = parseDrops(d); useLevels(parseLevels(d), 0, '📂 Рівні завантажено з levels.json'); } })
   .catch(() => {});
 
 // 2) кнопка «📂 Рівні» — вибрати файл вручну
@@ -3078,7 +3290,9 @@ $('levelsFile').onchange = async e => {
   e.target.value = '';
   if (!f) return;
   try {
-    const list = parseLevels(JSON.parse(await f.text()));
+    const data = JSON.parse(await f.text());
+    const list = parseLevels(data);
+    JACK_DROPS = parseDrops(data);
     useLevels(list, 0, `📂 Завантажено рівнів: ${list.length}`);
   } catch (err) {
     setTip('⚠️ Не вдалося прочитати файл: ' + err.message);
@@ -3089,7 +3303,7 @@ $('levelsFile').onchange = async e => {
 // 3) тест із редактора: редактор відкриває гру і надсилає їй рівні
 window.addEventListener('message', e => {
   if (e.data?.type !== 'match3-levels') return;
-  try { useLevels(parseLevels(e.data.data), e.data.start || 0, '🧪 Тест рівня з редактора'); } catch (err) { setTip('⚠️ ' + err.message); }
+  try { JACK_DROPS = parseDrops(e.data.data); useLevels(parseLevels(e.data.data), e.data.start || 0, '🧪 Тест рівня з редактора'); } catch (err) { setTip('⚠️ ' + err.message); }
 });
 if (window.opener) try { window.opener.postMessage({ type: 'match3-ready' }, '*'); } catch (e) {}
 

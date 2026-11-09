@@ -103,6 +103,12 @@
   .k-s .t { background: radial-gradient(circle at 40% 35%, #b6ff6a, #5fc93a 50%, #2f8a2a); border-radius: 45% 55% 50% 50%; }
   .k-g .t { background: linear-gradient(135deg, #6d7682, #2a2f35); border: 2px solid #1f2328; }
   .k-g .t::after { content: ''; width: 55%; height: 55%; border-radius: 50%; background: radial-gradient(circle, #b6ff6a, #3fae2e 70%); box-shadow: 0 0 0 3px #8b96a3, 0 0 8px #8f8; }
+  .k-b .t {
+    inset: 12% 18% 6%; border-radius: 6px;
+    background: linear-gradient(#b8c0c8 0 34%, transparent 34% 40%, #9aa5b1 40%);
+    box-shadow: 0 0 0 2px #3d444c;
+  }
+  .k-b .ico { position: relative; z-index: 1; font-size: calc(var(--cell) * .4); }
   .k-m .t {
     inset: 10%; border-radius: 50%;
     background: radial-gradient(circle, #2a2d33 0 17%, transparent 18%),
@@ -150,8 +156,17 @@
   .tool kbd { margin-left: auto; font-size: 10px; opacity: .55; font-family: inherit; }
 
   .hint { font-size: 12px; opacity: .65; line-height: 1.5; }
-  .warnings { font-size: 13px; color: #ffcc66; min-height: 18px; }
-  .stats { font-size: 13px; opacity: .85; max-width: 350px;}
+  .warnings { font-size: 13px; color: #ffcc66; min-height: 18px; max-width: 350px; }
+  .stats { font-size: 13px; opacity: .85; max-width: 350px; }
+  .drops h2 { margin-bottom: 6px; }
+  .drops .auto { display: flex; flex-direction: row; gap: 8px; align-items: flex-start; font-size: 13px; opacity: .9; margin-bottom: 8px; max-width: 520px; }
+  .drops table { border-collapse: collapse; font-size: 13px; }
+  .drops td { padding: 3px 6px; }
+  .drops td .cell { --cell: 26px; cursor: default; }
+  .drops td .cell:hover { outline: none; }
+  .drops input[type=number] { width: 64px; padding: 4px 6px; font-size: 13px; }
+  .drops tr.off td:not(:first-child) { opacity: .45; }
+  .drops .never { opacity: .5; font-size: 12px; }
   details summary { cursor: pointer; font-size: 13px; opacity: .8; }
   textarea {
     width: 100%; min-height: 220px; margin-top: 8px; background: rgba(0,0,0,.35); color: #dfe; border: 1px solid rgba(255,255,255,.15);
@@ -218,8 +233,14 @@
     <p class="hint">
       Клік або протягування — малювати вибраним інструментом.<br>
       Права кнопка миші — стерти (поставити звичайну фішку).<br>
-      Клавіші 0–9, E, O, J, K, Q, M — швидкий вибір інструмента, Ctrl+Z / Ctrl+Y — скасувати / повторити.
+      Клавіші 0–9, E, O, J, K, Q, M, B — швидкий вибір інструмента, Ctrl+Z / Ctrl+Y — скасувати / повторити.
     </p>
+    <div class="drops" id="drops">
+      <h2>🤡 Що може випасти зі шкатулки з клоуном</h2>
+      <label class="auto"><input type="checkbox" id="dropsAuto">
+        <span>Автоматично — перешкода може випадати, починаючи з рівня, де вона вперше з'являється на полі. Зніміть позначку, щоб задати вручну.</span></label>
+      <table id="dropsTable"></table>
+    </div>
     <details>
       <summary>JSON (можна редагувати вручну)</summary>
       <textarea id="json" spellcheck="false"></textarea>
@@ -251,12 +272,13 @@ const TOOLS = [
   { ch: 'k', name: 'Камінь', ico: '' },
   { ch: 'q', name: 'Камінь з кіркою', ico: '⛏️' },
   { ch: 'm', name: 'Бетономішалка', ico: '' },
+  { ch: 'b', name: 'Робот', ico: '🤖' },
 ];
 const CHARS = TOOLS.map(t => t.ch).join('');
-const MINI = { '.': '', m: '#f2a33a', k: '#8a8f98', q: '#b8bdc5', j: '#ffcc33', o: '#2a2f35', e: '#7cc8ff', c: '#c99357', n: '#5b8fd6', w: '#8d5a27', t: '#d23a2a', r: '#9aa5b1', s: '#5fc93a', g: '#3e454e', x: '#e8e8ff', p: '#c0303a' };
+const MINI = { '.': '', b: '#b8c0c8', m: '#f2a33a', k: '#8a8f98', q: '#b8bdc5', j: '#ffcc33', o: '#2a2f35', e: '#7cc8ff', c: '#c99357', n: '#5b8fd6', w: '#8d5a27', t: '#d23a2a', r: '#9aa5b1', s: '#5fc93a', g: '#3e454e', x: '#e8e8ff', p: '#c0303a' };
 const LEGEND = {
   '.': 'фішка', c: 'картонна коробка', n: 'синя коробка з цвяхозабивачем', w: "дерев'яний ящик", t: 'ящик TNT',
-  r: 'армований ящик', s: 'слиз', g: 'слизогенератор', x: 'фішка в павутині', p: 'павук на фішці', e: 'електрогенератор', o: 'металеве ядро', j: 'шкатулка з клоуном', k: 'камінь', q: 'камінь з кіркою', m: 'бетономішалка',
+  r: 'армований ящик', s: 'слиз', g: 'слизогенератор', x: 'фішка в павутині', p: 'павук на фішці', e: 'електрогенератор', o: 'металеве ядро', j: 'шкатулка з клоуном', k: 'камінь', q: 'камінь з кіркою', m: 'бетономішалка', b: 'робот',
 };
 
 // Стартовий набір — ті самі рівні, що вбудовані в гру
@@ -277,17 +299,20 @@ const DEFAULT = [
 ];
 
 let levels = JSON.parse(JSON.stringify(DEFAULT));
+// { символ: з якого рівня, 0 — ніколи } або null — автоматично
+let jackDrops = null;
+const DROP_CHARS = ['c', 'n', 'w', 't', 'r', 's', 'g', 'x', 'p', 'e', 'o', 'k', 'q', 'm', 'b'];
 let cur = 0, tool = 'c', dirty = false, fileName = 'levels.json';
 const undoStack = [], redoStack = [];
 
 // ---------- дані ----------
-const snapshot = () => JSON.stringify({ levels, cur });
+const snapshot = () => JSON.stringify({ levels, cur, jackDrops });
 function pushUndo() {
   undoStack.push(snapshot());
   if (undoStack.length > 100) undoStack.shift();
   redoStack.length = 0;
 }
-function restore(snap) { const d = JSON.parse(snap); levels = d.levels; cur = d.cur; markDirty(); renderAll(); }
+function restore(snap) { const d = JSON.parse(snap); levels = d.levels; cur = d.cur; jackDrops = d.jackDrops ?? null; markDirty(); renderAll(); }
 function markDirty() { dirty = true; $('fileInfo').textContent = fileName + ' · є незбережені зміни'; }
 function markSaved() { dirty = false; $('fileInfo').textContent = fileName + ' · збережено'; }
 
@@ -300,7 +325,53 @@ function setCell(r, c, ch) {
   return true;
 }
 function toJSON() {
-  return JSON.stringify({ version: 1, legend: LEGEND, levels: levels.map(l => ({ name: l.name, moves: l.moves, map: l.map })) }, null, 2);
+  const out = { version: 1, legend: LEGEND };
+  if (jackDrops) out.jackDrops = jackDrops;
+  out.levels = levels.map(l => ({ name: l.name, moves: l.moves, map: l.map }));
+  return JSON.stringify(out, null, 2);
+}
+function parseDrops(data) {
+  const d = data && !Array.isArray(data) ? data.jackDrops : null;
+  if (!d || typeof d !== 'object') return null;
+  const out = {};
+  DROP_CHARS.forEach(ch => { out[ch] = Math.max(0, Math.round(Number(d[ch])) || 0); });
+  return out;
+}
+// перший рівень, де перешкода з'являється на полі (0 — ніде)
+function firstLevelOf(ch) {
+  const i = levels.findIndex(l => l.map.some(row => row.includes(ch)));
+  return i < 0 ? 0 : i + 1;
+}
+function renderDrops() {
+  const auto = !jackDrops;
+  $('dropsAuto').checked = auto;
+  $('dropsTable').innerHTML = '<tr><td></td><td></td><td>Може випадати</td><td>з рівня</td></tr>' + DROP_CHARS.map(ch => {
+    const t = TOOLS.find(x => x.ch === ch);
+    const v = auto ? firstLevelOf(ch) : jackDrops[ch];
+    const on = v > 0;
+    return `<tr class="${on ? '' : 'off'}" data-ch="${ch}"><td>${cellHTML(ch, 26)}</td><td>${t.name}</td>
+      <td><input type="checkbox" class="dOn" ${on ? 'checked' : ''} ${auto ? 'disabled' : ''}></td>
+      <td>${auto && !on ? '<span class="never">не трапляється</span>' :
+        `<input type="number" class="dLv" min="1" max="${Math.max(levels.length, 1)}" value="${on ? v : 1}" ${auto || !on ? 'disabled' : ''}>`}</td></tr>`;
+  }).join('');
+  $('dropsTable').querySelectorAll('tr[data-ch]').forEach(tr => {
+    const ch = tr.dataset.ch;
+    const on = tr.querySelector('.dOn'), lv = tr.querySelector('.dLv');
+    // оновлюємо рядок на місці, без перемальовування таблиці (інакше ламається фокус полів)
+    on.onchange = () => {
+      pushUndo();
+      jackDrops[ch] = on.checked ? Math.max(1, +(lv?.value) || 1) : 0;
+      tr.classList.toggle('off', !on.checked);
+      if (lv) lv.disabled = !on.checked;
+      markDirty(); renderJSON();
+    };
+    if (lv) lv.onchange = () => {
+      pushUndo();
+      const v = Math.max(1, Math.min(999, Math.round(+lv.value) || 1));
+      lv.value = v; jackDrops[ch] = v;
+      markDirty(); renderJSON();
+    };
+  });
 }
 // та сама перевірка, що й у грі
 function parseLevels(data) {
@@ -380,7 +451,7 @@ function renderPalette() {
     `<button class="tool${t.ch === tool ? ' sel' : ''}" data-ch="${t.ch}">${cellHTML(t.ch, 30)}<span>${t.name}</span><kbd>${i < 10 ? i : t.ch.toUpperCase()}</kbd></button>`).join('');
   $('palette').querySelectorAll('.tool').forEach(b => b.onclick = () => { tool = b.dataset.ch; renderPalette(); });
 }
-function renderAll() { renderList(); renderBoard(); renderFields(); renderJSON(); $('undoBtn').disabled = !undoStack.length; $('redoBtn').disabled = !redoStack.length; }
+function renderAll() { renderList(); renderBoard(); renderFields(); renderJSON(); renderDrops(); $('undoBtn').disabled = !undoStack.length; $('redoBtn').disabled = !redoStack.length; }
 
 // ---------- малювання по полю ----------
 let painting = null;   // символ, яким малюємо під час протягування
@@ -469,6 +540,7 @@ document.addEventListener('keydown', e => {
   else if (e.key.toLowerCase() === 'k' || e.key.toLowerCase() === 'л') { tool = 'k'; renderPalette(); }
   else if (e.key.toLowerCase() === 'q' || e.key.toLowerCase() === 'й') { tool = 'q'; renderPalette(); }
   else if (e.key.toLowerCase() === 'm' || e.key.toLowerCase() === 'ь') { tool = 'm'; renderPalette(); }
+  else if (e.key.toLowerCase() === 'b' || e.key.toLowerCase() === 'и') { tool = 'b'; renderPalette(); }
 });
 
 // ---------- файл ----------
@@ -484,9 +556,10 @@ $('fileInput').onchange = async e => {
   e.target.value = '';
   if (!f) return;
   try {
-    const list = parseLevels(JSON.parse(await f.text()));
+    const data = JSON.parse(await f.text());
+    const list = parseLevels(data);
     pushUndo();
-    levels = list; cur = 0; fileName = f.name; renderAll(); markSaved();
+    levels = list; jackDrops = parseDrops(data); cur = 0; fileName = f.name; renderAll(); markSaved();
     toast(`📂 Відкрито ${f.name}: рівнів ${list.length}`);
   } catch (err) { toast('⚠️ Не вдалося відкрити: ' + err.message); }
 };
@@ -506,15 +579,16 @@ $('copyBtn').onclick = async () => {
 };
 $('applyJson').onclick = () => {
   try {
-    const list = parseLevels(JSON.parse($('json').value));
-    pushUndo(); levels = list; cur = Math.min(cur, list.length - 1); markDirty(); $('json').blur(); renderAll();
+    const data = JSON.parse($('json').value);
+    const list = parseLevels(data);
+    pushUndo(); levels = list; jackDrops = parseDrops(data); cur = Math.min(cur, list.length - 1); markDirty(); $('json').blur(); renderAll();
     toast('✅ JSON застосовано');
   } catch (err) { toast('⚠️ Помилка в JSON: ' + err.message); }
 };
 
 // ---------- тест у грі ----------
 let gameWin = null;
-function sendToGame() { gameWin.postMessage({ type: 'match3-levels', data: { levels }, start: cur }, '*'); }
+function sendToGame() { gameWin.postMessage({ type: 'match3-levels', data: { levels, jackDrops }, start: cur }, '*'); }
 window.addEventListener('message', e => { if (e.data?.type === 'match3-ready' && gameWin && e.source === gameWin) sendToGame(); });
 $('testBtn').onclick = () => {
   if (gameWin && !gameWin.closed) { sendToGame(); gameWin.focus(); return; }
@@ -524,6 +598,12 @@ $('testBtn').onclick = () => {
 
 window.addEventListener('beforeunload', e => { if (dirty) { e.preventDefault(); e.returnValue = ''; } });
 
+$('dropsAuto').onchange = () => {
+  pushUndo();
+  if ($('dropsAuto').checked) jackDrops = null;
+  else { jackDrops = {}; DROP_CHARS.forEach(ch => { jackDrops[ch] = firstLevelOf(ch); }); }   // стартуємо з автоматичних значень
+  markDirty(); renderDrops(); renderJSON();
+};
 renderPalette();
 renderAll();
 $('fileInfo').textContent = fileName + ' · стандартні рівні';
