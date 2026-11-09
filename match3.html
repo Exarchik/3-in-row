@@ -109,13 +109,13 @@
     border-radius: 50% 50% 42% 42%;
     background: radial-gradient(circle at 50% 70%, #b8ff8a, #4fc23a 60%, #2e8a22);
   }
-  .t9 .face::before { /* очі */
-    content: ''; position: absolute; left: -4%; right: -4%; top: -14%; height: 46%;
-    background:
-      radial-gradient(circle at 22% 55%, #111 0 11%, #fff 12% 26%, #3fae2e 27% 34%, transparent 35%),
-      radial-gradient(circle at 78% 55%, #111 0 11%, #fff 12% 26%, #3fae2e 27% 34%, transparent 35%);
-    animation: blink 4s infinite;
+  .t9 .eye { /* очі — окремі круглі елементи */
+    position: absolute; top: -14%; width: 40%; aspect-ratio: 1; border-radius: 50%; box-sizing: border-box;
+    background: radial-gradient(circle at 50% 58%, #111 0 28%, #fff 31%);
+    border: 3px solid #3fae2e; animation: blink 4s infinite;
   }
+  .t9 .eye.l { left: 0; } .t9 .eye.r { right: 0; }
+  .t9.red .eye { border-color: #d8402a; }
   .t9 .face::after { /* усмішка */
     content: ''; position: absolute; left: 26%; right: 26%; top: 48%; height: 22%;
     border-bottom: 3px solid #1d5e15; border-radius: 0 0 50% 50%;
@@ -526,6 +526,60 @@
   .box.regen .crate { animation: regen .8s; }
   @keyframes regen { 40% { filter: brightness(1.5) drop-shadow(0 0 10px #7cffb0); transform: scale(1.1); } }
 
+  /* ===== Шкатулка з клоуном ===== */
+  .jack .crate { background: none; box-shadow: none; inset: 1px; }
+  .jack .jb { inset: 0; width: 100%; height: 100%; filter: drop-shadow(0 3px 3px rgba(0,0,0,.5)); }
+  .jack .crank { right: -6%; top: 44%; width: 34%; height: 34%; transform-origin: 18% 50%; transition: transform .6s cubic-bezier(.3,1.4,.5,1); z-index: 2; }
+  .jack .crank svg { width: 100%; height: 100%; overflow: visible; }
+  .clownFx {
+    position: absolute; z-index: 16; pointer-events: none; width: var(--cell); height: calc(var(--cell) * 2);
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+    animation: clownUp 1.3s forwards;
+  }
+  .clownFx .head { font-size: calc(var(--cell) * .8); line-height: 1; animation: clownWobble .5s .25s ease-in-out 2 alternate; }
+  .clownFx svg { width: 40%; height: calc(var(--cell) * .7); }
+  @keyframes clownUp {
+    0% { transform: translateY(40%) scaleY(.2); opacity: 0; }
+    20% { transform: translateY(-15%) scaleY(1.1); opacity: 1; }
+    35% { transform: translateY(0) scaleY(.95); }
+    85% { opacity: 1; }
+    100% { transform: translateY(-10%); opacity: 0; }
+  }
+  @keyframes clownWobble { from { transform: rotate(-14deg); } to { transform: rotate(14deg); } }
+  .scatterFx {
+    position: absolute; left: 0; top: 0; z-index: 16; pointer-events: none; width: var(--cell); height: var(--cell);
+    display: flex; align-items: center; justify-content: center; font-size: calc(var(--cell) * .6);
+    transition: transform .6s cubic-bezier(.3,1.3,.5,1);
+  }
+
+  /* ===== Павучі яйця ===== */
+  .gem.egged { z-index: 5; cursor: not-allowed; isolation: isolate; }
+  .eggs { position: absolute; inset: 6%; pointer-events: none; z-index: 1; animation: webIn .45s ease-out; }
+  .eggs svg { width: 100%; height: 100%; filter: drop-shadow(0 2px 2px rgba(0,0,0,.45)); }
+  .web { z-index: 2; }
+  .eggs.ripe svg { animation: eggWobble .3s ease-in-out infinite alternate; }
+  @keyframes eggWobble { from { transform: rotate(-5deg); } to { transform: rotate(5deg) scale(1.05); } }
+  .eggs.crack { animation: eggCrack .4s forwards; }
+  @keyframes eggCrack { 40% { transform: scale(1.2); } to { transform: scale(.3); opacity: 0; } }
+
+  /* ===== Лотерея: польоти призів ===== */
+  .lfly {
+    position: fixed; left: 0; top: 0; z-index: 70; pointer-events: none; font-size: 30px; line-height: 1;
+    margin: -17px 0 0 -17px; filter: drop-shadow(0 0 8px #ffe66d);
+    transition: transform .5s cubic-bezier(.4,0,.3,1);
+  }
+  .lfly span { display: inline-block; }   /* масштаб/поворот — на внутрішньому елементі, щоб не зсувати translate */
+  .lfly.merge { font-size: 40px; margin: -22px 0 0 -22px; }
+  .lfly.merge span { animation: lmerge .45s; }
+  @keyframes lmerge { 40% { scale: 1.6; filter: brightness(1.8) drop-shadow(0 0 16px #fff); } }
+  .lfly.chest { font-size: 46px; margin: -25px 0 0 -25px; }
+  .lfly.chest span { animation: chestShake .12s 5 alternate; }
+  @keyframes chestShake { from { rotate: -10deg; } to { rotate: 10deg; } }
+  .linv { display: flex; justify-content: center; gap: 14px; margin: 0 0 10px; font-size: 22px; }
+  .linv span { background: rgba(90,59,0,.12); border-radius: 12px; padding: 4px 10px; display: flex; align-items: center; gap: 6px; }
+  .linv b { font-size: 16px; min-width: 14px; }
+  .linv span.bump { animation: bump .5s; }
+
   /* ===== Металеве ядро ===== */
   .gem.box.core { transition: transform .3s cubic-bezier(.5,0,.7,1.3); }   /* ядро падає разом із фішками */
   .core .crate { background: none; box-shadow: none; inset: 1px; }
@@ -591,7 +645,7 @@
   }
 
   /* сірий фон під перешкодами */
-  .gem.box::before, .gem.webbed::before, .gem.spidered::before {
+  .gem.box::before, .gem.webbed::before, .gem.spidered::before, .gem.egged::before {
     content: ''; position: absolute; inset: 1px; border-radius: 8px; z-index: -1;
     background: linear-gradient(135deg, #8a8f9c, #5f6472);
     box-shadow: inset 0 0 0 1px rgba(255,255,255,.18), inset 0 -2px 4px rgba(0,0,0,.35);
@@ -638,6 +692,9 @@
     ⚙️ слизогенератор — щоходу створює слиз у сусідній клітинці; якщо за хід його пошкодили — пропускає; 3 удари, а коли ламається — заливає слизом зону 3×3<br>
     🔫 цвяхозабивач (лежить у синіх картонних коробках) — 3 удари; від кожного удару стріляє цвяхом в одному з 4 напрямків, а коли ламається — в усі 4. Цвях пролітає крізь фішки і б'є всі перешкоди на шляху<br>
     🧨 ящик TNT — як дерев'яний (3 удари), але коли ламається — вибухає 3×3<br>
+    🤡 шкатулка з клоуном — 3 удари (від кожного крутиться рукоятка); коли ламається — вискакує клоун і розкидає по полю 3 випадкові перешкоди<br>
+    🥚 раз на 5 ходів павук лишає кладку яєць на павутині; спершу треба порвати павутину, потім розбити яйця (з розбитої кладки вилазить 1 павук). Якщо кладка пролежить 3 ходи — вилупляться 3 павуки<br>
+    🐸 жабки люблять павуків: один із язиків жабки обов'язково хапає павука, якщо він є на полі<br>
     ⚫ металеве ядро — не пошкоджується нічим; падає вниз, коли під ним збирають комбінації, а торкнувшись дна поля — вибухає 3×3<br>
     ⚡ електрогенератор — 3 удари; на третьому вибухає як фіолетова блискавка (рядок, стовпчик, обидві діагоналі). Якщо за хід його не зачепили — відновлює 1 одиницю здоров'я<br>
     🕷️ павук — щоходу переповзає на сусідню фішку і лишає павутину; гине з 1 удару<br>
@@ -662,6 +719,7 @@
       <div class="sub" id="lsub">Зітріть 4 клітинки — якщо дві співпадуть, приз ваш!</div>
       <div class="lgrid" id="lgrid"></div>
       <div class="lresult" id="lresult"></div>
+      <div class="linv"><span id="li-hammer">🔨 <b>0</b></span><span id="li-glove">🧤 <b>0</b></span><span id="li-dart">🎯 <b>0</b></span></div>
       <button id="lnext" disabled>Зітріть 4 клітинки</button>
     </div>
   </div>
@@ -759,6 +817,16 @@ const sfx = {
     tone(strong ? 700 : 1100, { dur: strong ? 0.3 : 0.15, vol: strong ? 0.05 : 0.03, type: 'square', slide: 1.5 });
     noise(strong ? 0.2 : 0.1, strong ? 0.1 : 0.05, 6000);
   },
+  crank: () => [0, 1, 2, 3, 4].forEach(i => tone(1500 + i * 60, { dur: 0.025, vol: 0.04, type: 'square', delay: i * 0.06 })),
+  jackPop: () => {
+    tone(200, { dur: 0.5, vol: 0.18, type: 'triangle', slide: 4 });
+    [0, 2, 4, 7].forEach((n, i) => tone(PENTA[n], { dur: 0.25, vol: 0.08, delay: 0.35 + i * 0.08 }));
+  },
+  scatter: () => [0, 1, 2].forEach(i => tone(600 + i * 200, { dur: 0.15, vol: 0.06, type: 'triangle', slide: 1.6, delay: i * 0.12 })),
+  eggsLay: () => { tone(420, { dur: 0.15, vol: 0.08, slide: 0.7 }); tone(520, { dur: 0.15, vol: 0.06, delay: 0.12 }); },
+  eggsBreak: () => { noise(0.08, 0.12, 2000); tone(800, { dur: 0.15, vol: 0.06, type: 'triangle', slide: 0.4 }); },
+  hatch: () => [0, 1, 2].forEach(i => { noise(0.06, 0.08, 2500); tone(900 + i * 100, { dur: 0.1, vol: 0.05, type: 'triangle', delay: i * 0.1 }); }),
+  merge: () => { tone(PENTA[2], { dur: 0.2, vol: 0.1 }); tone(PENTA[5], { dur: 0.35, vol: 0.1, delay: 0.1 }); },
   coreTink: () => { tone(2100, { dur: 0.12, vol: 0.03 }); tone(3150, { dur: 0.08, vol: 0.015 }); },
   coreLand: () => { tone(90, { dur: 0.4, vol: 0.3, slide: 0.6 }); noise(0.15, 0.15, 500); },
   teslaRegen: () => { tone(260, { dur: 0.45, vol: 0.1, slide: 2 }); tone(PENTA[4], { dur: 0.3, vol: 0.05, delay: 0.3 }); },
@@ -773,7 +841,7 @@ const sfx = {
 // ===== Гра =====
 const N = 8, TYPES = 6;
 const RAINBOW = 6, BOMB = 7, LIGHTNING = 8, FROG = 9;
-const CARDBOARD = 10, WOOD = 11, REINFORCED = 12, SLIME = 13, GENERATOR = 14, NAILGUN = 15, TNT = 16, TESLA = 17, CORE = 18;
+const CARDBOARD = 10, WOOD = 11, REINFORCED = 12, SLIME = 13, GENERATOR = 14, NAILGUN = 15, TNT = 16, TESLA = 17, CORE = 18, JACK = 19;
 const isNormal = t => t < TYPES;
 const isSpecial = t => t >= RAINBOW && t <= FROG;
 const isBox = t => t >= CARDBOARD;
@@ -829,7 +897,7 @@ function setPos(gem, r, c) {
 function createGem(r, c, type, fromRow = r) {
   const el = document.createElement('div');
   el.className = 'gem t' + type;
-  el.innerHTML = '<div class="face"></div>';
+  el.innerHTML = type === FROG ? '<div class="face"><i class="eye l"></i><i class="eye r"></i></div>' : '<div class="face"></div>';
   const gem = { type, el };
   setPos(gem, fromRow, c);
   board.appendChild(el);
@@ -840,13 +908,15 @@ function createGem(r, c, type, fromRow = r) {
   return gem;
 }
 
-const BOX_CHARS = { c: CARDBOARD, n: CARDBOARD, w: WOOD, r: REINFORCED, s: SLIME, g: GENERATOR, t: TNT, e: TESLA, o: CORE };
+const BOX_CHARS = { c: CARDBOARD, n: CARDBOARD, w: WOOD, r: REINFORCED, s: SLIME, g: GENERATOR, t: TNT, e: TESLA, o: CORE, j: JACK };
 function startLevel(i) {
   level = i;
   const def = LEVELS[i] || randomLevel();
   board.querySelectorAll('.gem, .beam, .bolt, .shock, .float, .combo, .shard, .tongue, .spiderEl, .nail, .dart').forEach(e => e.remove());
   pendingFill.length = pendingClear.length = pendingDet.length = 0;
   inFlight = 0;
+  turn = 0;
+  pendingJack.length = 0;
   levelStartScore = score;
   cancelBooster();
   moves = def.moves; selected = null; busy = false;
@@ -1060,6 +1130,7 @@ const BOX_INFO = {
   [TNT]:        { cls: 'wood tnt',   hp: 3, pts: 150, shards: ['#d23a2a', '#9c2418', '#ffcc66'] },
   [TESLA]:      { cls: 'tesla',      hp: 3, pts: 250, shards: ['#d9822b', '#8a4a12', '#c3ccd5', '#7cc8ff'] },
   [CORE]:       { cls: 'core',       hp: 1, pts: 200, shards: ['#9aa5b1', '#3d444c', '#ffcc66'] },
+  [JACK]:       { cls: 'jack',       hp: 3, pts: 200, shards: ['#e8402a', '#ffcc33', '#3a7bd5', '#fff'] },
 };
 const CRACKS = '<svg class="crack" viewBox="0 0 100 100">' +
   '<polyline class="c1" points="24,10 40,34 30,52 52,70 46,92"/>' +
@@ -1097,6 +1168,19 @@ const CORE_SVG = '<svg class="ball" viewBox="0 0 100 100"><defs>' +
   [18, 34, 50, 66, 82].map(x => `<circle cx="${x}" cy="${52 + (x === 50 ? 7 : x === 34 || x === 66 ? 5 : 2)}" r="2.6" fill="#c3ccd5"/>`).join('') +
   '<ellipse cx="36" cy="32" rx="11" ry="6" fill="#fff" opacity=".35" transform="rotate(-30 36 32)"/></svg>';
 
+// Шкатулка з клоуном: смугаста коробка з кришкою і рукояткою збоку
+const JACK_SVG = '<svg class="jb" viewBox="0 0 100 100"><defs>' +
+  '<pattern id="jStr" width="16" height="16" patternUnits="userSpaceOnUse"><rect width="16" height="16" fill="#e8402a"/>' +
+  '<polygon points="8,1 15,8 8,15 1,8" fill="#ffcc33"/></pattern></defs>' +
+  '<rect x="10" y="34" width="70" height="58" rx="5" fill="url(#jStr)" stroke="#7a1a10" stroke-width="3"/>' +
+  '<rect x="6" y="24" width="78" height="14" rx="4" fill="#3a7bd5" stroke="#1d3f7a" stroke-width="3"/>' +
+  '<text x="45" y="76" text-anchor="middle" font-size="30" font-weight="900" fill="#fff" stroke="#7a1a10" stroke-width="2" font-family="system-ui">?</text>' +
+  '<circle cx="82" cy="62" r="5" fill="#c3ccd5" stroke="#434b54" stroke-width="2"/></svg>';
+const CRANK_SVG = '<svg viewBox="0 0 30 30"><rect x="5" y="13" width="18" height="4" rx="2" fill="#c3ccd5" stroke="#434b54" stroke-width="1"/>' +
+  '<rect x="20" y="6" width="5" height="12" rx="2.5" fill="#ffcc33" stroke="#7a5a00" stroke-width="1"/>' +
+  '<circle cx="5.5" cy="15" r="3.5" fill="#8b96a3" stroke="#434b54" stroke-width="1"/></svg>';
+const SPRING_SVG = '<svg viewBox="0 0 20 40" preserveAspectRatio="none"><polyline points="10,40 2,36 18,31 2,26 18,21 2,16 18,11 2,6 10,2" fill="none" stroke="#c3ccd5" stroke-width="2.5"/></svg>';
+
 function setTeslaStage(box) {
   box.el.classList.toggle('dmg1', box.hp === 2);
   box.el.classList.toggle('dmg2', box.hp === 1);
@@ -1114,6 +1198,7 @@ function createBox(r, c, type) {
   if (type === TNT) inner = CRACKS + '<i class="plank p1"></i><i class="plank p2"></i><i class="tnt-label">TNT</i>';
   if (type === NAILGUN) inner = NAILGUN_SVG + CRACKS;
   if (type === CORE) inner = CORE_SVG + '<i class="down"></i>';
+  if (type === JACK) inner = JACK_SVG + '<i class="crank">' + CRANK_SVG + '</i>';
   if (type === TESLA) inner = '<i class="glow"></i>' + TESLA_SVG + '<i class="zap">' + ZAP_SVG + '</i>';
   if (type === GENERATOR) inner = '<i class="tank"></i>' + CRACKS +
     '<i class="nut n1"></i><i class="nut n2"></i><i class="nut n3"></i><i class="nut n4"></i><i class="smoke"></i>';
@@ -1149,7 +1234,7 @@ function tearWeb(gem, r, c) {
   floatText('+30', r, c, '#e8e8ff');
   updateHud();
 }
-const locked = g => g && (g.web || g.spider);
+const locked = g => g && (g.web || g.spider || g.eggs);
 const isObstacle = g => g && ((isBox(g.type) && !g.broken) || locked(g));
 const movable = g => g && !isBox(g.type) && !locked(g);
 const isFree = (r, c) => isNormal(grid[r][c].type) && !locked(grid[r][c]);
@@ -1190,7 +1275,8 @@ function hitBox(r, c) {
     return;
   }
   if (box.spider) { killSpider(box, r, c); return; }
-  if (box.web) { tearWeb(box, r, c); return; }
+  if (box.web) { tearWeb(box, r, c); return; }       // спершу рветься павутина
+  if (box.eggs) { breakEggs(box, r, c); return; }     // потім — яйця
   if (!isBox(box.type) || box.broken) return;
   box.hp--;
   box.hitThisMove = true;
@@ -1207,11 +1293,20 @@ function hitBox(r, c) {
        [REINFORCED]: () => { sfx.woodBreak(); sfx.metalBreak(); },
        [GENERATOR]: () => { sfx.metalBreak(); sfx.slimeBreak(); },
        [NAILGUN]: () => sfx.metalBreak(), [TNT]: () => sfx.woodBreak(),
-       [TESLA]: () => { sfx.lightning(); sfx.teslaZap(true); } })[box.type]();
+       [TESLA]: () => { sfx.lightning(); sfx.teslaZap(true); },
+       [JACK]: () => sfx.cardBreak() })[box.type]?.();
     shatter(r, c, box.nailgun ? ['#8fb8ec', '#5b8fd6', '#2c5394', '#f0e1b4'] : info.shards, box.type === REINFORCED || box.type === GENERATOR ? 12 : 8);
     if (box.type === NAILGUN) [[0,1],[0,-1],[1,0],[-1,0]].forEach(d => fireNail(r, c, d));   // цвяхи в усі 4 боки
     if (box.type === TNT) tntExplode(r, c);
     if (box.type === TESLA) teslaBlast(r, c);
+    if (box.type === JACK) {
+      // з шкатулки вискакує клоун на пружині, а потім розкидає 3 перешкоди
+      const cl = fx('clownFx', { left: `calc(var(--cell) * ${c})`, top: `calc(var(--cell) * ${r - 1})` });
+      cl.innerHTML = '<div class="head">🤡</div>' + SPRING_SVG;
+      setTimeout(() => cl.remove(), 1300);
+      sfx.jackPop();
+      pendingJack.push([r, c]);
+    }
     if (box.loot) lootFly(r, c, box.loot);
     if (box.type === CARDBOARD && box.nailgun) {
       // з коробки випадає цвяхозабивач
@@ -1243,6 +1338,12 @@ function hitBox(r, c) {
     if (box.hp === 3) q('.b-top, .x1');                          // 1: зовнішня + хрестова смуга
     else if (box.hp === 2) { q('.b-right'); el.classList.add('crack1'); } // 2: ще зовнішня + тріщина
     else { q('.band'); el.classList.add('crack2', 'dented'); }    // 3: решта смуг, тріщина, пом'ятий
+  } else if (box.type === JACK) {
+    // від кожного удару рукоятка робить оберт
+    box.crank = (box.crank || 0) + 360;
+    const cr = el.querySelector('.crank');
+    if (cr) cr.style.transform = `rotate(${box.crank}deg)`;
+    sfx.crank();
   } else if (box.type === TESLA) {
     // 1: невеличка блискавка над котушкою, 2: блискавка більша, розряди сильніші
     setTeslaStage(box);
@@ -1399,6 +1500,131 @@ function landCores() {
   return any;
 }
 
+// 🤡 Шкатулка розкидає 3 випадкові перешкоди (крім шкатулки)
+let turn = 0;                     // скільки ходів зроблено на рівні
+const pendingJack = [];
+const SCATTER = ['c', 'c', 'n', 'w', 'w', 't', 'r', 's', 'g', 'x', 'x', 'p', 'e', 'o'];
+const SCATTER_ICON = { c: '📦', n: '📦', w: '🪵', t: '🧨', r: '🛡️', s: '🟢', g: '⚙️', x: '🕸️', p: '🕷️', e: '⚡', o: '⚫' };
+async function jackScatter([jr, jc]) {
+  const free = [];
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) if (grid[r][c] && isFree(r, c)) free.push([r, c]);
+  free.sort(() => Math.random() - .5);
+  const picks = free.slice(0, 3).map(([r, c]) => {
+    let ch = SCATTER[Math.floor(Math.random() * SCATTER.length)];
+    // ядро — лише туди, звідки воно зможе впасти до дна
+    if (ch === 'o') {
+      let ok = r < N - 1;
+      for (let k = r + 1; k < N && ok; k++) { const g = grid[k][c]; if (g && (isBox(g.type) && g.type !== CORE || locked(g))) ok = false; }
+      if (!ok) ch = 'c';
+    }
+    return [r, c, ch];
+  });
+  if (!picks.length) return;
+  sfx.scatter();
+  picks.forEach(([r, c, ch], i) => {
+    const f = document.createElement('div');
+    f.className = 'scatterFx';
+    f.textContent = SCATTER_ICON[ch];
+    f.style.transform = `translate(${jc * 100}%, ${jr * 100}%) scale(.3)`;
+    f.style.transitionDelay = i * 0.12 + 's';
+    board.appendChild(f);
+    f.getBoundingClientRect();
+    f.style.transform = `translate(${c * 100}%, ${r * 100}%) scale(1)`;
+    setTimeout(() => {
+      f.remove();
+      const g = grid[r][c];
+      if (!g || !isFree(r, c)) return;
+      if (ch === 'x') addWeb(g);
+      else if (ch === 'p') addSpider(r, c);
+      else {
+        g.el.remove();
+        const box = createBox(r, c, BOX_CHARS[ch]);
+        if (ch === 'n') { box.nailgun = true; box.el.classList.add('ng-box'); }
+        box.el.classList.add('spawn');
+        grid[r][c] = box;
+      }
+      updateHud();
+    }, 620 + i * 120);
+  });
+  await wait(1100);
+  if (!findMove()) await shuffle();
+}
+
+// 🥚 Павучі яйця лежать на павутині (на фішці)
+const EGGS_SVG = '<svg viewBox="0 0 100 100">' +
+  [[38, 58, -15], [60, 56, 12], [49, 40, 0], [30, 40, -25], [68, 38, 25]].map(([x, y, a]) =>
+    `<ellipse cx="${x}" cy="${y}" rx="11" ry="14" transform="rotate(${a} ${x} ${y})" fill="#f4efe0" stroke="#b8ad8c" stroke-width="2"/>` +
+    `<circle cx="${x - 3}" cy="${y - 3}" r="1.6" fill="#b8ad8c"/>`).join('') + '</svg>';
+function addEggs(g, r, c) {
+  g.eggs = { age: 0 };
+  g.el.classList.add('egged');
+  const e = document.createElement('div');
+  e.className = 'eggs';
+  e.innerHTML = EGGS_SVG;
+  g.el.insertBefore(e, g.el.querySelector('.web'));   // павутина лежить зверху
+  g.eggsEl = e;
+  sfx.eggsLay();
+  floatText('🥚', r, c, '#fff');
+}
+function removeEggs(g) {
+  g.eggs = null;
+  g.el.classList.remove('egged');
+  const e = g.eggsEl;
+  g.eggsEl = null;
+  if (e) { e.classList.add('crack'); setTimeout(() => e.remove(), 400); }
+}
+// Розбили кладку — з неї вилазить 1 павук
+function breakEggs(g, r, c) {
+  removeEggs(g);
+  sfx.eggsBreak();
+  score += 60;
+  floatText('+60', r, c, '#ffd27a');
+  setTimeout(() => { if (grid[r][c] === g && !locked(g)) { addSpider(r, c); updateHud(); } }, 300);
+  updateHud();
+}
+// Кладка пролежала 3 ходи — вилуплюються 3 павуки
+function hatchEggs(g, r, c) {
+  removeEggs(g);
+  sfx.hatch();
+  floatText('🕷️×3', r, c, '#ff9a9a');
+  const spots = [[r, c]];
+  const near = [[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,-1],[1,-1],[-1,1]].map(([dr, dc]) => [r + dr, c + dc])
+    .filter(([rr, cc]) => rr >= 0 && rr < N && cc >= 0 && cc < N && isFree(rr, cc)).sort(() => Math.random() - .5);
+  spots.push(...near.slice(0, 2));
+  spots.forEach(([rr, cc]) => { if (!grid[rr][cc].spider) addSpider(rr, cc); });
+}
+// Хід павуків: переповзають, кладки дозрівають, раз на 5 ходів — нова кладка
+async function spiderTurn() {
+  await moveSpiders();
+  // дозрівання кладок
+  let hatched = false;
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
+    const g = grid[r][c];
+    if (!g?.eggs) continue;
+    g.eggs.age++;
+    if (g.eggs.age >= 3) { hatchEggs(g, r, c); hatched = true; }
+    else if (g.eggs.age === 2) g.eggsEl.classList.add('ripe');
+  }
+  // нова кладка раз на 5 ходів — на павутині, бажано поруч із павуком
+  if (turn % 5 === 0) {
+    const spiders = [], webs = [];
+    for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
+      const g = grid[r][c];
+      if (g?.spider) spiders.push([r, c]);
+      else if (g?.web && !g.eggs) webs.push([r, c]);
+    }
+    if (spiders.length && webs.length) {
+      const near = webs.filter(([r, c]) => spiders.some(([a, b]) => Math.abs(a - r) + Math.abs(b - c) === 1));
+      const list = near.length ? near : webs;
+      const [r, c] = list[Math.floor(Math.random() * list.length)];
+      addEggs(grid[r][c], r, c);
+      await wait(400);
+    }
+  }
+  if (hatched) await wait(500);
+  updateHud();
+}
+
 // ⚡ Електрогенератор вибухає як фіолетова блискавка: рядок, стовпчик і обидві діагоналі
 function teslaBlast(r, c) {
   shakeBoard();
@@ -1462,7 +1688,11 @@ async function settle() {
     if (landCores()) { await wait(250); while (inFlight > 0) await wait(50); }
     const dets = pendingDet.splice(0).map(findGem).filter(p => p && isSpecial(grid[p[0]][p[1]].type));
     const dirty = pendingClear.length || pendingFill.length || grid.flat().some(g => g && g.broken);
-    if (!dets.length && !dirty) return;
+    if (!dets.length && !dirty) {
+      if (!pendingJack.length) return;
+      for (const pos of pendingJack.splice(0)) await jackScatter(pos);
+      continue;
+    }
     if (dets.length) await detonate(dets.map(([r, c]) => ({ r, c, dir: randDir() })));
     else { collapse(); setTimeout(sfx.land, 250); await wait(400); }
     await resolve();
@@ -1618,6 +1848,27 @@ async function frogEat(f, [r, c], frogEl, i, convert = false, speed = 1) {
   tongue.style.transform = `rotate(${ang}) scaleX(1)`;   // язик вилітає
   await wait(190 * speed);
 
+  if (convert === 'spider') {
+    // язик хапає павука, фішка під ним лишається
+    const g = grid[r][c], sel = g.spiderEl;
+    g.spider = false; g.spiderEl = null; g.el.classList.remove('spidered');
+    if (sel) {
+      sel.style.transition = `transform ${.22 * speed}s ease-in, opacity .1s ${.2 * speed}s`;
+      sel.style.transform = `translate(${f.c * 100}%, ${f.r * 100}%) scale(.15)`;
+      sel.style.opacity = 0;
+      setTimeout(() => sel.remove(), 400);
+    }
+    tongue.style.transition = `transform ${.22 * speed}s ease-in`;
+    tongue.style.transform = `rotate(${ang}) scaleX(0)`;
+    await wait(230 * speed);
+    tongue.remove();
+    score += 80; floatText('🕷️ +80', r, c, '#7cffb0'); updateHud();
+    frogEl.classList.remove('gulp'); frogEl.getBoundingClientRect(); frogEl.classList.add('gulp');
+    sfx.gulp(i);
+    await wait(180 * speed);
+    return;
+  }
+
   if (convert) {
     grid[r][c].el.remove();
     grid[r][c] = createGem(r, c, convert);
@@ -1705,12 +1956,24 @@ async function fire(t, idx, destroyed, next) {
       if (!hitSet.has(key(rr, cc))) { hitSet.add(key(rr, cc)); hitBox(rr, cc); }
     });
     await wait(120);
+    const count = t.count ?? 3, speed = t.fast ? .45 : 1;
+    // жабки люблять павуків: один із язиків обов'язково хапає павука
+    const spiders = [];
+    for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) if (grid[r][c]?.spider) spiders.push([r, c]);
+    const spiderCell = spiders.length ? spiders[Math.floor(Math.random() * spiders.length)] : null;
+    const spiderAt = spiderCell ? Math.floor(Math.random() * count) : -1;
     let eaten = 0;
-    for (const cell of pool) {
-      if (eaten >= (t.count ?? 3)) break;
+    const queue = pool.slice();
+    while (eaten < count) {
+      if (eaten === spiderAt && grid[spiderCell[0]][spiderCell[1]]?.spider) {
+        await frogEat(t, spiderCell, gem.el, eaten++, 'spider', speed);
+        continue;
+      }
+      const cell = queue.shift();
+      if (!cell) break;
       if (destroyed.has(key(...cell))) continue; // могли забрати паралельні вибухи
       destroyed.add(key(...cell));
-      await frogEat(t, cell, gem.el, eaten++, false, t.fast ? .45 : 1);
+      await frogEat(t, cell, gem.el, eaten++, false, speed);
       hitAround(...cell);
     }
     hitAround(t.r, t.c);
@@ -1998,6 +2261,7 @@ async function trySwap(a, b) {
 
   if (sa || sb) {
     moves--;
+    turn++;
     updateHud();
     // Якщо звичайна фішка, яку зсунули на місце бонуса, утворила комбінацію —
     // спершу відпрацьовує вона (разом з каскадами), а вже потім бонус.
@@ -2039,6 +2303,7 @@ async function trySwap(a, b) {
     return;
   } else {
     moves--;
+    turn++;
     updateHud();
     await resolve([a, b]);
   }
@@ -2047,7 +2312,7 @@ async function trySwap(a, b) {
     await regenTeslas();
     await runGenerators();
     if (!slimeHit) await spreadSlime();
-    await moveSpiders();
+    await spiderTurn();
   }
   await checkEnd();
   busy = false;
@@ -2197,6 +2462,11 @@ function updateBoosters(bumped = []) {
     b.disabled = inv[k] <= 0;
     b.classList.toggle('active', boosterMode === k);
     if (bumped.includes(k)) { b.classList.remove('bump'); b.getBoundingClientRect(); b.classList.add('bump'); }
+    const li = $('li-' + k);
+    if (li) {
+      li.querySelector('b').textContent = inv[k];
+      if (bumped.includes(k)) { li.classList.remove('bump'); li.getBoundingClientRect(); li.classList.add('bump'); }
+    }
   }
 }
 function cancelBooster() {
@@ -2360,6 +2630,59 @@ function makeTicket() {
   return list;
 }
 
+// Летючий значок у координатах екрана
+function flyer(icon, x, y, cls = '') {
+  const el = document.createElement('div');
+  el.className = 'lfly ' + cls;
+  el.innerHTML = `<span>${icon}</span>`;
+  el.style.transform = `translate(${x}px, ${y}px)`;
+  document.body.appendChild(el);
+  el.getBoundingClientRect();
+  return el;
+}
+const center = el => { const r = el.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; };
+// Бонус летить на панель і додається гравцю
+async function flyToBooster(b, x, y, delay = 0) {
+  await wait(delay);
+  const ico = { hammer: '🔨', glove: '🧤', dart: '🎯' }[b];
+  const f = flyer(ico, x, y);
+  const [tx, ty] = center($('lottery').classList.contains('show') ? $('li-' + b) : $('b-' + b));
+  f.style.transition = 'transform .7s cubic-bezier(.5,-0.3,.6,1)';
+  f.style.transform = `translate(${tx}px, ${ty}px) scale(.8)`;
+  await wait(700);
+  f.remove();
+  inv[b]++;
+  updateBoosters([b]);
+  sfx.loot();
+}
+// Дві однакові клітинки зливаються в один приз; скриня розкривається трьома бонусами
+async function awardPrize(k, cells) {
+  const pz = PRIZES[k];
+  const pts = cells.map(c => center(c.el));
+  const mx = pts.reduce((s, p) => s + p[0], 0) / pts.length, my = pts.reduce((s, p) => s + p[1], 0) / pts.length;
+  const flies = pts.map(([x, y]) => flyer(pz.icon, x, y));
+  flies.forEach(f => { f.style.transform = `translate(${mx}px, ${my}px) scale(1.2)`; });
+  await wait(520);
+  flies.forEach(f => f.remove());
+  sfx.merge();
+  if (k === 'gold') {
+    const chest = flyer('🎁', mx, my, 'chest');
+    await wait(650);
+    chest.firstChild.textContent = '✨';
+    sfx.special();
+    await Promise.all(['hammer', 'glove', 'dart'].map((b, i) => flyToBooster(b, mx, my, i * 150)));
+    chest.remove();
+    return;
+  }
+  const m = flyer(pz.icon, mx, my, 'merge');
+  await wait(450);
+  m.remove();
+  const jobs = [];
+  let i = 0;
+  for (const [b, n] of Object.entries(pz.give)) for (let j = 0; j < n; j++) jobs.push(flyToBooster(b, mx, my, (i++) * 180));
+  await Promise.all(jobs);
+}
+
 function showLottery(done) {
   const grid4 = $('lgrid');
   grid4.innerHTML = '';
@@ -2367,6 +2690,7 @@ function showLottery(done) {
   $('lnext').disabled = true;
   $('lnext').textContent = 'Зітріть 4 клітинки';
   $('lottery').classList.add('show');
+  updateBoosters();
   const cells = makeTicket().map(prize => ({ prize, chosen: false, revealed: false }));
   let chosen = 0, revealedN = 0, drawing = false, lastSnd = 0;
 
@@ -2435,15 +2759,17 @@ function showLottery(done) {
     // відкриваємо решту квитка, щоб було видно, що там було
     cells.forEach(c => { if (!c.revealed) { c.el.classList.add('revealed'); c.el.style.opacity = .45; } });
     if (won.length) {
-      const bumped = [];
-      won.forEach(k => {
-        open.filter(c => c.prize === k).forEach(c => c.el.classList.add('win'));
-        for (const [b, n] of Object.entries(PRIZES[k].give)) { inv[b] += n; bumped.push(b); }
-      });
+      won.forEach(k => open.filter(c => c.prize === k).forEach(c => c.el.classList.add('win')));
       const txt = won.map(k => `${PRIZES[k].icon} ${PRIZES[k].label.toLowerCase()}`).join(', ');
       $('lresult').textContent = `🎉 Виграш: ${txt}!`;
       sfx.win();
-      updateBoosters(bumped);
+      (async () => {
+        await wait(700);
+        for (const k of won) await awardPrize(k, open.filter(c => c.prize === k).slice(0, 2));
+        $('lnext').disabled = false;
+        $('lnext').textContent = 'Наступний рівень →';
+      })();
+      return;
     } else {
       $('lresult').textContent = 'Цього разу нічого не співпало 🙃';
       sfx.lottoLose();
@@ -2478,7 +2804,7 @@ $('soundBtn').onclick = () => {
 
 // ===================== Рівні з JSON =====================
 // Формат: { "levels": [ { "name": "...", "moves": 20, "map": ["........", ... 8 рядків по 8 символів] } ] }
-const MAP_CHARS = '.cnwtrsgxpeo';
+const MAP_CHARS = '.cnwtrsgxpeoj';
 function parseLevels(data) {
   const list = Array.isArray(data) ? data : data?.levels;
   if (!Array.isArray(list) || !list.length) throw new Error('у файлі немає списку "levels"');
