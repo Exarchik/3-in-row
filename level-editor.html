@@ -580,8 +580,19 @@ $('saveBtn').onclick = () => {
   a.download = fileName.endsWith('.json') ? fileName : 'levels.json';
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  // копія для запуску гри просто з диска: браузер не читає сусідній .json, а .js підключає
+  setTimeout(() => {
+    const js = new Blob(['// Згенеровано редактором рівнів — копія levels.json для запуску гри з диска.\n' +
+      '// Не редагуйте вручну: змінюйте рівні в редакторі й зберігайте знову.\n' +
+      'window.LEVELS_DATA = ' + toJSON() + ';\n'], { type: 'text/javascript' });
+    const b = document.createElement('a');
+    b.href = URL.createObjectURL(js);
+    b.download = 'levels.js';
+    document.body.appendChild(b); b.click(); b.remove();
+    setTimeout(() => URL.revokeObjectURL(b.href), 2000);
+  }, 400);
   markSaved();
-  toast('💾 Файл збережено — покладіть його поруч із match3.html');
+  toast('💾 Збережено levels.json і levels.js — покладіть обидва поруч із match3.html');
 };
 $('copyBtn').onclick = async () => {
   try { await navigator.clipboard.writeText(toJSON()); toast('📋 JSON скопійовано'); }
@@ -602,7 +613,7 @@ function sendToGame() { gameWin.postMessage({ type: 'match3-levels', data: { lev
 window.addEventListener('message', e => { if (e.data?.type === 'match3-ready' && gameWin && e.source === gameWin) sendToGame(); });
 $('testBtn').onclick = () => {
   if (gameWin && !gameWin.closed) { sendToGame(); gameWin.focus(); return; }
-  gameWin = window.open('match3.html', 'match3-test');
+  gameWin = window.open('match3.html?test=1', 'match3-test');   // ?test — гра не бере свої рівні й чекає наші
   if (!gameWin) toast('Браузер заблокував нове вікно — дозвольте спливаючі вікна');
 };
 
@@ -617,6 +628,25 @@ $('dropsAuto').onchange = () => {
 renderPalette();
 renderAll();
 $('fileInfo').textContent = fileName + ' · стандартні рівні';
+(async () => {
+  let data = null, from = '';
+  if (location.protocol !== 'file:') {
+    try { const r = await fetch('levels.json', { cache: 'no-store' }); if (r.ok) { data = await r.json(); from = 'levels.json'; } } catch (e) {}
+  }
+  if (!data) data = await new Promise(res => {
+    const sc = document.createElement('script');
+    sc.src = 'levels.js?' + Date.now();
+    sc.onload = () => { from = 'levels.js'; res(window.LEVELS_DATA || null); };
+    sc.onerror = () => res(null);
+    document.head.appendChild(sc);
+  });
+  if (!data || dirty) return;
+  try {
+    levels = parseLevels(data); jackDrops = parseDrops(data); cur = 0; fileName = 'levels.json';
+    renderAll(); markSaved();
+    $('fileInfo').textContent = `levels.json · завантажено з ${from}`;
+  } catch (err) { toast('⚠️ Не вдалося прочитати ' + from + ': ' + err.message); }
+})();
 </script>
 </body>
 </html>

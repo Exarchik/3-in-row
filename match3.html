@@ -435,6 +435,56 @@
   .dart.stuck { animation: dartFade .5s .25s forwards; }
   @keyframes dartFade { to { opacity: 0; } }
 
+  /* ===== Вибір рівня ===== */
+  .lvmenu {
+    width: min(94vw, 560px); max-height: 88vh; display: flex; flex-direction: column; padding: 16px;
+    border-radius: 18px; background: linear-gradient(160deg, #3b2a6b, #1d1640); box-shadow: 0 12px 40px rgba(0,0,0,.6);
+    border: 1px solid rgba(255,255,255,.12); animation: ticketIn .45s cubic-bezier(.3,1.5,.5,1);
+  }
+  .lvmenu h2 { margin: 0; text-align: center; }
+  .lvmenu .sub { text-align: center; font-size: 13px; opacity: .75; margin: 4px 0 12px; }
+  .lvgrid { overflow-y: auto; padding: 2px; display: flex; flex-direction: column; gap: 8px; }
+  .lvgroup { background: rgba(255,255,255,.05); border-radius: 12px; padding: 6px 8px; }
+  .lvgroup summary {
+    cursor: pointer; list-style: none; display: flex; align-items: center; gap: 8px; font-weight: 800; padding: 4px 2px;
+  }
+  .lvgroup summary::-webkit-details-marker { display: none; }
+  .lvgroup summary::before { content: '▸'; transition: transform .2s; opacity: .7; }
+  .lvgroup[open] summary::before { transform: rotate(90deg); }
+  .lvgroup summary .cnt { margin-left: auto; font-size: 12px; font-weight: 600; opacity: .75; }
+  .lvgroup summary .bar { width: 70px; height: 6px; border-radius: 3px; background: rgba(255,255,255,.12); overflow: hidden; }
+  .lvgroup summary .bar i { display: block; height: 100%; background: linear-gradient(90deg, #6bff95, #2f8a5a); }
+  .lvgroup.locked summary { opacity: .5; }
+  .lvcells { display: grid; grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); gap: 8px; padding: 6px 0 4px; }
+  .lvbtn {
+    position: relative; padding: 8px 4px 6px; border-radius: 12px; font-size: 20px; font-weight: 800; line-height: 1.1;
+    background: linear-gradient(135deg, #4b3b8f, #2d2366); box-shadow: inset 0 0 0 2px rgba(255,255,255,.12);
+    display: flex; flex-direction: column; align-items: center; gap: 2px; min-height: 70px;
+  }
+  .lvbtn small { font-size: 10px; font-weight: 600; opacity: .8; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 3px; }
+  .lvbtn .best { font-size: 10px; color: #7cffb0; }
+  .lvbtn.done { background: linear-gradient(135deg, #2f8a5a, #1d5e3d); }
+  .lvbtn.current { background: linear-gradient(135deg, #ff6bb5, #8e44ad); box-shadow: 0 0 0 2px #ffe66d; }
+  .lvbtn.locked { background: rgba(255,255,255,.06); color: rgba(255,255,255,.35); cursor: not-allowed; filter: none; }
+  .lvbtn.locked:hover { filter: none; }
+  .lvbtn.playing::after { content: '●'; position: absolute; top: 4px; right: 7px; font-size: 10px; color: #ffe66d; }
+  .lvmenu { position: relative; }
+  .lvmenu .row2 { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+  .ghost-btn { background: rgba(255,255,255,.1); }
+  .danger-btn { background: linear-gradient(135deg, #ff6b6b, #c0392b); }
+  .lvconfirm {
+    position: absolute; inset: 0; border-radius: 18px; display: none; align-items: center; justify-content: center;
+    background: rgba(10,8,25,.82); padding: 16px;
+  }
+  .lvconfirm.show { display: flex; animation: fade .2s; }
+  .lvconfirm .box {
+    max-width: 340px; padding: 18px; border-radius: 14px; text-align: center;
+    background: linear-gradient(160deg, #4b3b8f, #2d2366); box-shadow: 0 8px 30px rgba(0,0,0,.6);
+    animation: ticketIn .35s cubic-bezier(.3,1.5,.5,1);
+  }
+  .lvconfirm .q { font-size: 19px; font-weight: 800; }
+  .lvconfirm .sub { font-size: 13px; opacity: .8; margin: 8px 0 4px; }
+
   /* ===== Лотерея ===== */
   .modal {
     position: fixed; inset: 0; z-index: 50; display: none; align-items: center; justify-content: center;
@@ -809,6 +859,7 @@
     <div class="stat"><small>Очки</small><b id="score">0</b></div>
     <div class="stat"><small>Ходи</small><b id="moves">0</b></div>
     <div class="stat"><small>Перешкоди</small><b id="boxes">0</b></div>
+    <div class="stat" title="Сума рекордів усіх пройдених рівнів"><small>Загалом</small><b id="total">0</b></div>
   </div>
   <div class="board" id="board">
     <div class="overlay" id="overlay">
@@ -827,7 +878,8 @@
     <button id="hintBtn">Підказка</button>
     <button id="restart">Заново</button>
     <button id="soundBtn">🔊 Звук</button>
-    <button id="levelsBtn" title="Завантажити рівні з файлу levels.json">📂 Рівні</button>
+    <button id="mapBtn" title="Вибрати вже пройдений рівень">🗺️ Рівні</button>
+    <button id="levelsBtn" title="Завантажити рівні з файлу levels.json">📂 Файл</button>
     <input type="file" id="levelsFile" accept=".json,application/json" hidden>
   </div>
   <details class="legend">
@@ -846,7 +898,7 @@
     🪨 камінь — 4 удари, з кожним тріщин більше, а камінь меншає; стоїть на місці<br>
     ⛏️ камінь з кіркою — те саме, але коли ламається, кірка літає полем і завдає 10 ударів іншим каменям (а якщо їх немає — іншим перешкодам)<br>
     🤡 шкатулка з клоуном — 3 удари (від кожного крутиться рукоятка); коли ламається — вискакує клоун і розкидає по полю 3 випадкові перешкоди<br>
-    🥚 раз на 5 ходів павук лишає кладку яєць на павутині; спершу треба порвати павутину, потім розбити яйця (з розбитої кладки вилазить 1 павук). Якщо кладка пролежить 3 ходи — вилупляться 3 павуки<br>
+    🥚 раз на 5 ходів павук лишає кладку яєць на павутині; спершу треба порвати павутину, потім розбити яйця (розбита кладка зникає без павука). Якщо кладка пролежить 3 ходи — з неї вилупиться павук<br>
     🐸 жабки люблять павуків: один із язиків жабки обов'язково хапає павука, якщо він є на полі<br>
     ⚫ металеве ядро — не пошкоджується нічим; падає вниз, коли під ним збирають комбінації, а торкнувшись дна поля — вибухає 3×3<br>
     ⚡ електрогенератор — 3 удари; на третьому вибухає як фіолетова блискавка (рядок, стовпчик, обидві діагоналі). Якщо за хід його не зачепили — відновлює 1 одиницю здоров'я<br>
@@ -865,6 +917,29 @@
     Суперкомбінації: 🌈+🌈 — знищує все поле (перешкодам 1 удар) · 💣+💣 — велика бомба 7×7 ·
     ⚡+⚡ — фіолетова блискавка в 4 напрямках · 🐸+🐸 — червона жабка з'їдає 10 фішок
   </details>
+
+  <div class="modal" id="levelMenu">
+    <div class="lvmenu">
+      <h2>🗺️ Вибір рівня</h2>
+      <div class="sub" id="lvTotal" style="margin-bottom:0;font-weight:700;opacity:1"></div>
+      <div class="sub">Доступні пройдені рівні та поточний. Решта відкриються, коли ви їх пройдете.</div>
+      <div class="lvgrid" id="lvgrid"></div>
+      <div class="row2">
+        <button id="lvReset" class="ghost-btn">♻️ Скинути прогрес</button>
+        <button id="lvClose">Закрити</button>
+      </div>
+      <div class="lvconfirm" id="lvConfirm">
+        <div class="box">
+          <div class="q">Скинути весь прогрес?</div>
+          <div class="sub">Усі пройдені рівні знову стануть заблокованими, рекорди й загальний рахунок обнуляться, бонуси повернуться до стартових, а гра почнеться з 1-го рівня. Цю дію не можна скасувати.</div>
+          <div class="row2">
+            <button id="lvResetYes" class="danger-btn">Так, скинути</button>
+            <button id="lvResetNo">Ні</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div class="modal" id="lottery">
     <div class="ticket">
@@ -1107,7 +1182,8 @@ function startLevel(i) {
   pendingMixer.length = 0;
   pendingSuck.length = 0;
   pendingRun.length = 0;
-  levelStartScore = score;
+  score = 0;              // очки рахуються окремо для кожного рівня
+  levelStartScore = 0;
   cancelBooster();
   moves = def.moves; selected = null; busy = false;
   grid = [];
@@ -1141,6 +1217,7 @@ function updateHud() {
   $('score').textContent = score;
   $('moves').textContent = moves;
   $('boxes').textContent = boxesLeft();
+  $('total').textContent = totalScore();
 }
 
 function showOverlay(title, text, btn, action) {
@@ -1178,13 +1255,22 @@ async function checkEnd() {
     const bonus = moves * 50;
     score += bonus;
     updateHud();
+    const replay = level < LEVELS.length && isPassed(level);   // рівень уже проходили раніше
+    const prevBest = level < LEVELS.length ? progress[levelKey(level)] : undefined;
+    if (level < LEVELS.length) markPassed(level, score);
+    const newRecord = prevBest == null || score > prevBest;
+    updateHud();
     sfx.win();
-    showOverlay(`${LEVELS[level]?.name ? '«' + LEVELS[level].name + '»' : 'Рівень ' + (level + 1)} пройдено! 🎉`, `Бонус за ${moves} невикористаних ходів: +${bonus}. Рахунок: ${score}`,
-      'Далі 🎟️', () => showLottery(() => startLevel(level + 1)));
+    showOverlay(`${LEVELS[level]?.name ? '«' + LEVELS[level].name + '»' : 'Рівень ' + (level + 1)} пройдено! 🎉`, `Бонус за ${moves} невикористаних ходів: +${bonus} · Очки за рівень: ${score}` +
+      (level < LEVELS.length ? (newRecord ? (prevBest == null ? ' · 🏆 перший рекорд!' : ` · 🏆 новий рекорд (було ${prevBest})!`) : ` · рекорд рівня: ${prevBest}`) : '') +
+      ` · Загальний рахунок: ${totalScore()}`,
+      replay ? 'Наступний рівень →' : 'Далі 🎟️',
+      // лотерея — лише за перше проходження рівня
+      replay ? () => startLevel(level + 1) : () => showLottery(() => startLevel(level + 1)));
   } else if (moves <= 0) {
     sfx.end();
     showOverlay('Ходи закінчились', `Залишилось перешкод: ${boxesLeft()}. Спробуйте ще раз!`,
-      'Спробувати ще', () => { score = levelStartScore; startLevel(level); });
+      'Спробувати ще', () => startLevel(level));
   }
 }
 
@@ -2117,20 +2203,15 @@ function breakEggs(g, r, c) {
   removeEggs(g);
   sfx.eggsBreak();
   score += 60;
-  floatText('+60', r, c, '#ffd27a');
-  setTimeout(() => { if (grid[r][c] === g && !locked(g)) { addSpider(r, c); updateHud(); } }, 300);
+  floatText('+60', r, c, '#ffd27a');   // розбита кладка — павука немає
   updateHud();
 }
-// Кладка пролежала 3 ходи — вилуплюються 3 павуки
+// Кладка пролежала 3 ходи — вилуплюється 1 павук
 function hatchEggs(g, r, c) {
   removeEggs(g);
   sfx.hatch();
-  floatText('🕷️×3', r, c, '#ff9a9a');
-  const spots = [[r, c]];
-  const near = [[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,-1],[1,-1],[-1,1]].map(([dr, dc]) => [r + dr, c + dc])
-    .filter(([rr, cc]) => rr >= 0 && rr < N && cc >= 0 && cc < N && isFree(rr, cc)).sort(() => Math.random() - .5);
-  spots.push(...near.slice(0, 2));
-  spots.forEach(([rr, cc]) => { if (!grid[rr][cc].spider) addSpider(rr, cc); });
+  floatText('🕷️', r, c, '#ff9a9a');
+  if (!grid[r][c].spider) addSpider(r, c);
 }
 // Хід павуків: переповзають, кладки дозрівають, раз на 5 ходів — нова кладка
 async function spiderTurn() {
@@ -3001,11 +3082,17 @@ board.addEventListener('pointerup', e => {
 });
 
 // ===================== Бонуси гравця =====================
-const inv = { hammer: 1, glove: 1, dart: 1 };     // стартовий запас
+const INV_START = { hammer: 1, glove: 1, dart: 1 };   // стартовий запас
+const INV_KEY = 'match3-boosters';
+const inv = { ...INV_START };
+try { Object.assign(inv, JSON.parse(localStorage.getItem(INV_KEY)) || {}); } catch (e) {}
+// у тестовому режимі (гру відкрив редактор) запас не зберігаємо
+const saveInv = () => { if (new URLSearchParams(location.search).has('test')) return; try { localStorage.setItem(INV_KEY, JSON.stringify(inv)); } catch (e) {} };
 let boosterMode = null, gloveFirst = null;
 const setTip = t => { $('tip').textContent = t; };
 
 function updateBoosters(bumped = []) {
+  saveInv();
   for (const k of ['hammer', 'glove', 'dart']) {
     const b = $('b-' + k);
     b.querySelector('.cnt').textContent = inv[k];
@@ -3025,7 +3112,7 @@ function cancelBooster() {
   setTip('');
   updateBoosters();
 }
-function boardLocked() { return busy || $('overlay').classList.contains('show') || $('lottery').classList.contains('show'); }
+function boardLocked() { return busy || $('overlay').classList.contains('show') || $('lottery').classList.contains('show') || $('levelMenu').classList.contains('show'); }
 
 function pickBooster(k) {
   if (boardLocked() || inv[k] <= 0) return;
@@ -3115,17 +3202,30 @@ const DART_SVG = '<svg viewBox="0 0 40 10"><polygon points="0,5 9,3.2 9,6.8" fil
   '<rect x="9" y="3.4" width="17" height="3.2" rx="1" fill="#3d444c"/><rect x="13" y="3" width="6" height="4" rx="1" fill="#e8b23a"/>' +
   '<polygon points="25,5 40,0 36,5 40,10" fill="#e84a4a"/></svg>';
 async function useDarts() {
+  const used = [];
   const live = () => {
     const o = [];
-    for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) if (damageable(grid[r][c])) o.push([r, c]);
+    for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
+      const g = grid[r][c];
+      if (damageable(g)) o.push([r, c]);
+      // під металевим ядром дротик вибиває звичайну фішку — ядро опускається
+      if (g && g.type === CORE && !g.broken) {
+        // перша ще не вибита фішка під ядром (кілька дротиків — ядро опускається на кілька клітинок)
+        for (let k = r + 1; k < N; k++) {
+          const u = grid[k][c];
+          if (!u || pendingClear.includes(u) || used.some(([a, b]) => a === k && b === c)) continue;   // вже вибита / в неї вже летить дротик
+          if (isNormal(u.type) && !locked(u)) o.push([k, c]);
+          break;
+        }
+      }
+    }
     return o;
   };
-  if (!live().length) { setTip('🎯 На полі немає перешкод'); setTimeout(() => setTip(''), 1500); return; }
+  if (!live().length) { setTip('🎯 На полі немає цілей'); setTimeout(() => setTip(''), 1500); return; }
   busy = true;
   inv.dart--; updateBoosters();
   const cell = board.clientWidth / N;
   const sx = board.clientWidth / 2, sy = board.clientWidth + cell;
-  const used = [];
   const throws = [];
   for (let i = 0; i < 3; i++) {
     let opts = live().filter(([r, c]) => !used.some(([a, b]) => a === r && b === c));
@@ -3146,7 +3246,11 @@ async function useDarts() {
     throws.push(wait(360).then(() => {
       sfx.dartHit();
       fx('impact', { left: `calc(var(--cell) * ${c})`, top: `calc(var(--cell) * ${r})` });
-      hitBox(r, c);
+      const tg = grid[r][c];
+      if (tg && isNormal(tg.type) && !locked(tg)) {
+        // звичайна фішка під ядром — вибиваємо її
+        if (!pendingClear.includes(tg)) { tg.el.classList.add('pop'); pendingClear.push(tg); score += 10; updateHud(); }
+      } else hitBox(r, c);
       d.classList.add('stuck');
       setTimeout(() => d.remove(), 800);
     }));
@@ -3344,7 +3448,7 @@ $('hintBtn').onclick = () => {
     setTimeout(() => el.classList.remove('hint'), 1000);
   });
 };
-$('restart').onclick = () => { if (busy) return; score = levelStartScore; startLevel(level); sfx.start(); };
+$('restart').onclick = () => { if (busy) return; startLevel(level); sfx.start(); };
 $('again').onclick = () => { if (overlayAction) overlayAction(); sfx.start(); };
 $('soundBtn').onclick = () => {
   muted = !muted;
@@ -3370,18 +3474,125 @@ function parseLevels(data) {
     return { name: lv.name ? String(lv.name) : '', moves, map };
   });
 }
-function useLevels(list, startAt = 0, note = '') {
+// ===================== Прогрес гравця =====================
+// Пройдені рівні зберігаються в цьому браузері (за назвою рівня, або за номером, якщо назви нема)
+const PROGRESS_KEY = 'match3-progress';
+let progress = {};
+try { progress = JSON.parse(localStorage.getItem(PROGRESS_KEY)) || {}; } catch (e) { progress = {}; }
+const levelKey = i => LEVELS[i]?.name ? 'n:' + LEVELS[i].name : 'i:' + i;
+const isPassed = i => progress[levelKey(i)] != null;
+function totalScore() {
+  let t = 0;
+  for (let i = 0; i < LEVELS.length; i++) t += progress[levelKey(i)] || 0;
+  return t;
+}
+// Тестовий режим (гру відкрив редактор: match3.html?test): свої рівні не підвантажуємо, прогрес не зберігаємо
+const TEST_MODE = new URLSearchParams(location.search).has('test');
+function markPassed(i, pts) {
+  if (TEST_MODE) return;
+  const k = levelKey(i);
+  progress[k] = Math.max(progress[k] || 0, pts);
+  try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress)); } catch (e) {}
+}
+// перший ще не пройдений рівень — з нього гра і продовжується
+function firstUnpassed() {
+  for (let i = 0; i < LEVELS.length; i++) if (!isPassed(i)) return i;
+  return 0;
+}
+const canPick = i => isPassed(i) || i === firstUnpassed();
+
+function showLevelMenu() {
+  if (busy || $('lottery').classList.contains('show')) return;
+  const cur = firstUnpassed();
+  const GROUP = 20;   // рівні — групами по 20
+  $('lvTotal').textContent = `🏆 Загальний рахунок: ${totalScore()} · пройдено ${LEVELS.filter((_, i) => isPassed(i)).length} з ${LEVELS.length}`;
+  const btn = (lv, i) => {
+    const done = isPassed(i), open = canPick(i);
+    const cls = done ? 'done' : open ? 'current' : 'locked';
+    const best = done ? `<span class="best">★ ${progress[levelKey(i)]}</span>` : open ? '<span class="best" style="color:#ffe66d">▶ далі</span>' : '<span>🔒</span>';
+    return `<button class="lvbtn ${cls}${i === level ? ' playing' : ''}" data-i="${i}" ${open ? '' : 'disabled'} title="${(lv.name || 'Рівень ' + (i + 1)).replace(/"/g, '&quot;')}">
+      ${i + 1}<small>${lv.name || '&nbsp;'}</small>${best}</button>`;
+  };
+  let html = '';
+  for (let g = 0; g < LEVELS.length; g += GROUP) {
+    const idx = [...Array(Math.min(GROUP, LEVELS.length - g))].map((_, k) => g + k);
+    const done = idx.filter(isPassed).length;
+    const anyOpen = idx.some(canPick);
+    // розгорнута лише група з рівнем, який зараз грається (або з поточним «далі»)
+    const expand = idx.includes(level) || (!idx.includes(level) && idx.includes(cur) && !(level >= 0 && level < LEVELS.length));
+    html += `<details class="lvgroup${anyOpen ? '' : ' locked'}"${expand ? ' open' : ''}>
+      <summary>${anyOpen ? '' : '🔒 '}Рівні ${g + 1}–${idx[idx.length - 1] + 1}
+        <span class="cnt">${done}/${idx.length}</span><span class="bar"><i style="width:${done / idx.length * 100}%"></i></span></summary>
+      <div class="lvcells">${idx.map(i => btn(LEVELS[i], i)).join('')}</div></details>`;
+  }
+  $('lvgrid').innerHTML = html;
+  $('lvgrid').querySelectorAll('.lvbtn:not(.locked)').forEach(b => b.onclick = () => {
+    const i = +b.dataset.i;
+    if (!canPick(i)) return;
+    $('levelMenu').classList.remove('show');
+    score = 0;
+    startLevel(i);
+    sfx.start();
+  });
+  $('levelMenu').classList.add('show');
+  // прокрутка до поточного рівня
+  $('lvgrid').querySelector('.current, .playing')?.scrollIntoView({ block: 'center' });
+}
+$('mapBtn').onclick = showLevelMenu;
+$('lvClose').onclick = () => $('levelMenu').classList.remove('show');
+// Скидання прогресу — з підтвердженням
+$('lvReset').onclick = () => { $('lvConfirm').classList.add('show'); sfx.select(); };
+$('lvResetNo').onclick = () => $('lvConfirm').classList.remove('show');
+$('lvResetYes').onclick = () => {
+  progress = {};
+  try { localStorage.removeItem(PROGRESS_KEY); } catch (e) {}
+  Object.assign(inv, INV_START);   // бонуси — до стартового запасу
+  updateBoosters();
+  $('lvConfirm').classList.remove('show');
+  $('levelMenu').classList.remove('show');
+  $('overlay').classList.remove('show');
+  score = 0;
+  startLevel(0);
+  sfx.start();
+  setTip('♻️ Прогрес скинуто — починаємо з 1-го рівня');
+  setTimeout(() => setTip(''), 3000);
+};
+$('levelMenu').onclick = e => { if (e.target === $('levelMenu')) { $('lvConfirm').classList.remove('show'); $('levelMenu').classList.remove('show'); } };
+
+function useLevels(list, startAt = null, note = '') {
   LEVELS = list;
   score = 0;
-  startLevel(Math.min(startAt, list.length - 1));
+  startLevel(startAt == null ? firstUnpassed() : Math.min(startAt, list.length - 1));
   if (note) { setTip(note); setTimeout(() => setTip(''), 3000); }
 }
 
-// 1) levels.json поруч із грою (працює, коли гра відкрита з сервера / хостингу)
-fetch('levels.json', { cache: 'no-store' })
-  .then(r => r.ok ? r.json() : Promise.reject())
-  .then(d => { if (!busy && moves === LEVELS[level]?.moves) { JACK_DROPS = parseDrops(d); useLevels(parseLevels(d), 0, '📂 Рівні завантажено з levels.json'); } })
-  .catch(() => {});
+// 1) Рівні за замовчуванням — з файлів поруч із грою:
+//    • levels.json — коли гра відкрита з сервера/хостингу (браузер дозволяє його прочитати);
+//    • levels.js   — копія levels.json для запуску просто з диска (file://), бо там браузер
+//                    не дає читати сусідні .json, а підключити .js — дозволяє.
+//    Якщо жодного файлу нема — вбудовані рівні.
+function tryLevelsData(d, note) {
+  try { const list = parseLevels(d); JACK_DROPS = parseDrops(d); useLevels(list, null, note); return true; }
+  catch (err) { setTip('⚠️ Помилка у файлі рівнів: ' + err.message); return false; }
+}
+function loadLevelsJs() {
+  return new Promise(res => {
+    const sc = document.createElement('script');
+    sc.src = 'levels.js?' + Date.now();
+    sc.onload = () => res(window.LEVELS_DATA || null);
+    sc.onerror = () => res(null);
+    document.head.appendChild(sc);
+  });
+}
+(async () => {
+  if (TEST_MODE) return;                     // рівні надішле редактор
+  let data = null, from = '';
+  if (location.protocol !== 'file:') {
+    try { const r = await fetch('levels.json', { cache: 'no-store' }); if (r.ok) { data = await r.json(); from = 'levels.json'; } } catch (e) {}
+  }
+  if (!data) { data = await loadLevelsJs(); from = 'levels.js'; }
+  if (data && !busy && moves === LEVELS[level]?.moves && turn === 0) tryLevelsData(data, `📂 Рівні завантажено з ${from}`);
+})();
 
 // 2) кнопка «📂 Рівні» — вибрати файл вручну
 $('levelsBtn').onclick = () => { if (!busy) $('levelsFile').click(); };
@@ -3393,7 +3604,7 @@ $('levelsFile').onchange = async e => {
     const data = JSON.parse(await f.text());
     const list = parseLevels(data);
     JACK_DROPS = parseDrops(data);
-    useLevels(list, 0, `📂 Завантажено рівнів: ${list.length}`);
+    useLevels(list, null, `📂 Завантажено рівнів: ${list.length}`);
   } catch (err) {
     setTip('⚠️ Не вдалося прочитати файл: ' + err.message);
     setTimeout(() => setTip(''), 5000);
@@ -3403,11 +3614,11 @@ $('levelsFile').onchange = async e => {
 // 3) тест із редактора: редактор відкриває гру і надсилає їй рівні
 window.addEventListener('message', e => {
   if (e.data?.type !== 'match3-levels') return;
-  try { JACK_DROPS = parseDrops(e.data.data); useLevels(parseLevels(e.data.data), e.data.start || 0, '🧪 Тест рівня з редактора'); } catch (err) { setTip('⚠️ ' + err.message); }
+  try { JACK_DROPS = parseDrops(e.data.data); useLevels(parseLevels(e.data.data), e.data.start || 0, '🧪 Тестовий режим: рівень ' + ((e.data.start || 0) + 1) + ' (прогрес не зберігається)'); } catch (err) { setTip('⚠️ ' + err.message); }
 });
 if (window.opener) try { window.opener.postMessage({ type: 'match3-ready' }, '*'); } catch (e) {}
 
-startLevel(0);
+startLevel(firstUnpassed());
 </script>
 </body>
 </html>
