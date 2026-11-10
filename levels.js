@@ -1663,8 +1663,8 @@ window.LEVELS_DATA = {
       ]
     },
     {
-      "name": "Поверни мені гантелі",
-      "moves": 35,
+      "name": "Поверни мої гантелі",
+      "moves": 38,
       "map": [
         "........",
         "........",
@@ -1674,6 +1674,20 @@ window.LEVELS_DATA = {
         "zzyooyzz",
         "........",
         "........"
+      ]
+    },
+    {
+      "name": "Магазин Дзеркал",
+      "moves": 28,
+      "map": [
+        "...cznzz",
+        "...znycn",
+        "...yzyzz",
+        "...ycbyc",
+        "...cnczz",
+        "...zyzyc",
+        "...nzczc",
+        "...zcnyz"
       ]
     }
   ]
