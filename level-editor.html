@@ -108,6 +108,24 @@
     background: linear-gradient(135deg, #8b96a3 0 49%, #3d444c 49% 51%, #bfe4fa 51%);
     box-shadow: 0 0 0 2px #3d444c;
   }
+  .k-f .t { inset: 14%; border-radius: 50% 50% 40% 40%; background: radial-gradient(circle at 40% 30%, #c3c7cd, #8a8f98 50%, #4a4e56); box-shadow: 0 0 0 2px #3a3d43; }
+  .k-a .t {
+    inset: 1px; border-radius: 3px;
+    background: repeating-linear-gradient(45deg, rgba(255,255,255,.08) 0 3px, transparent 3px 8px), linear-gradient(135deg, #6b747e, #3d444c 60%, #4c5560);
+    box-shadow: inset 0 0 0 2px #23272e;
+  }
+  .k-l .t, .cell .sw {
+    inset: 1px; border-radius: 4px;
+    background:
+      linear-gradient(#4a443d 0 0) 0 33% / 100% 2px no-repeat,
+      linear-gradient(#4a443d 0 0) 0 66% / 100% 2px no-repeat,
+      linear-gradient(90deg, transparent 49%, #4a443d 49% 51%, transparent 51%) 0 0 / 100% 33% no-repeat,
+      linear-gradient(90deg, transparent 24%, #4a443d 24% 26%, transparent 26% 74%, #4a443d 74% 76%, transparent 76%) 0 50% / 100% 33% no-repeat,
+      linear-gradient(90deg, transparent 49%, #4a443d 49% 51%, transparent 51%) 0 100% / 100% 33% no-repeat,
+      #a39a8e;
+    box-shadow: inset 0 0 0 2px #4a443d;
+  }
+  .cell .sw { position: absolute; opacity: .72; z-index: 2; pointer-events: none; }
   .k-y .t { background: linear-gradient(135deg, #8b96a3 0 49%, #3d444c 49% 51%, #f1ece0 51%); }
   .k-b .t {
     inset: 12% 18% 6%; border-radius: 6px;
@@ -239,7 +257,7 @@
     <p class="hint">
       Клік або протягування — малювати вибраним інструментом.<br>
       Права кнопка миші — стерти (поставити звичайну фішку).<br>
-      Клавіші 0–9, E, O, J, K, Q, M, B, Z, Y — швидкий вибір інструмента, Ctrl+Z / Ctrl+Y — скасувати / повторити.
+      Клавіші 0–9, E, O, J, K, Q, M, B, Z, Y, F, A, L — швидкий вибір інструмента, Ctrl+Z / Ctrl+Y — скасувати / повторити.
     </p>
     <div class="drops" id="drops">
       <h2>🤡 Що може випасти зі шкатулки з клоуном</h2>
@@ -281,12 +299,15 @@ const TOOLS = [
   { ch: 'b', name: 'Робот', ico: '🤖' },
   { ch: 'z', name: 'Армоване дзеркало', ico: '' },
   { ch: 'y', name: 'Армоване дзеркало 2', ico: '' },
+  { ch: 'f', name: 'Кам\'яна жаба', ico: '🗿' },
+  { ch: 'a', name: 'Броньована стіна', ico: '' },
+  { ch: 'l', name: 'Кам\'яна стіна (поверх)', ico: '' },
 ];
 const CHARS = TOOLS.map(t => t.ch).join('');
-const MINI = { '.': '', z: '#9fd2f0', y: '#e9e4d8', b: '#b8c0c8', m: '#f2a33a', k: '#8a8f98', q: '#b8bdc5', j: '#ffcc33', o: '#2a2f35', e: '#7cc8ff', c: '#c99357', n: '#5b8fd6', w: '#8d5a27', t: '#d23a2a', r: '#9aa5b1', s: '#5fc93a', g: '#3e454e', x: '#e8e8ff', p: '#c0303a' };
+const MINI = { '.': '', l: '#a39a8e', f: '#6c717b', a: '#2a2f36', z: '#9fd2f0', y: '#e9e4d8', b: '#b8c0c8', m: '#f2a33a', k: '#8a8f98', q: '#b8bdc5', j: '#ffcc33', o: '#2a2f35', e: '#7cc8ff', c: '#c99357', n: '#5b8fd6', w: '#8d5a27', t: '#d23a2a', r: '#9aa5b1', s: '#5fc93a', g: '#3e454e', x: '#e8e8ff', p: '#c0303a' };
 const LEGEND = {
   '.': 'фішка', c: 'картонна коробка', n: 'синя коробка з цвяхозабивачем', w: "дерев'яний ящик", t: 'ящик TNT',
-  r: 'армований ящик', s: 'слиз', g: 'слизогенератор', x: 'фішка в павутині', p: 'павук на фішці', e: 'електрогенератор', o: 'металеве ядро', j: 'шкатулка з клоуном', k: 'камінь', q: 'камінь з кіркою', m: 'бетономішалка', b: 'робот', z: 'армоване дзеркало', y: 'армоване дзеркало 2 (з простирадлом)',
+  r: 'армований ящик', s: 'слиз', g: 'слизогенератор', x: 'фішка в павутині', p: 'павук на фішці', e: 'електрогенератор', o: 'металеве ядро', j: 'шкатулка з клоуном', k: 'камінь', q: 'камінь з кіркою', m: 'бетономішалка', b: 'робот', z: 'армоване дзеркало', y: 'армоване дзеркало 2 (з простирадлом)', f: 'кам\'яна жаба', a: 'броньована стіна', l: 'кам\'яна стіна',
 };
 
 // Стартовий набір — ті самі рівні, що вбудовані в гру
@@ -309,7 +330,7 @@ const DEFAULT = [
 let levels = JSON.parse(JSON.stringify(DEFAULT));
 // { символ: з якого рівня, 0 — ніколи } або null — автоматично
 let jackDrops = null;
-const DROP_CHARS = ['c', 'n', 'w', 't', 'r', 's', 'g', 'x', 'p', 'e', 'o', 'k', 'q', 'm', 'b', 'z', 'y'];
+const DROP_CHARS = ['c', 'n', 'w', 't', 'r', 's', 'g', 'x', 'p', 'e', 'o', 'k', 'q', 'm', 'b', 'z', 'y', 'f'];
 let cur = 0, tool = 'c', dirty = false, fileName = 'levels.json';
 const undoStack = [], redoStack = [];
 
@@ -325,17 +346,32 @@ function markDirty() { dirty = true; $('fileInfo').textContent = fileName + ' ·
 function markSaved() { dirty = false; $('fileInfo').textContent = fileName + ' · збережено'; }
 
 function newLevel() { return { name: '', moves: 25, map: Array(N).fill('.'.repeat(N)) }; }
-const obstacles = lv => lv.map.join('').replace(/\./g, '').length;
+// cover — другий шар: l — кам'яна стіна поверх клітинки (під нею може лежати перешкода з map)
+const coverAt = (lv, r, c) => lv.cover?.[r]?.[c] === 'l';
+const coverCount = lv => lv.cover ? lv.cover.join('').split('l').length - 1 : 0;
+const obstacles = lv => lv.map.join('').replace(/\./g, '').length + lv.map.join('').split('').filter((ch, i) => ch === '.' && coverAt(lv, Math.floor(i / N), i % N)).length;
+function setCover(r, c, on) {
+  const lv = levels[cur];
+  if (coverAt(lv, r, c) === on) return false;
+  if (on && lv.map[r][c] === 'o') return false;           // ядро під стіною не сховаєш — воно має падати
+  if (!lv.cover) lv.cover = Array(N).fill('.'.repeat(N));
+  const row = lv.cover[r];
+  lv.cover[r] = row.slice(0, c) + (on ? 'l' : '.') + row.slice(c + 1);
+  if (!coverCount(lv)) delete lv.cover;
+  return true;
+}
 function setCell(r, c, ch) {
   const row = levels[cur].map[r];
-  if (row[c] === ch) return false;
+  let changed = false;
+  if (ch === 'o' || ch === '.') changed = setCover(r, c, false);   // гумка й ядро знімають стіну
+  if (row[c] === ch) return changed;
   levels[cur].map[r] = row.slice(0, c) + ch + row.slice(c + 1);
   return true;
 }
 function toJSON() {
   const out = { version: 1, legend: LEGEND };
   if (jackDrops) out.jackDrops = jackDrops;
-  out.levels = levels.map(l => ({ name: l.name, moves: l.moves, map: l.map }));
+  out.levels = levels.map(l => (l.cover && coverCount(l) ? { name: l.name, moves: l.moves, map: l.map, cover: l.cover } : { name: l.name, moves: l.moves, map: l.map }));
   return JSON.stringify(out, null, 2);
 }
 function parseDrops(data) {
@@ -392,9 +428,14 @@ function parseLevels(data) {
     const map = lv.map.map((row, r) => {
       row = String(row);
       if (row.length !== N) throw new Error(`рівень ${i + 1}, рядок ${r + 1}: має бути ${N} символів`);
-      return [...row].map(ch => CHARS.includes(ch) ? ch : '.').join('');
+      return [...row].map(ch => CHARS.includes(ch) && ch !== 'l' ? ch : '.').join('');
     });
-    return { name: lv.name ? String(lv.name) : '', moves, map };
+    const out = { name: lv.name ? String(lv.name) : '', moves, map };
+    if (Array.isArray(lv.cover) && lv.cover.length === N) {
+      const cover = lv.cover.map((row, r) => [...String(row).padEnd(N, '.').slice(0, N)].map((ch, c) => ch === 'l' && map[r][c] !== 'o' ? 'l' : '.').join(''));
+      if (cover.join('').includes('l')) out.cover = cover;
+    }
+    return out;
   });
 }
 function warningsFor(lv) {
@@ -402,13 +443,13 @@ function warningsFor(lv) {
   const cnt = obstacles(lv);
   if (!cnt) w.push('немає перешкод — рівень буде пройдено одразу');
   if (lv.moves < 5) w.push('дуже мало ходів');
-  const free = lv.map.join('').split('').filter(ch => ch === '.').length;
+  const free = lv.map.join('').split('').filter((ch, i) => ch === '.' && !coverAt(lv, Math.floor(i / N), i % N)).length;
   if (free < 12) w.push('замало вільних фішок — гравцю буде важко ходити');
   // ядро має мати змогу впасти до дна: під ним лише звичайні фішки або інші ядра
   lv.map.forEach((row, r) => [...row].forEach((ch, c) => {
     if (ch !== 'o') return;
     if (r === N - 1) w.push(`ядро в рядку ${r + 1} вибухне після першого ходу`);
-    else if (lv.map.slice(r + 1).some(rw => !'.o'.includes(rw[c]))) w.push(`ядро в стовпчику ${c + 1} не зможе впасти до дна — під ним перешкода`);
+    else if (lv.map.slice(r + 1).some((rw, k) => !'.o'.includes(rw[c]) || coverAt(lv, r + 1 + k, c))) w.push(`ядро в стовпчику ${c + 1} не зможе впасти до дна — під ним перешкода`);
   }));
   return w;
 }
@@ -424,7 +465,7 @@ function cellHTML(ch, size) {
 function renderList() {
   $('list').innerHTML = levels.map((lv, i) => {
     const w = warningsFor(lv);
-    const mini = lv.map.join('').split('').map(ch => `<i${MINI[ch] ? ` style="background:${MINI[ch]}"` : ''}></i>`).join('');
+    const mini = lv.map.join('').split('').map((ch, i) => { const col = coverAt(lv, Math.floor(i / N), i % N) ? MINI.l : MINI[ch]; return `<i${col ? ` style="background:${col}"` : ''}></i>`; }).join('');
     return `<div class="item${i === cur ? ' sel' : ''}" data-i="${i}">
       <span class="num">${i + 1}</span><div class="mini">${mini}</div>
       <div class="info"><div class="nm">${lv.name || 'Без назви'}</div>
@@ -438,10 +479,15 @@ function renderList() {
 
 function renderBoard() {
   const lv = levels[cur];
-  $('board').innerHTML = lv.map.map((row, r) => [...row].map((ch, c) =>
-    cellHTML(ch).replace('<div class="cell', `<div data-r="${r}" data-c="${c}" title="${LEGEND[ch]}" class="cell`)).join('')).join('');
+  $('board').innerHTML = lv.map.map((row, r) => [...row].map((ch, c) => {
+    const cov = coverAt(lv, r, c);
+    let h = cellHTML(ch).replace('<div class="cell', `<div data-r="${r}" data-c="${c}" title="${cov ? 'кам\'яна стіна' + (ch !== '.' ? ', під нею: ' + LEGEND[ch] : '') : LEGEND[ch]}" class="cell${cov ? ' obs' : ''}`);
+    if (cov) h = h.replace(/<\/div>$/, '<div class="sw"></div></div>');
+    return h;
+  }).join('')).join('');
   const counts = {};
   lv.map.join('').split('').forEach(ch => { if (ch !== '.') counts[ch] = (counts[ch] || 0) + 1; });
+  if (coverCount(lv)) counts.l = coverCount(lv);
   $('stats').textContent = Object.keys(counts).length
     ? 'На полі: ' + Object.entries(counts).map(([ch, n]) => `${LEGEND[ch]} × ${n}`).join(', ')
     : 'Поле порожнє — оберіть інструмент і клікніть по клітинках';
@@ -473,6 +519,7 @@ $('board').addEventListener('pointerdown', e => {
   // повторний клік тим самим інструментом по такій самій клітинці — стирає
   const r = +el.dataset.r, c = +el.dataset.c;
   if (e.button !== 2 && levels[cur].map[r][c] === tool && tool !== '.') painting = '.';
+  if (e.button !== 2 && tool === 'l') painting = coverAt(levels[cur], r, c) ? 'L-' : 'L+';   // повторний клік по стіні — знімає її
   pushUndo();
   if (!paintAt(r, c)) undoStack.pop();
 });
@@ -483,7 +530,8 @@ $('board').addEventListener('pointermove', e => {
 });
 window.addEventListener('pointerup', () => { painting = null; });
 function paintAt(r, c) {
-  if (!setCell(r, c, painting)) return false;
+  const ok = painting === 'L+' ? setCover(r, c, true) : painting === 'L-' ? setCover(r, c, false) : setCell(r, c, painting);
+  if (!ok) return false;
   markDirty();
   renderList(); renderBoard(); renderJSON();
   $('undoBtn').disabled = false;
@@ -551,6 +599,9 @@ document.addEventListener('keydown', e => {
   else if (e.key.toLowerCase() === 'b' || e.key.toLowerCase() === 'и') { tool = 'b'; renderPalette(); }
   else if (e.key.toLowerCase() === 'z' || e.key.toLowerCase() === 'я') { tool = 'z'; renderPalette(); }
   else if (e.key.toLowerCase() === 'y' || e.key.toLowerCase() === 'н') { tool = 'y'; renderPalette(); }
+  else if (!e.ctrlKey && !e.metaKey && (e.key.toLowerCase() === 'f' || e.key.toLowerCase() === 'а')) { tool = 'f'; renderPalette(); }
+  else if (!e.ctrlKey && !e.metaKey && (e.key.toLowerCase() === 'a' || e.key.toLowerCase() === 'ф')) { tool = 'a'; renderPalette(); }
+  else if (e.key.toLowerCase() === 'l' || e.key.toLowerCase() === 'д') { tool = 'l'; renderPalette(); }
 });
 
 // ---------- файл ----------

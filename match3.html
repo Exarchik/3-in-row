@@ -435,6 +435,26 @@
   .dart.stuck { animation: dartFade .5s .25s forwards; }
   @keyframes dartFade { to { opacity: 0; } }
 
+  /* ===== Знайомство з новою перешкодою ===== */
+  .introBox {
+    width: min(92vw, 440px); max-height: 88vh; display: flex; flex-direction: column; padding: 18px 16px 16px;
+    border-radius: 18px; background: linear-gradient(160deg, #3b2a6b, #1d1640); box-shadow: 0 12px 40px rgba(0,0,0,.6);
+    border: 1px solid rgba(255,255,255,.12); animation: ticketIn .45s cubic-bezier(.3,1.5,.5,1);
+  }
+  .introBox h2 { margin: 0 0 12px; text-align: center; }
+  .introList { overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding: 2px; }
+  .introItem { display: flex; gap: 12px; align-items: center; padding: 10px; border-radius: 14px; background: rgba(255,255,255,.07); }
+  .introTile {
+    --cell: 64px; position: relative; flex: none; width: var(--cell); height: var(--cell);
+    border-radius: 10px; background: rgba(0,0,0,.25);
+  }
+  .introTile .gem { transform: none !important; cursor: default; }
+  .introTile .spiderEl { transform: none; }
+  .introItem b { display: block; font-size: 16px; margin-bottom: 3px; }
+  .introItem p { margin: 0; font-size: 13px; line-height: 1.35; opacity: .9; }
+  .introBox .row2 { display: flex; justify-content: center; margin-top: 14px; }
+  #introOk { padding: 10px 28px; font-size: 16px; }
+
   /* ===== Вибір рівня ===== */
   .lvmenu {
     width: min(94vw, 560px); max-height: 88vh; display: flex; flex-direction: column; padding: 16px;
@@ -576,6 +596,45 @@
   @keyframes zapFlicker { 50% { opacity: .5; } }
   .box.regen .crate { animation: regen .8s; }
   @keyframes regen { 40% { filter: brightness(1.5) drop-shadow(0 0 10px #7cffb0); transform: scale(1.1); } }
+
+  /* ===== Кам'яна жаба ===== */
+  .stonefrog .crate { background: none; box-shadow: none; inset: 1px; }
+  .stonefrog .sfrog { inset: 0; width: 100%; height: 100%; filter: drop-shadow(0 3px 3px rgba(0,0,0,.5)); }
+  .stonefrog .sfrog .cr { fill: none; stroke: #ff9a3a; stroke-width: 3; stroke-linecap: round; opacity: 0; transition: opacity .3s; }
+  .stonefrog .sfglow { inset: 10%; border-radius: 50%; background: radial-gradient(circle, rgba(255,170,60,.7), transparent 70%); opacity: 0; z-index: -1; }
+  .box.stonefrog.tink .crate { animation: tink .22s; }
+  .box.stonefrog.armed .crate { animation: sfShake .14s linear infinite; }
+  .box.stonefrog.armed .sfrog .eye { fill: #ffb43a; }
+  .box.stonefrog.armed .sfrog .cr { opacity: 1; }
+  .box.stonefrog.armed .sfglow { opacity: 1; animation: sfPulse .6s ease-in-out infinite alternate; }
+  .box.stonefrog.gulp .crate { animation: sfGulp .35s; }
+  @keyframes sfShake { 0%, 100% { translate: 0 0; rotate: 0deg; } 25% { translate: -1.5px .5px; rotate: -3deg; } 75% { translate: 1.5px -.5px; rotate: 3deg; } }
+  @keyframes sfPulse { to { transform: scale(1.25); } }
+  @keyframes sfGulp { 40% { transform: scale(1.18, .88); filter: brightness(1.4); } }
+  .gem.absorbing { z-index: 6; transition: transform .38s cubic-bezier(.5,0,.8,.6); pointer-events: none; }
+  .gem.absorbing .face { transition: transform .38s ease-in, opacity .38s ease-in; transform: scale(.25); opacity: .2; }
+
+  /* ===== Кам'яна стіна ===== */
+  .stonewall .crate { inset: 1px; background: none; box-shadow: none; }
+  .stonewall .bricks { inset: 0; width: 100%; height: 100%; filter: drop-shadow(0 2px 2px rgba(0,0,0,.45)); }
+  .stonewall .bricks .c1, .stonewall .bricks .c2 { fill: none; stroke: #2e2a25; stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 120; stroke-dashoffset: 120; opacity: 0; }
+  .box.crack1 .bricks .c1, .box.crack2 .bricks .c1, .box.crack2 .bricks .c2 { opacity: 1; animation: drawCrack .35s forwards; }
+
+  /* ===== Броньована стіна ===== */
+  .gem.box.wall::before { background: #2a2f36; }
+  .wall .crate { inset: 0; border-radius: 4px; box-shadow: none; background: none; }
+  .wall .plate {
+    inset: 0; border-radius: 4px;
+    background:
+      radial-gradient(circle at 15% 15%, #c3ccd5 0 5%, #2d3340 6% 9%, transparent 10%),
+      radial-gradient(circle at 85% 15%, #c3ccd5 0 5%, #2d3340 6% 9%, transparent 10%),
+      radial-gradient(circle at 15% 85%, #c3ccd5 0 5%, #2d3340 6% 9%, transparent 10%),
+      radial-gradient(circle at 85% 85%, #c3ccd5 0 5%, #2d3340 6% 9%, transparent 10%),
+      repeating-linear-gradient(45deg, rgba(255,255,255,.07) 0 3px, transparent 3px 8px),
+      linear-gradient(135deg, #6b747e, #3d444c 60%, #4c5560);
+    box-shadow: inset 0 0 0 2px #23272e, inset 2px 2px 0 3px rgba(255,255,255,.12), inset -2px -2px 0 3px rgba(0,0,0,.3);
+  }
+  .box.wall.tink .crate { animation: tink .22s; }
 
   /* ===== Армоване дзеркало ===== */
   .mirror .crate { background: none; box-shadow: none; inset: 2px; perspective: 260px; }
@@ -863,7 +922,7 @@
   </div>
   <div class="board" id="board">
     <div class="overlay" id="overlay">
-      <h2 style="margin:0" id="ovTitle"></h2>
+      <h2 style="margin:0; text-align: center;" id="ovTitle"></h2>
       <p id="ovText"></p>
       <button id="again"></button>
     </div>
@@ -891,6 +950,9 @@
     ⚙️ слизогенератор — щоходу створює слиз у сусідній клітинці; якщо за хід його пошкодили — пропускає; 3 удари, а коли ламається — заливає слизом зону 3×3<br>
     🔫 цвяхозабивач (лежить у синіх картонних коробках) — 3 удари; від кожного удару стріляє цвяхом в одному з 4 напрямків, а коли ламається — в усі 4. Цвях пролітає крізь фішки і б'є всі перешкоди на шляху<br>
     🧨 ящик TNT — як дерев'яний (3 удари), але коли ламається — вибухає 3×3<br>
+    🗿 кам'яна жаба — спершу невразлива. Щойно ви створите бонус (жабку, блискавку, бомбу чи кулю), вона одразу його ковтає і починає трястися; після цього будь-який удар — і вона вибухає, як бомба 5×5<br>
+    🧱 кам'яна стіна — 3 удари; може ховати під собою іншу перешкоду — що саме, дізнаєтесь, лише зруйнувавши стіну. Поки стіну не зруйновано, схована перешкода ніяк себе не проявляє<br>
+    🧱 броньована стіна — нічим не зруйнувати; це лише обмеження поля, її не треба знищувати для перемоги<br>
     🪞 армоване дзеркало — щоходу перевертається, як монета: металева сторона невразлива, скляна розбивається з 1 удару<br>
     🪞 армоване дзеркало 2 — те саме, але скло вкрите простирадлом: перший удар по скляній стороні рве простирадло, другий — розбиває скло<br>
     🤖 робот — 4 удари. Після 1-го і 2-го удару стріляє цвяхом, який застрягає в першій перешкоді на шляху, після 3-го і 4-го — розганяється і біжить по прямій (перешкода, у яку врізався, отримує 1 удар). Напрямок — насамперед у бік перешкоди, яку можна пошкодити, а в стінку лише якщо інших варіантів нема; серед можливих завжди найдовший шлях. 1: відлітають гайки, дим; 2: голова гойдається на пружині; 3: відпадають руки, іскри; 4: відлітає голова, робот спалахує, біжить і вибухає 3×3<br>
@@ -917,6 +979,14 @@
     Суперкомбінації: 🌈+🌈 — знищує все поле (перешкодам 1 удар) · 💣+💣 — велика бомба 7×7 ·
     ⚡+⚡ — фіолетова блискавка в 4 напрямках · 🐸+🐸 — червона жабка з'їдає 10 фішок
   </details>
+
+  <div class="modal" id="intro">
+    <div class="introBox">
+      <h2>✨ Нова перешкода!</h2>
+      <div class="introList" id="introList"></div>
+      <div class="row2"><button id="introOk">Зрозуміло</button></div>
+    </div>
+  </div>
 
   <div class="modal" id="levelMenu">
     <div class="lvmenu">
@@ -1045,6 +1115,8 @@ const sfx = {
     tone(strong ? 700 : 1100, { dur: strong ? 0.3 : 0.15, vol: strong ? 0.05 : 0.03, type: 'square', slide: 1.5 });
     noise(strong ? 0.2 : 0.1, strong ? 0.1 : 0.05, 6000);
   },
+  sfrogGulp: () => { tone(220, { dur: 0.18, vol: 0.12, type: 'triangle', slide: 0.5 }); tone(120, { dur: 0.25, vol: 0.12, type: 'sine', delay: 0.12 }); noise(0.15, 0.05, 400); },
+  wallClank: () => { tone(380, { dur: 0.08, vol: 0.04, type: 'square' }); tone(190, { dur: 0.1, vol: 0.04, type: 'triangle', delay: 0.02 }); },
   mirrorFlip: () => { tone(700, { dur: 0.12, vol: 0.05, type: 'triangle', slide: 1.6 }); tone(1300, { dur: 0.1, vol: 0.03, delay: 0.1 }); },
   glassBreak: () => { [0, 1, 2, 3, 4].forEach(i => tone(2600 + i * 450, { dur: 0.15, vol: 0.035, delay: i * 0.03 })); noise(0.25, 0.12, 5000); },
   sheetRip: () => { noise(0.25, 0.1, 2500); tone(900, { dur: 0.2, vol: 0.03, type: 'triangle', slide: 0.5 }); },
@@ -1083,10 +1155,10 @@ const sfx = {
 // ===== Гра =====
 const N = 8, TYPES = 6;
 const RAINBOW = 6, BOMB = 7, LIGHTNING = 8, FROG = 9;
-const CARDBOARD = 10, WOOD = 11, REINFORCED = 12, SLIME = 13, GENERATOR = 14, NAILGUN = 15, TNT = 16, TESLA = 17, CORE = 18, JACK = 19, STONE = 20, STONEPICK = 21, MIXER = 22, ROBOT = 23, MIRROR = 24, MIRROR2 = 25;
+const CARDBOARD = 10, WOOD = 11, REINFORCED = 12, SLIME = 13, GENERATOR = 14, NAILGUN = 15, TNT = 16, TESLA = 17, CORE = 18, JACK = 19, STONE = 20, STONEPICK = 21, MIXER = 22, ROBOT = 23, MIRROR = 24, MIRROR2 = 25, STONEFROG = 26, WALL = 27, STONEWALL = 28;
 const isMirror = t => t === MIRROR || t === MIRROR2;
 // перешкода, якій зараз можна завдати шкоди
-const damageable = g => isObstacle(g) && g.type !== CORE && !g.mixing && !g.final && !(isMirror(g.type) && !g.glass);
+const damageable = g => isObstacle(g) && g.type !== CORE && g.type !== WALL && !(g.type === STONEFROG && !g.armed) && !g.mixing && !g.final && !(isMirror(g.type) && !g.glass);
 const isNormal = t => t >= 0 && t < TYPES;   // -1 — фішку вже «затягнула» бетономішалка
 const isSpecial = t => t >= RAINBOW && t <= FROG;
 const isBox = t => t >= CARDBOARD;
@@ -1170,7 +1242,7 @@ function createGem(r, c, type, fromRow = r) {
   return gem;
 }
 
-const BOX_CHARS = { c: CARDBOARD, n: CARDBOARD, w: WOOD, r: REINFORCED, s: SLIME, g: GENERATOR, t: TNT, e: TESLA, o: CORE, j: JACK, k: STONE, q: STONEPICK, m: MIXER, b: ROBOT, z: MIRROR, y: MIRROR2 };
+const BOX_CHARS = { c: CARDBOARD, n: CARDBOARD, w: WOOD, r: REINFORCED, s: SLIME, g: GENERATOR, t: TNT, e: TESLA, o: CORE, j: JACK, k: STONE, q: STONEPICK, m: MIXER, b: ROBOT, z: MIRROR, y: MIRROR2, f: STONEFROG, a: WALL };
 function startLevel(i) {
   level = i;
   const def = LEVELS[i] || randomLevel();
@@ -1191,6 +1263,13 @@ function startLevel(i) {
     grid[r] = [];
     for (let c = 0; c < N; c++) {
       const ch = def.map[r][c];
+      if (def.cover?.[r][c] === 'l' && ch !== 'o') {
+        // кам'яна стіна; те, що під нею, з'явиться лише коли стіну зруйнують
+        const sw = createBox(r, c, STONEWALL);
+        if (ch !== '.') sw.under = ch;
+        grid[r][c] = sw;
+        continue;
+      }
       if (ch in BOX_CHARS) {
         grid[r][c] = createBox(r, c, BOX_CHARS[ch]);
         if (ch === 'n') { grid[r][c].nailgun = true; grid[r][c].el.classList.add('ng-box'); }   // синя коробка з цвяхозабивачем
@@ -1210,6 +1289,7 @@ function startLevel(i) {
   $('overlay').classList.remove('show');
   updateHud();
   if (!findMove()) shuffle();
+  showIntro(def);
 }
 
 function updateHud() {
@@ -1413,6 +1493,9 @@ const BOX_INFO = {
   [ROBOT]:      { cls: 'robot',      hp: 4, pts: 300, shards: ['#9aa5b1', '#5d6772', '#2d3340', '#ff4a1a'] },
   [MIRROR]:     { cls: 'mirror',     hp: 1, pts: 120, shards: ['#e6f6ff', '#9fd2f0', '#ffffff', '#6aa8d8'] },
   [MIRROR2]:    { cls: 'mirror',     hp: 1, pts: 160, shards: ['#e6f6ff', '#9fd2f0', '#ffffff', '#6aa8d8'] },
+  [STONEFROG]:  { cls: 'stonefrog',  hp: 1, pts: 300, shards: ['#9a9fa8', '#6c717b', '#4a4e56', '#ff9a3a'] },
+  [STONEWALL]:  { cls: 'stonewall',  hp: 3, pts: 120, shards: ['#a39a8e', '#7d746a', '#5a534b', '#c9c1b5'] },
+  [WALL]:       { cls: 'wall',       hp: 1, pts: 0,   shards: ['#5d6772', '#3d444c'] },
 };
 const CRACKS = '<svg class="crack" viewBox="0 0 100 100">' +
   '<polyline class="c1" points="24,10 40,34 30,52 52,70 46,92"/>' +
@@ -1485,6 +1568,30 @@ const STONE_SVG = '<svg class="rock" viewBox="0 0 100 100"><defs>' +
   '<polyline class="c1" points="44,16 50,34 42,46 54,58"/>' +
   '<polyline class="c2" points="82,32 68,44 74,56 60,66 64,84"/>' +
   '<polyline class="c3" points="14,62 30,56 36,68 48,72 46,88"/></svg>';
+// Кам'яна стіна (може ховати під собою іншу перешкоду)
+const SWALL_SVG = '<svg class="bricks" viewBox="0 0 100 100">' +
+  '<rect x="1" y="1" width="98" height="98" rx="8" fill="#5a534b"/>' +
+  '<g fill="#a39a8e" stroke="#4a443d" stroke-width="1.5">' +
+  '<rect x="4" y="4" width="44" height="28" rx="3"/><rect x="52" y="4" width="44" height="28" rx="3"/>' +
+  '<rect x="4" y="36" width="22" height="28" rx="3"/><rect x="30" y="36" width="40" height="28" rx="3"/><rect x="74" y="36" width="22" height="28" rx="3"/>' +
+  '<rect x="4" y="68" width="44" height="28" rx="3"/><rect x="52" y="68" width="44" height="28" rx="3"/></g>' +
+  '<g fill="none" stroke="#d9d2c6" stroke-width="2" opacity=".45" stroke-linecap="round">' +
+  '<path d="M8,8 H40"/><path d="M56,8 H88"/><path d="M34,40 H64"/><path d="M8,72 H40"/><path d="M56,72 H88"/></g>' +
+  '<polyline class="c1" points="20,6 30,22 22,38 36,52 30,66"/>' +
+  '<polyline class="c2" points="84,30 70,46 78,60 62,76 68,94"/></svg>';
+// Кам'яна жаба
+const SFROG_SVG = '<svg class="sfrog" viewBox="0 0 100 100"><defs>' +
+  '<radialGradient id="sfG" cx=".4" cy=".3" r=".85"><stop offset="0" stop-color="#c3c7cd"/><stop offset=".5" stop-color="#8a8f98"/><stop offset="1" stop-color="#4a4e56"/></radialGradient></defs>' +
+  '<ellipse cx="50" cy="88" rx="40" ry="8" fill="#4a4e56"/>' +
+  '<path d="M14,84 Q8,70 20,66 L30,74 Z M86,84 Q92,70 80,66 L70,74 Z" fill="#6c717b" stroke="#3a3d43" stroke-width="2"/>' +
+  '<path d="M16,80 Q10,48 30,36 Q50,28 70,36 Q90,48 84,80 Q50,92 16,80 Z" fill="url(#sfG)" stroke="#3a3d43" stroke-width="2.5"/>' +
+  '<circle cx="32" cy="32" r="13" fill="url(#sfG)" stroke="#3a3d43" stroke-width="2.5"/>' +
+  '<circle cx="68" cy="32" r="13" fill="url(#sfG)" stroke="#3a3d43" stroke-width="2.5"/>' +
+  '<circle class="eye" cx="32" cy="32" r="6" fill="#3a3d43"/><circle class="eye" cx="68" cy="32" r="6" fill="#3a3d43"/>' +
+  '<path d="M30,62 Q50,74 70,62" fill="none" stroke="#3a3d43" stroke-width="3" stroke-linecap="round"/>' +
+  '<path d="M28,46 Q36,42 44,44" fill="none" stroke="#e1e4e8" stroke-width="2.5" opacity=".55" stroke-linecap="round"/>' +
+  '<polyline class="cr" points="46,40 52,52 46,60 54,70"/><polyline class="cr" points="76,48 66,58 72,68"/>' +
+  '<circle cx="62" cy="76" r="3" fill="#6c717b"/><circle cx="34" cy="72" r="2.5" fill="#6c717b"/></svg>';
 const PICK_SVG = '<svg viewBox="0 0 100 100"><rect x="44" y="20" width="10" height="72" rx="4" fill="#9a6a33" stroke="#5a3a14" stroke-width="2" transform="rotate(30 49 56)"/>' +
   '<path d="M14,34 Q48,4 90,30 Q52,20 14,34 Z" fill="#c3ccd5" stroke="#434b54" stroke-width="2.5" transform="rotate(30 52 26)"/></svg>';
 
@@ -1533,6 +1640,9 @@ function createBox(r, c, type) {
   if (type === CORE) inner = CORE_SVG + '<i class="down"></i>';
   if (type === JACK) inner = JACK_SVG + '<i class="crank">' + CRANK_SVG + '</i>';
   if (type === STONE) inner = STONE_SVG;
+  if (type === STONEFROG) inner = SFROG_SVG + '<i class="sfglow"></i>';
+  if (type === WALL) inner = '<i class="plate"></i>';
+  if (type === STONEWALL) inner = SWALL_SVG;
   if (isMirror(type)) inner = '<div class="coin"><div class="side metal"></div><div class="side glass">' + (type === MIRROR2 ? '<div class="sheet"></div>' : '') + '</div></div>';
   if (type === ROBOT) inner = ROBOT_SVG +
     '<i class="rarm l">' + ROBOT_ARM + '</i><i class="rarm r">' + ROBOT_ARM + '</i>' +
@@ -1583,7 +1693,7 @@ const isObstacle = g => g && ((isBox(g.type) && !g.broken) || locked(g));
 const movable = g => g && !isBox(g.type) && !locked(g);
 const isFree = (r, c) => isNormal(grid[r][c].type) && !locked(grid[r][c]);
 
-const boxesLeft = () => grid.flat().filter(isObstacle).length;
+const boxesLeft = () => grid.flat().filter(g => isObstacle(g) && g.type !== WALL).length;
 
 function flyOff(part) {
   if (!part) return;
@@ -1631,6 +1741,13 @@ function hitBox(r, c) {
     }
   }
   if (box.type === ROBOT && box.final) return;      // уже біжить на вибух     // уже затягує фішки
+  if (box.type === WALL || (box.type === STONEFROG && !box.armed && !box.broken)) {
+    // броньована стіна і «спляча» кам'яна жаба — невразливі
+    box.el.classList.remove('tink'); box.el.getBoundingClientRect(); box.el.classList.add('tink');
+    const now = performance.now();
+    if (!hitBox.lastTink || now - hitBox.lastTink > 120) { box.type === WALL ? sfx.wallClank() : sfx.coreTink(); hitBox.lastTink = now; }
+    return;
+  }
   if (box.type === CORE) {
     // ядро нічим не пошкодити — лише «дзенькає»
     box.el.classList.remove('tink'); box.el.getBoundingClientRect(); box.el.classList.add('tink');
@@ -1670,10 +1787,11 @@ function hitBox(r, c) {
        [GENERATOR]: () => { sfx.metalBreak(); sfx.slimeBreak(); },
        [NAILGUN]: () => sfx.metalBreak(), [TNT]: () => sfx.woodBreak(),
        [TESLA]: () => { sfx.lightning(); sfx.teslaZap(true); },
-       [JACK]: () => sfx.cardBreak(), [STONE]: () => sfx.stoneBreak(), [STONEPICK]: () => sfx.stoneBreak(), [MIXER]: () => sfx.metalBreak(), [MIRROR]: () => sfx.glassBreak(), [MIRROR2]: () => sfx.glassBreak() })[box.type]?.();
+       [JACK]: () => sfx.cardBreak(), [STONE]: () => sfx.stoneBreak(), [STONEPICK]: () => sfx.stoneBreak(), [MIXER]: () => sfx.metalBreak(), [MIRROR]: () => sfx.glassBreak(), [MIRROR2]: () => sfx.glassBreak(), [STONEFROG]: () => sfx.stoneBreak(), [STONEWALL]: () => sfx.stoneBreak() })[box.type]?.();
     shatter(r, c, box.nailgun ? ['#8fb8ec', '#5b8fd6', '#2c5394', '#f0e1b4'] : info.shards, box.type === REINFORCED || box.type === GENERATOR ? 12 : 8);
     if (box.type === NAILGUN) [[0,1],[0,-1],[1,0],[-1,0]].forEach(d => fireNail(r, c, d));   // цвяхи в усі 4 боки
     if (box.type === TNT) tntExplode(r, c);
+    if (box.type === STONEFROG) tntExplode(r, c, 2);   // заряджена кам'яна жаба — вибух 5×5
     if (box.type === TESLA) teslaBlast(r, c);
     if (box.type === STONEPICK) pickaxeRun(r, c);   // кірка вилітає і йде трощити інші камені
     if (box.type === JACK) {
@@ -1692,6 +1810,14 @@ function hitBox(r, c) {
       grid[r][c] = createBox(r, c, NAILGUN);
       grid[r][c].el.classList.add('spawn');
       floatText('🔫', r, c);
+      updateHud();
+      return;
+    }
+    if (box.type === STONEWALL && box.under) {
+      score += info.pts; floatText('+' + info.pts, r, c, '#ffd27a');
+      setTimeout(() => el.remove(), 400);
+      const g = spawnCell(r, c, box.under);
+      g.el.classList.add(isBox(g.type) ? 'spawn' : 'appear');
       updateHud();
       return;
     }
@@ -1724,6 +1850,9 @@ function hitBox(r, c) {
   } else if (box.type === MIXER) {
     el.classList.add('spin1');           // 1-й удар: барабан повільно закрутився
     sfx.mixerSlow();
+  } else if (box.type === STONEWALL) {
+    el.classList.add('crack' + (BOX_INFO[STONEWALL].hp - box.hp));
+    sfx.stoneHit();
   } else if (box.type === STONE || box.type === STONEPICK) {
     // з кожним ударом — нова тріщина, сам камінь меншає (кірка — ні)
     const stage = BOX_INFO[box.type].hp - box.hp;
@@ -1762,7 +1891,7 @@ function neighborBoxes(r, c) {
   [[1,0],[-1,0],[0,1],[0,-1]].forEach(([dr, dc]) => {
     const rr = r + dr, cc = c + dc;
     if (rr < 0 || rr >= N || cc < 0 || cc >= N) return;
-    if (isObstacle(grid[rr][cc])) out.push([rr, cc]);
+    if (isObstacle(grid[rr][cc]) && grid[rr][cc].type !== WALL) out.push([rr, cc]);
   });
   return out;
 }
@@ -2093,7 +2222,7 @@ async function pickaxeRun(r, c) {
     for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
       const g = grid[y][x];
       if (!damageable(g)) continue;
-      (g.type === STONE || g.type === STONEPICK ? stones : others).push([y, x]);
+      (g.type === STONE || g.type === STONEPICK || g.type === STONEWALL ? stones : others).push([y, x]);
     }
     const list = stones.length ? stones : others;
     if (!list.length) break;
@@ -2122,8 +2251,8 @@ async function pickaxeRun(r, c) {
 // 🤡 Шкатулка розкидає 3 випадкові перешкоди (крім шкатулки)
 let turn = 0;                     // скільки ходів зроблено на рівні
 const pendingJack = [];
-const SCATTER = ['c', 'c', 'n', 'w', 'w', 't', 'r', 's', 'g', 'x', 'x', 'p', 'e', 'o', 'k', 'q', 'm', 'b', 'z', 'y'];
-const SCATTER_ICON = { c: '📦', n: '📦', w: '🪵', t: '🧨', r: '🛡️', s: '🟢', g: '⚙️', x: '🕸️', p: '🕷️', e: '⚡', o: '⚫', k: '🪨', q: '⛏️', m: '🔄', b: '🤖', z: '🪞', y: '🪞' };
+const SCATTER = ['c', 'c', 'n', 'w', 'w', 't', 'r', 's', 'g', 'x', 'x', 'p', 'e', 'o', 'k', 'q', 'm', 'b', 'z', 'y', 'f'];
+const SCATTER_ICON = { c: '📦', n: '📦', w: '🪵', t: '🧨', r: '🛡️', s: '🟢', g: '⚙️', x: '🕸️', p: '🕷️', e: '⚡', o: '⚫', k: '🪨', q: '⛏️', m: '🔄', b: '🤖', z: '🪞', y: '🪞', f: '🗿' };
 async function jackScatter([jr, jc]) {
   const free = [];
   for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) if (grid[r][c] && isFree(r, c)) free.push([r, c]);
@@ -2286,11 +2415,11 @@ async function regenTeslas() {
   if (any) { sfx.teslaRegen(); await wait(700); }
 }
 
-function tntExplode(r, c) {
+function tntExplode(r, c, rad = 1) {
   sfx.bomb(); shakeBoard();
-  fx('shock', { left: `calc(var(--cell) * ${c - 1})`, top: `calc(var(--cell) * ${r - 1})`,
-                width: `calc(var(--cell) * 3)`, height: `calc(var(--cell) * 3)` });
-  for (let rr = r - 1; rr <= r + 1; rr++) for (let cc = c - 1; cc <= c + 1; cc++) {
+  fx('shock', { left: `calc(var(--cell) * ${c - rad})`, top: `calc(var(--cell) * ${r - rad})`,
+                width: `calc(var(--cell) * ${rad * 2 + 1})`, height: `calc(var(--cell) * ${rad * 2 + 1})` });
+  for (let rr = r - rad; rr <= r + rad; rr++) for (let cc = c - rad; cc <= c + rad; cc++) {
     if (rr < 0 || rr >= N || cc < 0 || cc >= N || (rr === r && cc === c)) continue;
     const g = grid[rr][cc];
     if (!g) continue;
@@ -2299,6 +2428,47 @@ function tntExplode(r, c) {
     else if (isNormal(g.type) && !pendingClear.includes(g)) { g.el.classList.add('pop'); pendingClear.push(g); score += 10; }
   }
   updateHud();
+}
+
+// Ставить у клітинку перешкоду за символом карти (для кам'яної стіни)
+function spawnCell(r, c, ch) {
+  if (ch in BOX_CHARS) {
+    grid[r][c] = createBox(r, c, BOX_CHARS[ch]);
+    if (ch === 'n') { grid[r][c].nailgun = true; grid[r][c].el.classList.add('ng-box'); }
+  } else {
+    grid[r][c] = createGem(r, c, rand());
+    if (ch === 'x') addWeb(grid[r][c]);
+    if (ch === 'p') addSpider(r, c);
+  }
+  return grid[r][c];
+}
+
+// Кам'яна жаба: найближча ще не заряджена ковтає новий бонус і починає трястися
+function nearestStoneFrog(r, c) {
+  let best = null, bd = Infinity;
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+    const g = grid[y][x];
+    if (!g || g.type !== STONEFROG || g.armed || g.broken) continue;
+    const d = Math.hypot(y - r, x - c);
+    if (d < bd) { bd = d; best = [y, x]; }
+  }
+  return best;
+}
+function absorbSpecial(r, c, type, [fr, fc]) {
+  const frog = grid[fr][fc];
+  frog.armed = true;                       // одразу, щоб наступний бонус пішов до іншої жаби
+  const g = createGem(r, c, type);         // летючий бонус — у сітку не потрапляє
+  g.el.getBoundingClientRect();
+  g.el.classList.add('absorbing');
+  setPos(g, fr, fc);
+  floatText('🗿 Ковть!', r, c, '#ffb43a');
+  setTimeout(() => {
+    g.el.remove();
+    if (grid[fr][fc] !== frog || frog.broken) return;
+    frog.el.classList.add('gulp', 'armed');
+    setTimeout(() => frog.el.classList.remove('gulp'), 400);
+    sfx.sfrogGulp();
+  }, 400);
 }
 
 // Добиваємо все відкладене: цвяхи в польоті, вибухи TNT, зламані перешкоди
@@ -2982,6 +3152,9 @@ async function resolve(swap = null) {
     if (specials.length) {
       const names = { [RAINBOW]: '🌈 Куля!', [BOMB]: '💣 Бомба!', [LIGHTNING]: '⚡ Блискавка!', [FROG]: '🐸 Жабка!' };
       specials.forEach(({ r, c, type }) => {
+        // кам'яна жаба одразу ковтає створений бонус
+        const sf = nearestStoneFrog(r, c);
+        if (sf) { absorbSpecial(r, c, type, sf); return; }
         grid[r][c] = createGem(r, c, type);
         grid[r][c].el.classList.add('appear');
         floatText(names[type], r, c);
@@ -3112,7 +3285,7 @@ function cancelBooster() {
   setTip('');
   updateBoosters();
 }
-function boardLocked() { return busy || $('overlay').classList.contains('show') || $('lottery').classList.contains('show') || $('levelMenu').classList.contains('show'); }
+function boardLocked() { return busy || $('overlay').classList.contains('show') || $('lottery').classList.contains('show') || $('levelMenu').classList.contains('show') || $('intro').classList.contains('show'); }
 
 function pickBooster(k) {
   if (boardLocked() || inv[k] <= 0) return;
@@ -3133,6 +3306,8 @@ $('b-dart').onclick = () => pickBooster('dart');
 function onBoosterCell(r, c) {
   if (boosterMode === 'hammer') {
     if (grid[r][c]?.type === CORE) { sfx.coreTink(); setTip('⚫ Ядро не пошкодити — опустіть його на дно поля'); return; }
+    if (grid[r][c]?.type === WALL) { sfx.wallClank(); setTip('🧱 Броньовану стіну не зруйнувати'); return; }
+    if (grid[r][c]?.type === STONEFROG && !grid[r][c].armed) { sfx.coreTink(); setTip('🗿 Кам\'яна жаба поки невразлива — нагодуйте її бонусом'); return; }
     useHammer(r, c); return;
   }
   // рукавичка
@@ -3458,7 +3633,7 @@ $('soundBtn').onclick = () => {
 
 // ===================== Рівні з JSON =====================
 // Формат: { "levels": [ { "name": "...", "moves": 20, "map": ["........", ... 8 рядків по 8 символів] } ] }
-const MAP_CHARS = '.cnwtrsgxpeojkqmbzy';
+const MAP_CHARS = '.cnwtrsgxpeojkqmbzyfa';
 function parseLevels(data) {
   const list = Array.isArray(data) ? data : data?.levels;
   if (!Array.isArray(list) || !list.length) throw new Error('у файлі немає списку "levels"');
@@ -3471,7 +3646,11 @@ function parseLevels(data) {
       if (row.length !== N) throw new Error(`рівень ${i + 1}, рядок ${r + 1}: має бути ${N} символів`);
       return [...row].map(ch => MAP_CHARS.includes(ch) ? ch : '.').join('');
     });
-    return { name: lv.name ? String(lv.name) : '', moves, map };
+    const out = { name: lv.name ? String(lv.name) : '', moves, map };
+    // cover — другий шар: l — кам'яна стіна поверх клітинки
+    if (Array.isArray(lv.cover) && lv.cover.length === N)
+      out.cover = lv.cover.map(row => [...String(row).padEnd(N, '.').slice(0, N)].map(ch => ch === 'l' ? 'l' : '.').join(''));
+    return out;
   });
 }
 // ===================== Прогрес гравця =====================
@@ -3546,6 +3725,8 @@ $('lvResetNo').onclick = () => $('lvConfirm').classList.remove('show');
 $('lvResetYes').onclick = () => {
   progress = {};
   try { localStorage.removeItem(PROGRESS_KEY); } catch (e) {}
+  seen = {};
+  try { localStorage.removeItem(SEEN_KEY); } catch (e) {}
   Object.assign(inv, INV_START);   // бонуси — до стартового запасу
   updateBoosters();
   $('lvConfirm').classList.remove('show');
@@ -3558,6 +3739,85 @@ $('lvResetYes').onclick = () => {
   setTimeout(() => setTip(''), 3000);
 };
 $('levelMenu').onclick = e => { if (e.target === $('levelMenu')) { $('lvConfirm').classList.remove('show'); $('levelMenu').classList.remove('show'); } };
+
+// ===================== Знайомство з новими перешкодами =====================
+// Які типи перешкод гравець уже бачив (у цьому браузері)
+const SEEN_KEY = 'match3-seen';
+let seen = {};
+try { seen = JSON.parse(localStorage.getItem(SEEN_KEY)) || {}; } catch (e) { seen = {}; }
+const INTRO = {
+  c: ['Картонна коробка', 'Руйнується з 2 ударів. Бийте її комбінаціями поруч або бонусами.'],
+  n: ['Синя коробка', 'Як картонна (2 удари), але всередині — цвяхозабивач, який залишиться на її місці.'],
+  w: ["Дерев'яний ящик", 'Руйнується з 3 ударів. Зрідка всередині лежить бонус для гравця.'],
+  r: ['Армований ящик', 'Міцний: потрібно 4 удари.'],
+  t: ['Ящик TNT', "3 удари, як дерев'яний, але, ламаючись, вибухає 3×3 і б'є все довкола."],
+  s: ['Слиз', 'Зникає з 1 удару. Якщо за хід слиз ніхто не зачепив — він розростається на сусідню фішку.'],
+  g: ['Слизогенератор', 'Руйнується з 3 ударів, але тоді заливає слизом зону 3×3 довкола.'],
+  x: ['Павутина', 'Фішку в павутині не можна рухати. Зберіть її в комбінацію або вдарте поруч — павутина порветься.'],
+  p: ['Павук', 'Щоходу переповзає на сусідню фішку й лишає павутину, а згодом — кладку яєць. Гине з 1 удару.'],
+  e: ['Електрогенератор', "3 удари; на третьому вибухає блискавкою на рядок, стовпчик і діагоналі. Якщо за хід його не зачепили — відновлюється."],
+  o: ['Металеве ядро', 'Нічим не пошкодити! Збирайте комбінації під ним — ядро опуститься, а на дні поля вибухне 3×3.'],
+  j: ['Шкатулка з клоуном', '3 удари. Коли зламається — клоун розкидає по полю 3 випадкові перешкоди.'],
+  k: ['Камінь', '4 удари; з кожним ударом камінь тріскає й меншає.'],
+  q: ['Камінь з кіркою', 'Як камінь, але коли зламається, кірка завдасть 10 ударів іншим каменям і перешкодам.'],
+  m: ['Бетономішалка', "Після 2 ударів затягує фішки довкола 3×3 і робить з них бонуси, які з'являться поруч."],
+  b: ['Робот', '4 удари. Після ударів стріляє цвяхами, а наприкінці біжить по прямій і вибухає 3×3.'],
+  z: ['Армоване дзеркало', 'Щоходу перевертається: металева сторона невразлива, скляна розбивається з 1 удару.'],
+  y: ['Дзеркало з простирадлом', 'Як армоване дзеркало, але скло вкрите простирадлом: спершу його треба порвати.'],
+  f: ["Кам'яна жаба", 'Спершу невразлива. Щойно ви створите бонус, жаба його проковтне й затрясеться — тоді один удар, і вона вибухне 5×5.'],
+  a: ['Броньована стіна', 'Її не зруйнувати і не потрібно: це лише межа поля.'],
+  l: ["Кам'яна стіна", 'Руйнується з 3 ударів. Під нею може щось ховатися…'],
+};
+// символ → як намалювати плитку для вікна
+function introTile(ch) {
+  const tile = document.createElement('div');
+  tile.className = 'introTile';
+  let g;
+  if (ch === 'x' || ch === 'p') {
+    g = createGem(0, 0, 0);
+    if (ch === 'x') addWeb(g);
+  } else {
+    g = createBox(0, 0, ch === 'l' ? STONEWALL : BOX_CHARS[ch]);
+    if (ch === 'n') g.el.classList.add('ng-box');
+  }
+  tile.appendChild(g.el);   // createGem/createBox кладуть елемент на поле — переносимо у вікно
+  if (ch === 'p') {
+    const sp = document.createElement('div');
+    sp.className = 'spiderEl'; sp.innerHTML = SPIDER_SVG;
+    tile.appendChild(sp);
+  }
+  return tile;
+}
+let introPending = [];
+function showIntro(def) {
+  // лише те, що гравець бачить на старті (під кам'яною стіною — секрет)
+  const found = new Set();
+  def.map.forEach((row, r) => [...row].forEach((ch, c) => {
+    if (def.cover?.[r][c] === 'l' && ch !== 'o') found.add('l');
+    else if (INTRO[ch]) found.add(ch);
+  }));
+  introPending = Object.keys(INTRO).filter(ch => found.has(ch) && !seen[ch]);
+  if (!introPending.length) { $('intro').classList.remove('show'); return; }
+  $('intro').querySelector('h2').textContent = introPending.length > 1 ? '✨ Нові перешкоди!' : '✨ Нова перешкода!';
+  $('introList').innerHTML = '';
+  introPending.forEach(ch => {
+    const it = document.createElement('div');
+    it.className = 'introItem';
+    it.appendChild(introTile(ch));
+    const txt = document.createElement('div');
+    txt.innerHTML = `<b>${INTRO[ch][0]}</b><p>${INTRO[ch][1]}</p>`;
+    it.appendChild(txt);
+    $('introList').appendChild(it);
+  });
+  $('intro').classList.add('show');
+}
+$('introOk').onclick = () => {
+  introPending.forEach(ch => { seen[ch] = 1; });
+  introPending = [];
+  if (!TEST_MODE) try { localStorage.setItem(SEEN_KEY, JSON.stringify(seen)); } catch (e) {}
+  $('intro').classList.remove('show');
+  sfx.select();
+};
 
 function useLevels(list, startAt = null, note = '') {
   LEVELS = list;
