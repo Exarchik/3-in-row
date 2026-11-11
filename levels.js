@@ -1689,6 +1689,20 @@ window.LEVELS_DATA = {
         "...nzczc",
         "...zcnyz"
       ]
+    },
+    {
+      "name": "Скляний танцпол",
+      "moves": 25,
+      "map": [
+        "........",
+        ".q....q.",
+        ".e....e.",
+        "...b....",
+        "zzzztzzz",
+        "zzztzzzz",
+        "yyyytyyy",
+        "yyytyyyy"
+      ]
     }
   ]
 };
