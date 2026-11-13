@@ -170,6 +170,10 @@
     background: linear-gradient(var(--dir), transparent, #e2b8ff 30%, #fff 50%, #e2b8ff 70%, transparent);
     box-shadow: 0 0 16px #b46bff, 0 0 30px #fff;
   }
+  .bolt.green {   /* блискавка, яку випустив магічний кристал */
+    background: linear-gradient(var(--dir), transparent, #9dffb0 30%, #fff 50%, #9dffb0 70%, transparent);
+    box-shadow: 0 0 16px #3dff7a, 0 0 30px #d8ffe2;
+  }
   .bolt.d { height: calc(var(--cell) * .5); width: calc(var(--cell) * 12); --dir: 180deg; transform-origin: 50% 50%; }
   .flash {
     position: absolute; inset: 0; pointer-events: none; z-index: 9;
@@ -636,6 +640,21 @@
   .leaf.gone svg { animation: leafGone .45s ease-in forwards; }
   @keyframes leafGone { to { transform: translate(8px, -16px) rotate(70deg) scale(1.3); opacity: 0; } }
 
+  /* ===== Магічний кристал ===== */
+  .crystal .crate { background: none; box-shadow: none; inset: 1px; }
+  .crystal .gemc { inset: 0; width: 100%; height: 100%; filter: drop-shadow(0 0 6px var(--c2)) drop-shadow(0 3px 3px rgba(0,0,0,.5)); }
+  .crystal .gemc path, .crystal .gemc .f1, .crystal .gemc .f2, .crystal .gemc .f3 { transition: fill .4s; }
+  .crystal .f1 { fill: var(--c1); }
+  .crystal .f2 { fill: var(--c3); stroke: var(--c2); stroke-width: 2; }
+  .crystal .f3 { fill: var(--c2); opacity: .55; }
+  .crystal .gemc .c1, .crystal .gemc .c2, .crystal .gemc .c3 { fill: none; stroke: #fff; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 120; stroke-dashoffset: 120; opacity: 0; }
+  .box.crystal.crk1 .gemc .c1, .box.crystal.crk2 .gemc .c2, .box.crystal.crk2 .gemc .c3 { opacity: .9; animation: drawCrack .35s forwards; }
+  .box.crystal.quake .crate { animation: crQuake .2s linear infinite; }
+  .box.crystal.quake2 .crate { animation-duration: .1s; }
+  @keyframes crQuake { 0%, 100% { translate: 0 0; } 25% { translate: -1.5px 1px; } 50% { translate: 1px -1px; } 75% { translate: 1.5px .5px; } }
+  .box.crystal.hit .gemc { animation: crFlash .3s; }
+  @keyframes crFlash { 40% { filter: brightness(1.8) drop-shadow(0 0 12px var(--c2)); } }
+
   /* ===== Мітла ===== */
   .broom .crate { background: none; box-shadow: none; inset: 1px; }
   .broom .bstand { inset: 0; transform: rotate(-50deg) scale(1.05); filter: drop-shadow(0 3px 3px rgba(0,0,0,.5)); }
@@ -1006,6 +1025,7 @@
     🧨 ящик TNT — як дерев'яний (3 удари), але коли ламається — вибухає 3×3<br>
     🗿 кам'яна жаба — спершу невразлива. Щойно ви створите бонус (жабку, блискавку, бомбу чи кулю), вона одразу його ковтає і починає трястися; після цього будь-який удар — і вона вибухає, як бомба 5×5<br>
     🍂 осіннє листя — лежить під фішками; знищте фішку чи перешкоду на клітинці, і листя розлетиться. Для перемоги треба прибрати все листя<br>
+    💎 магічний кристал — 8 ударів; з кожним змінює колір від темно-синього до багряно-червоного, останні удари — з тріщинами й дрижанням. Розбитий, лишає випадкову суперкомбінацію (червону жабу, фіолетову блискавку або велику бомбу), яка одразу спрацьовує. Кірка вважає його каменем. Кожна блискавка, що влучила в кристал, породжує ще одну — зелену, поперек; зелена блискавка інших кристалів не зачіпає. У зоні 3×3 довкола кристала не з'являються слиз і павутина, а павук, що туди заліз, гине. Якщо кристал з'являється посеред гри (з-під кам'яної стіни чи від клоуна), він одразу знищує павутину, слиз і павуків у своїй зоні<br>
     🧹 мітла — від 1 удару злітає і летить по прямій, вичищаючи листя, слиз і павутину (фішки лишаються). Напрямок обирає за пріоритетом: найбільше листя, потім слизу, потім павутини, потім інших мітел, потім довший шлях. Інші мітли пролітає наскрізь, зачіпаючи їх (вони теж злітають). Наткнувшись на іншу перешкоду, розвертається; долетівши до стінки (краю поля чи броньованої стіни) — з хрустом ламається<br>
     🗑️ сміттєбак — 2 удари: спершу відлітає кришка, потім бак перекидається, засипає листям зону 5×5 і зникає<br>
     🧱 кам'яна стіна — 3 удари; може ховати під собою іншу перешкоду — що саме, дізнаєтесь, лише зруйнувавши стіну. Поки стіну не зруйновано, схована перешкода ніяк себе не проявляє<br>
@@ -1172,6 +1192,9 @@ const sfx = {
     tone(strong ? 700 : 1100, { dur: strong ? 0.3 : 0.15, vol: strong ? 0.05 : 0.03, type: 'square', slide: 1.5 });
     noise(strong ? 0.2 : 0.1, strong ? 0.1 : 0.05, 6000);
   },
+  crystalHit: dmg => { tone(900 + dmg * 120, { dur: 0.25, vol: 0.05, type: 'triangle' }); tone(1800 + dmg * 240, { dur: 0.18, vol: 0.025, delay: 0.04 }); if (dmg >= 6) noise(0.08, 0.05, 2500); },
+  crystalBreak: () => { [0, 1, 2, 3, 4, 5].forEach(i => tone(1400 + i * 300, { dur: 0.3, vol: 0.04, type: 'triangle', delay: i * 0.05 })); noise(0.3, 0.12, 4500); },
+  crystalZap: () => { tone(1500, { dur: 0.12, vol: 0.05, type: 'sawtooth', slide: 0.4 }); },
   broomWhoosh: () => { noise(0.22, 0.05, 3500); },
   broomBump: () => { tone(240, { dur: 0.1, vol: 0.08, type: 'triangle', slide: 0.7 }); noise(0.06, 0.04, 1500); },
   broomBreak: () => { noise(0.08, 0.14, 1400); noise(0.12, 0.1, 900); tone(160, { dur: 0.12, vol: 0.1, type: 'square', slide: 0.5, delay: 0.03 }); },
@@ -1219,7 +1242,7 @@ const sfx = {
 // ===== Гра =====
 const N = 8, TYPES = 6;
 const RAINBOW = 6, BOMB = 7, LIGHTNING = 8, FROG = 9;
-const CARDBOARD = 10, WOOD = 11, REINFORCED = 12, SLIME = 13, GENERATOR = 14, NAILGUN = 15, TNT = 16, TESLA = 17, CORE = 18, JACK = 19, STONE = 20, STONEPICK = 21, MIXER = 22, ROBOT = 23, MIRROR = 24, MIRROR2 = 25, STONEFROG = 26, WALL = 27, STONEWALL = 28, BIN = 29, BROOM = 30;
+const CARDBOARD = 10, WOOD = 11, REINFORCED = 12, SLIME = 13, GENERATOR = 14, NAILGUN = 15, TNT = 16, TESLA = 17, CORE = 18, JACK = 19, STONE = 20, STONEPICK = 21, MIXER = 22, ROBOT = 23, MIRROR = 24, MIRROR2 = 25, STONEFROG = 26, WALL = 27, STONEWALL = 28, BIN = 29, BROOM = 30, CRYSTAL = 31;
 const isMirror = t => t === MIRROR || t === MIRROR2;
 // перешкода, якій зараз можна завдати шкоди
 const damageable = g => isObstacle(g) && g.type !== CORE && g.type !== WALL && !(g.type === STONEFROG && !g.armed) && !g.mixing && !g.final && !(isMirror(g.type) && !g.glass);
@@ -1307,7 +1330,7 @@ function createGem(r, c, type, fromRow = r) {
   return gem;
 }
 
-const BOX_CHARS = { c: CARDBOARD, n: CARDBOARD, w: WOOD, r: REINFORCED, s: SLIME, g: GENERATOR, t: TNT, e: TESLA, o: CORE, j: JACK, k: STONE, q: STONEPICK, m: MIXER, b: ROBOT, z: MIRROR, y: MIRROR2, f: STONEFROG, a: WALL, d: BIN, h: BROOM };
+const BOX_CHARS = { c: CARDBOARD, n: CARDBOARD, w: WOOD, r: REINFORCED, s: SLIME, g: GENERATOR, t: TNT, e: TESLA, o: CORE, j: JACK, k: STONE, q: STONEPICK, m: MIXER, b: ROBOT, z: MIRROR, y: MIRROR2, f: STONEFROG, a: WALL, d: BIN, h: BROOM, i: CRYSTAL };
 function startLevel(i) {
   level = i;
   const def = LEVELS[i] || randomLevel();
@@ -1318,6 +1341,7 @@ function startLevel(i) {
   pendingJack.length = 0;
   pendingSpill.length = 0;
   pendingBroom.length = 0;
+  pendingBolts.length = 0;
   leaves = [...Array(N)].map(() => Array(N).fill(null));
   pendingMixer.length = 0;
   pendingSuck.length = 0;
@@ -1519,7 +1543,8 @@ function collapse() {
   const mono = monoNext;
   monoNext = null;
   let created = 0;
-  const boxAt = (r, c) => grid[r][c] && grid[r][c].type !== CORE && (isBox(grid[r][c].type) || locked(grid[r][c]));
+  // суперкомбінація з розбитого кристала (pinned) теж стоїть на місці, доки не спрацює
+  const boxAt = (r, c) => grid[r][c] && grid[r][c].type !== CORE && (isBox(grid[r][c].type) || locked(grid[r][c]) || grid[r][c].pinned);
   for (let c = 0; c < N; c++) {
     let bottom = N - 1;
     while (bottom >= 0) {
@@ -1565,6 +1590,7 @@ const BOX_INFO = {
   [MIRROR2]:    { cls: 'mirror',     hp: 1, pts: 160, shards: ['#e6f6ff', '#9fd2f0', '#ffffff', '#6aa8d8'] },
   [STONEFROG]:  { cls: 'stonefrog',  hp: 1, pts: 300, shards: ['#9a9fa8', '#6c717b', '#4a4e56', '#ff9a3a'] },
   [STONEWALL]:  { cls: 'stonewall',  hp: 3, pts: 120, shards: ['#a39a8e', '#7d746a', '#5a534b', '#c9c1b5'] },
+  [CRYSTAL]:    { cls: 'crystal',    hp: 8, pts: 400, shards: ['#ff6b9a', '#c0103a', '#7b2ff7', '#ffd1e0'] },
   [BROOM]:      { cls: 'broom',      hp: 1, pts: 100, shards: ['#e8c25a', '#b8892e', '#8d5a27', '#f2dc8a'] },
   [BIN]:        { cls: 'bin',        hp: 2, pts: 150, shards: ['#5f8a5a', '#3d5c3a', '#e8742a', '#f2b33a'] },
   [WALL]:       { cls: 'wall',       hp: 1, pts: 0,   shards: ['#5d6772', '#3d444c'] },
@@ -1640,6 +1666,108 @@ const STONE_SVG = '<svg class="rock" viewBox="0 0 100 100"><defs>' +
   '<polyline class="c1" points="44,16 50,34 42,46 54,58"/>' +
   '<polyline class="c2" points="82,32 68,44 74,56 60,66 64,84"/>' +
   '<polyline class="c3" points="14,62 30,56 36,68 48,72 46,88"/></svg>';
+// Магічний кристал: 8 ударів, колір від темно-синього до багряного
+const CRYSTAL_SVG = '<svg class="gemc" viewBox="0 0 100 100">' +
+  '<path class="f2" d="M30,92 L18,58 L30,40 L42,60 Z"/>' +
+  '<path class="f2" d="M70,92 L82,56 L72,38 L58,58 Z"/>' +
+  '<path class="f1" d="M50,4 L68,34 L64,92 L36,92 L32,34 Z"/>' +
+  '<path class="f3" d="M50,4 L50,92 L36,92 L32,34 Z"/>' +
+  '<path d="M44,18 L40,40" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".7"/>' +
+  '<path d="M50,4 L68,34 L64,92 L36,92 L32,34 Z" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="2"/>' +
+  '<polyline class="c1" points="50,14 56,34 46,50 58,66"/>' +
+  '<polyline class="c2" points="38,44 46,58 40,74 48,90"/>' +
+  '<polyline class="c3" points="64,46 56,62 62,80"/></svg>';
+const CRYSTAL_COLORS = [   // [основний, світлий, темний] — від темно-синього до багряно-червоного
+  ['#1c2e9e', '#4a6cff', '#0e1866'], ['#2a2ab0', '#5f5cff', '#15156e'], ['#4a26b4', '#7c56ff', '#251270'],
+  ['#6a20ae', '#9b55f2', '#38106a'], ['#8a1c9c', '#c050e0', '#4c0e5a'], ['#a6187e', '#e04cb8', '#5c0c46'],
+  ['#b8125a', '#f0508e', '#660a32'], ['#c0103a', '#ff5070', '#6a0820'],
+];
+function setCrystalStage(box) {
+  const dmg = BOX_INFO[CRYSTAL].hp - box.hp;                  // 0…7
+  const [c1, c2, c3] = CRYSTAL_COLORS[Math.min(dmg, 7)];
+  box.el.style.setProperty('--c1', c1); box.el.style.setProperty('--c2', c2); box.el.style.setProperty('--c3', c3);
+  // останні 3 одиниці шкоди — тріщини й дрижання
+  box.el.classList.toggle('crk1', dmg >= 6); box.el.classList.toggle('crk2', dmg >= 7);
+  box.el.classList.toggle('quake', dmg >= 6); box.el.classList.toggle('quake2', dmg >= 7);
+}
+// Зона 3×3 довкола кристала: тут не з'являються слиз і павутина, а павук гине
+function inAura(r, c) {
+  for (let y = r - 1; y <= r + 1; y++) for (let x = c - 1; x <= c + 1; x++) {
+    const g = grid[y]?.[x];
+    if (g && g.type === CRYSTAL && !g.broken) return true;
+  }
+  return false;
+}
+// Павук заліз у зону кристала — кристал б'є в нього іскрою, як при пробудженні
+function auraCrystalOf(r, c) {
+  for (let y = r - 1; y <= r + 1; y++) for (let x = c - 1; x <= c + 1; x++) {
+    const g = grid[y]?.[x];
+    if (g && g.type === CRYSTAL && !g.broken) return [y, x];
+  }
+  return null;
+}
+function auraKillSpiders() {
+  let i = 0;
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
+    const g = grid[r][c];
+    if (!g?.spider) continue;
+    const cr = auraCrystalOf(r, c);
+    if (!cr) continue;
+    const d = i++ * 60;
+    setTimeout(() => beam(cr[0], cr[1], r, c), d);
+    setTimeout(() => { if (g.spider) { killSpider(g, r, c); sfx.crystalZap(); } }, d + 120);
+  }
+  return wait(i ? (i - 1) * 60 + 250 : 0);
+}
+// Кристал з'явився посеред гри (з-під кам'яної стіни, від клоуна) — одразу очищає свою зону 3×3:
+// рве павутину (разом із кладками), розчиняє слиз, вбиває павуків
+function crystalAwaken(r, c) {
+  inFlight++;
+  setTimeout(() => {
+    let i = 0;
+    for (let y = r - 1; y <= r + 1; y++) for (let x = c - 1; x <= c + 1; x++) {
+      if (y < 0 || y >= N || x < 0 || x >= N || (y === r && x === c)) continue;
+      const g = grid[y][x];
+      if (!g || g.broken) continue;
+      const dirty = g.type === SLIME || g.spider || g.eggs || g.web;
+      if (!dirty) continue;
+      setTimeout(() => beam(r, c, y, x), i * 60);
+      setTimeout(() => {
+        const h = grid[y][x];
+        if (!h || h.broken) return;
+        if (h.type === SLIME) hitBox(y, x);
+        else for (let k = 0; k < 3 && (h.spider || h.eggs || h.web); k++) hitBox(y, x);   // павук → кладка → павутина
+        sfx.crystalZap();
+      }, i * 60 + 120);
+      i++;
+    }
+    setTimeout(() => { inFlight--; updateHud(); }, i * 60 + 200);
+  }, 350);
+}
+
+// Кристал зламано — на його місці суперкомбінація, яка одразу спрацьовує
+const CRYSTAL_SUPERS = [
+  { type: FROG, cls: 'red', sup: { count: 10, fast: true }, name: '🐸 Червона жаба!' },
+  { type: LIGHTNING, cls: 'purple', sup: { dir: 'all' }, name: '⚡ Фіолетова блискавка!' },
+  { type: BOMB, cls: 'big', sup: { radius: 3 }, name: '💣 Велика бомба!' },
+];
+function crystalSuper(r, c) {
+  const s = CRYSTAL_SUPERS[Math.floor(Math.random() * CRYSTAL_SUPERS.length)];
+  const g = createGem(r, c, s.type);
+  g.el.classList.add(s.cls, 'appear');
+  g.super = s.sup;
+  g.pinned = true;   // не падає — спрацьовує там, де був кристал
+  grid[r][c] = g;
+  floatText(s.name, r, c, '#ffd1e0');
+  pendingDet.push(g);
+  return g;
+}
+// Блискавка влучила в кристал — він випускає ще одну блискавку (поперек)
+const pendingBolts = [];
+function crystalBolt(r, c, dir) {
+  pendingBolts.push({ r, c, dir: dir === 'h' ? 'v' : dir === 'v' ? 'h' : randDir(), virtual: true });
+}
+
 // Мітла: зачепили — злітає і чистить лінію від листя, слизу й павутини
 const BROOM_SVG = '<svg viewBox="0 0 100 100">' +
   '<rect x="2" y="46" width="60" height="8" rx="4" fill="#a8743a" stroke="#5a3a14" stroke-width="2"/>' +
@@ -1868,6 +1996,7 @@ function createBox(r, c, type) {
   if (type === STONEFROG) inner = SFROG_SVG + '<i class="sfglow"></i>';
   if (type === WALL) inner = '<i class="plate"></i>';
   if (type === STONEWALL) inner = SWALL_SVG;
+  if (type === CRYSTAL) inner = CRYSTAL_SVG;
   if (type === BROOM) inner = '<i class="bstand">' + BROOM_SVG + '</i>';
   if (type === BIN) inner = BIN_SVG + '<i class="lid">' + BIN_LID_SVG + '</i>';
   if (isMirror(type)) inner = '<div class="coin"><div class="side metal"></div><div class="side glass">' + (type === MIRROR2 ? '<div class="sheet"></div>' : '') + '</div></div>';
@@ -1884,6 +2013,7 @@ function createBox(r, c, type) {
   el.innerHTML = `<div class="crate">${inner}</div>`;
   const box = { type, el, hp: BOX_INFO[type].hp, broken: false };
   // на старті рівня дзеркало повернуте склом (неармованою стороною)
+  if (type === CRYSTAL) setCrystalStage(box);
   if (isMirror(type)) { box.glass = true; box.sheet = type === MIRROR2; el.classList.add('glass'); }
   // у дерев'яному ящику зрідка лежить бонус
   if (type === WOOD && Math.random() < 0.08) box.loot = ['hammer', 'glove', 'dart'][Math.floor(Math.random() * 3)];
@@ -1894,6 +2024,7 @@ function createBox(r, c, type) {
 
 // Павутина — «накидка» на звичайну фішку
 function addWeb(gem) {
+  if (gem.web || gem.el.querySelector('.web')) { gem.web = true; return; }   // павутина вже є — другу не накладаємо
   gem.web = true;
   gem.el.classList.add('webbed');
   const w = document.createElement('div');
@@ -1908,8 +2039,7 @@ function addWeb(gem) {
 function tearWeb(gem, r, c) {
   gem.web = false;
   gem.el.classList.remove('webbed');
-  const w = gem.el.querySelector('.web');
-  if (w) { w.classList.add('tear'); setTimeout(() => w.remove(), 400); }
+  gem.el.querySelectorAll('.web').forEach(w => { w.classList.add('tear'); setTimeout(() => w.remove(), 400); });
   sfx.webTear();
   score += 30;
   floatText('+30', r, c, '#e8e8ff');
@@ -2014,7 +2144,7 @@ function hitBox(r, c) {
        [GENERATOR]: () => { sfx.metalBreak(); sfx.slimeBreak(); },
        [NAILGUN]: () => sfx.metalBreak(), [TNT]: () => sfx.woodBreak(),
        [TESLA]: () => { sfx.lightning(); sfx.teslaZap(true); },
-       [JACK]: () => sfx.cardBreak(), [STONE]: () => sfx.stoneBreak(), [STONEPICK]: () => sfx.stoneBreak(), [MIXER]: () => sfx.metalBreak(), [MIRROR]: () => sfx.glassBreak(), [MIRROR2]: () => sfx.glassBreak(), [STONEFROG]: () => sfx.stoneBreak(), [STONEWALL]: () => sfx.stoneBreak(), [BIN]: () => sfx.binTip() })[box.type]?.();
+       [JACK]: () => sfx.cardBreak(), [STONE]: () => sfx.stoneBreak(), [STONEPICK]: () => sfx.stoneBreak(), [MIXER]: () => sfx.metalBreak(), [MIRROR]: () => sfx.glassBreak(), [MIRROR2]: () => sfx.glassBreak(), [STONEFROG]: () => sfx.stoneBreak(), [STONEWALL]: () => sfx.stoneBreak(), [BIN]: () => sfx.binTip(), [CRYSTAL]: () => sfx.crystalBreak() })[box.type]?.();
     if (box.type !== BROOM) shatter(r, c, box.nailgun ? ['#8fb8ec', '#5b8fd6', '#2c5394', '#f0e1b4'] : info.shards, box.type === REINFORCED || box.type === GENERATOR ? 12 : 8);
     if (box.type === NAILGUN) [[0,1],[0,-1],[1,0],[-1,0]].forEach(d => fireNail(r, c, d));   // цвяхи в усі 4 боки
     if (box.type === TNT) tntExplode(r, c);
@@ -2041,12 +2171,21 @@ function hitBox(r, c) {
       updateHud();
       return;
     }
+    if (box.type === CRYSTAL) {
+      score += info.pts; floatText('+' + info.pts, r, c, '#ffd27a');
+      setTimeout(() => el.remove(), 400);
+      clearLeaf(r, c);
+      crystalSuper(r, c);
+      updateHud();
+      return;
+    }
     if (box.type === STONEWALL && box.under) {
       score += info.pts; floatText('+' + info.pts, r, c, '#ffd27a');
       setTimeout(() => el.remove(), 400);
       clearLeaf(r, c);
       const g = spawnCell(r, c, box.under);
       g.el.classList.add(isBox(g.type) ? 'spawn' : 'appear');
+      if (g.type === CRYSTAL) crystalAwaken(r, c);   // відкритий кристал одразу вмикає свою зону
       updateHud();
       return;
     }
@@ -2081,6 +2220,9 @@ function hitBox(r, c) {
   } else if (box.type === MIXER) {
     el.classList.add('spin1');           // 1-й удар: барабан повільно закрутився
     sfx.mixerSlow();
+  } else if (box.type === CRYSTAL) {
+    setCrystalStage(box);
+    sfx.crystalHit(BOX_INFO[CRYSTAL].hp - box.hp);
   } else if (box.type === BIN) {
     // 1: кришка відлітає, листя випинається
     q('.lid'); el.classList.add('open'); sfx.binLid();
@@ -2147,7 +2289,7 @@ async function spreadSlime() {
     if (!g || g.type !== SLIME || g.broken) continue;
     [[1,0],[-1,0],[0,1],[0,-1]].forEach(([dr, dc]) => {
       const rr = r + dr, cc = c + dc;
-      if (rr >= 0 && rr < N && cc >= 0 && cc < N && isFree(rr, cc)) options.push([r, c, rr, cc]);
+      if (rr >= 0 && rr < N && cc >= 0 && cc < N && isFree(rr, cc) && !inAura(rr, cc)) options.push([r, c, rr, cc]);
     });
   }
   if (!options.length) return;
@@ -2158,6 +2300,7 @@ async function spreadSlime() {
 
 // Перетворює фішки на слиз (з анімацією)
 async function makeSlime(cells) {
+  cells = cells.filter(([r, c]) => !inAura(r, c));   // біля кристала слиз не з'являється
   if (!cells.length) return;
   cells.forEach(([r, c]) => grid[r][c].el.classList.add('pop'));
   sfx.slimeGrow();
@@ -2181,7 +2324,7 @@ async function runGenerators() {
     const opts = [];
     for (const [dr, dc] of [[1,0],[-1,0],[0,1],[0,-1]]) {
       const rr = r + dr, cc = c + dc;
-      if (rr >= 0 && rr < N && cc >= 0 && cc < N && isFree(rr, cc) &&
+      if (rr >= 0 && rr < N && cc >= 0 && cc < N && isFree(rr, cc) && !inAura(rr, cc) &&
           !targets.some(([a, b]) => a === rr && b === cc)) opts.push([rr, cc]);
     }
     if (!opts.length) continue;
@@ -2472,7 +2615,7 @@ async function pickaxeRun(r, c) {
     for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
       const g = grid[y][x];
       if (!damageable(g)) continue;
-      (g.type === STONE || g.type === STONEPICK || g.type === STONEWALL ? stones : others).push([y, x]);
+      (g.type === STONE || g.type === STONEPICK || g.type === STONEWALL || g.type === CRYSTAL ? stones : others).push([y, x]);
     }
     const list = stones.length ? stones : others;
     if (!list.length) break;
@@ -2501,8 +2644,8 @@ async function pickaxeRun(r, c) {
 // 🤡 Шкатулка розкидає 3 випадкові перешкоди (крім шкатулки)
 let turn = 0;                     // скільки ходів зроблено на рівні
 const pendingJack = [];
-const SCATTER = ['c', 'c', 'n', 'w', 'w', 't', 'r', 's', 'g', 'x', 'x', 'p', 'e', 'o', 'k', 'q', 'm', 'b', 'z', 'y', 'f', 'd', 'h'];
-const SCATTER_ICON = { c: '📦', n: '📦', w: '🪵', t: '🧨', r: '🛡️', s: '🟢', g: '⚙️', x: '🕸️', p: '🕷️', e: '⚡', o: '⚫', k: '🪨', q: '⛏️', m: '🔄', b: '🤖', z: '🪞', y: '🪞', f: '🗿', d: '🗑️', h: '🧹' };
+const SCATTER = ['c', 'c', 'n', 'w', 'w', 't', 'r', 's', 'g', 'x', 'x', 'p', 'e', 'o', 'k', 'q', 'm', 'b', 'z', 'y', 'f', 'd', 'h', 'i'];
+const SCATTER_ICON = { c: '📦', n: '📦', w: '🪵', t: '🧨', r: '🛡️', s: '🟢', g: '⚙️', x: '🕸️', p: '🕷️', e: '⚡', o: '⚫', k: '🪨', q: '⛏️', m: '🔄', b: '🤖', z: '🪞', y: '🪞', f: '🗿', d: '🗑️', h: '🧹', i: '💎' };
 async function jackScatter([jr, jc]) {
   const free = [];
   for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) if (grid[r][c] && isFree(r, c)) free.push([r, c]);
@@ -2538,6 +2681,7 @@ async function jackScatter([jr, jc]) {
       f.remove();
       const g = grid[r][c];
       if (!g || !isFree(r, c)) return;
+      if ('xsp'.includes(ch) && inAura(r, c)) { floatText('✨', r, c, '#c050e0'); sfx.crystalZap(); return; }   // кристал не пускає
       if (ch === 'x') addWeb(g);
       else if (ch === 'p') addSpider(r, c);
       else {
@@ -2546,6 +2690,7 @@ async function jackScatter([jr, jc]) {
         if (ch === 'n') { box.nailgun = true; box.el.classList.add('ng-box'); }
         box.el.classList.add('spawn');
         grid[r][c] = box;
+        if (box.type === CRYSTAL) crystalAwaken(r, c);
       }
       updateHud();
     }, 620 + i * 120);
@@ -2620,7 +2765,7 @@ async function spiderTurn() {
       await wait(400);
     }
   }
-  if (hatched) await wait(500);
+  if (hatched) { await wait(500); await auraKillSpiders(); }
   updateHud();
 }
 
@@ -2640,6 +2785,7 @@ function teslaBlast(r, c) {
     const g = grid[rr][cc];
     if (!g) return;
     const delay = 80 + Math.hypot(rr - r, cc - c) * 35;
+    if (g.type === CRYSTAL && !g.broken) crystalBolt(rr, cc, 'all');
     if (isObstacle(g)) { inFlight++; setTimeout(() => { hitBox(rr, cc); inFlight--; }, delay); }
     else if (isSpecial(g.type)) pendingDet.push(g);
     else if (isNormal(g.type) && !pendingClear.includes(g)) {
@@ -2726,6 +2872,7 @@ async function settle() {
   for (let guard = 0; guard < 80; guard++) {
     while (inFlight > 0) await wait(50);
     if (landCores()) { await wait(250); while (inFlight > 0) await wait(50); }
+    if (pendingBolts.length) { await detonate(pendingBolts.splice(0)); await resolve(); continue; }
     const dets = pendingDet.splice(0).map(findGem).filter(p => p && isSpecial(grid[p[0]][p[1]].type));
     const dirty = pendingClear.length || pendingFill.length || grid.flat().some(g => g && g.broken);
     if (!dets.length && !dirty) {
@@ -2745,7 +2892,7 @@ async function settle() {
       for (const m of pendingMixer.splice(0)) await mixerDeliver(m);
       continue;
     }
-    if (dets.length) await detonate(dets.map(([r, c]) => ({ r, c, dir: randDir() })));
+    if (dets.length) await detonate(dets.map(([r, c]) => ({ r, c, dir: randDir(), ...(grid[r][c].super || {}) })));
     else { collapse(); setTimeout(sfx.land, 250); await wait(400); }
     await resolve();
   }
@@ -2816,12 +2963,13 @@ async function moveSpiders() {
     to.spider = true; to.spiderEl = from.spiderEl; to.el.classList.add('spidered');
     from.spider = false; from.spiderEl = null; from.el.classList.remove('spidered');
     placeSpider(to.spiderEl, nr, nc);
-    setTimeout(() => addWeb(from), 180);   // лишає павутину там, де сидів
+    if (!inAura(r, c)) setTimeout(() => addWeb(from), 180);   // лишає павутину там, де сидів (біля кристала — ні)
     moved = true;
   }
   if (!moved) return;
   sfx.spiderMove();
   await wait(550);
+  await auraKillSpiders();   // заліз у зону кристала — кристал б'є іскрою, павук гине
   updateHud();
   if (!findMove()) await shuffle();
 }
@@ -2835,6 +2983,7 @@ function applyPendingFill() {
       if (r < 0 || r >= N || c < 0 || c >= N) continue;
       const g = grid[r][c];
       if (g && !(isNormal(g.type) && !locked(g))) continue;  // інші перешкоди, бонуси, павутину не чіпаємо
+      if (inAura(r, c)) continue;                           // біля кристала слиз не з'являється
       if (g) g.el.remove();
       grid[r][c] = createBox(r, c, SLIME);
       grid[r][c].el.classList.add('grow');
@@ -2971,9 +3120,10 @@ async function detonate(triggers, consumed = []) {
 
   while (wave.length) {
     wave = wave.filter(t => {
-      const k = key(t.r, t.c);
+      const k = t.virtual ? 'v' + key(t.r, t.c) + t.dir : key(t.r, t.c);   // кристал не знищується своєю ж блискавкою
       if (fired.has(k)) return false;
-      fired.add(k); destroyed.add(k);
+      fired.add(k);
+      if (!t.virtual) destroyed.add(k);
       return true;
     });
     const next = [];
@@ -2993,7 +3143,7 @@ async function detonate(triggers, consumed = []) {
 
 async function fire(t, idx, destroyed, next) {
   const gem = grid[t.r][t.c];
-  const type = gem.type;
+  const type = t.virtual ? LIGHTNING : gem.type;   // virtual — блискавка, яку випустив кристал
   const loud = idx < 3; // щоб при масових вибухах звук не був оглушливим
 
   if (type === FROG) {
@@ -3061,10 +3211,12 @@ async function fire(t, idx, destroyed, next) {
   }
   cells = cells.filter(([r, c]) => !(r === t.r && c === t.c));
 
-  gem.el.classList.add('charging');
-  await wait(type === RAINBOW ? 250 : 150);
-  gem.el.classList.remove('charging');
-  gem.el.classList.add('pop');
+  if (!t.virtual) {
+    gem.el.classList.add('charging');
+    await wait(type === RAINBOW ? 250 : 150);
+    gem.el.classList.remove('charging');
+    gem.el.classList.add('pop');
+  } else { sfx.crystalZap(); await wait(120); }
 
   if (type === LIGHTNING) {
     if (loud) sfx.lightning();
@@ -3072,7 +3224,7 @@ async function fire(t, idx, destroyed, next) {
       sfx.lightning(); shakeBoard();
       boltFx(t.r, t.c, 'h', true); boltFx(t.r, t.c, 'v', true);
       boltFx(t.r, t.c, 45, true); boltFx(t.r, t.c, -45, true);
-    } else boltFx(t.r, t.c, t.dir);
+    } else boltFx(t.r, t.c, t.dir, false, !!t.virtual);   // з кристала — зелена
   } else if (type === BOMB) {
     const rad = t.radius ?? 2;
     if (loud) sfx.bomb();
@@ -3087,15 +3239,19 @@ async function fire(t, idx, destroyed, next) {
   // Ящики, які зачепить цей бонус: ті, що в зоні дії, і ті, що поруч із прибраними фішками.
   // Кожен ящик отримує від одного бонуса рівно один удар.
   const boxHits = new Map();
-  const markBox = (r, c, d) => { const k = key(r, c); if (!boxHits.has(k) || boxHits.get(k) > d) boxHits.set(k, d); };
+  const markBox = (r, c, d) => {
+    if (t.virtual && grid[r][c]?.type === CRYSTAL) return;   // зелена блискавка кристалів не чіпає навіть краєм
+    const k = key(r, c); if (!boxHits.has(k) || boxHits.get(k) > d) boxHits.set(k, d);
+  };
   const markAround = (r, c, d) => neighborBoxes(r, c).forEach(([rr, cc]) => markBox(rr, cc, d));
-  markAround(t.r, t.c, 0);
+  if (!t.virtual) markAround(t.r, t.c, 0);
 
   let maxDelay = 0;
   cells.forEach(([r, c], i) => {
     const ck = key(r, c);
     if (destroyed.has(ck)) return;
     const g = grid[r][c];
+    if (t.virtual && g.type === CRYSTAL) return;   // зелена блискавка кристалів не зачіпає
     const delay = Math.hypot(r - t.r, c - t.c) * (type === RAINBOW ? 60 : 40);
     maxDelay = Math.max(maxDelay, delay);
     if (type === RAINBOW) {
@@ -3104,9 +3260,10 @@ async function fire(t, idx, destroyed, next) {
     }
     if (isBox(g.type) || locked(g)) {
       markBox(r, c, delay);                    // перешкода в зоні дії бонуса (фішка в павутині вціліє)
+      if (type === LIGHTNING && g.type === CRYSTAL && !g.broken) crystalBolt(r, c, t.dir);   // кристал множить блискавку
     } else if (isSpecial(g.type)) {
       // ланцюгова реакція: зачеплений бонус спрацює наступною хвилею
-      next.push({ r, c, dir: t.dir === 'h' ? 'v' : 'h' });
+      next.push({ r, c, dir: t.dir === 'h' ? 'v' : 'h', ...(g.super || {}) });
     } else {
       destroyed.add(ck);
       markAround(r, c, delay);                 // ящики поруч із прибраною фішкою
@@ -3120,9 +3277,9 @@ async function fire(t, idx, destroyed, next) {
 const randDir = () => Math.random() < .5 ? 'h' : 'v';
 
 // Розряд блискавки: dir = 'h' | 'v' | 45 | -45 (діагоналі)
-function boltFx(r, c, dir, purple = false) {
+function boltFx(r, c, dir, purple = false, green = false) {
   if (dir === 'h' || dir === 'v') {
-    const b = fx('bolt ' + dir + (purple ? ' purple' : ''), dir === 'h'
+    const b = fx('bolt ' + dir + (purple ? ' purple' : '') + (green ? ' green' : ''), dir === 'h'
       ? { top: `calc(var(--cell) * ${r + 0.25})` }
       : { left: `calc(var(--cell) * ${c + 0.25})` });
     const origin = ((dir === 'h' ? c : r) + 0.5) / N * 100;
@@ -3887,7 +4044,7 @@ $('soundBtn').onclick = () => {
 
 // ===================== Рівні з JSON =====================
 // Формат: { "levels": [ { "name": "...", "moves": 20, "map": ["........", ... 8 рядків по 8 символів] } ] }
-const MAP_CHARS = '.cnwtrsgxpeojkqmbzyfadh';
+const MAP_CHARS = '.cnwtrsgxpeojkqmbzyfadhi';
 function parseLevels(data) {
   const list = Array.isArray(data) ? data : data?.levels;
   if (!Array.isArray(list) || !list.length) throw new Error('у файлі немає списку "levels"');
@@ -4024,6 +4181,7 @@ const INTRO = {
   f: ["Кам'яна жаба", "Жадібна кам'яна жаба, що пожирає ваші комбінації, доки зрештою не лусне від ненажерливості"],
   a: ["Броньована стіна", "Незнищенна перешкода, що обмежує ігрове поле"],
   l: ["Кам'яна стіна", "Руйнується після трьох ударів. Хтозна, що може ховатися за нею…"],
+  i: ['Магічний кристал', "Таємничий кристал, що від кожного удару міняє барву — від нічної сині до багрянцю. Розбийте його — і вивільніть суперсилу. Блискавки він подвоює, а слиз, павутиння й павуків довкола себе не терпить — щойно з'явиться, одразу їх знищує"],
   h: ["Мітла", "Змете зі шляху опале листя, павутиння та надокучливий слиз"],
   d: ["Сміттєбак із листям", "Наповнений ущерть осіннім листям. Перевернути його було б украй необачно…"],
   v: ['Осіннє листя', 'Мальовничий осінній килим, що вперто заважає вашим планам'],
