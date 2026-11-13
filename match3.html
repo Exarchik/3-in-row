@@ -25,6 +25,17 @@
     background: rgba(255,255,255,.1); padding: 8px 16px; border-radius: 12px;
     text-align: center; min-width: 68px;
   }
+  .main-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .hud,
+  .board {
+      margin-left: auto;
+      margin-right: auto;
+  }
   .stat small { display: block; opacity: .7; font-size: 12px; }
   .stat b { font-size: 22px; }
   .board {
@@ -625,6 +636,26 @@
   .leaf.gone svg { animation: leafGone .45s ease-in forwards; }
   @keyframes leafGone { to { transform: translate(8px, -16px) rotate(70deg) scale(1.3); opacity: 0; } }
 
+  /* ===== Мітла ===== */
+  .broom .crate { background: none; box-shadow: none; inset: 1px; }
+  .broom .bstand { inset: 0; transform: rotate(-50deg) scale(1.05); filter: drop-shadow(0 3px 3px rgba(0,0,0,.5)); }
+  .broom .bstand svg { width: 100%; height: 100%; }
+  .box.broom.breaking .crate { animation: none; opacity: 0; }     /* мітла не ламається — злітає */
+  .broomFx {
+    position: absolute; left: 0; top: 0; z-index: 16; pointer-events: none; width: var(--cell); height: var(--cell);
+    transition: transform .095s linear;
+  }
+  .broomFx i { position: absolute; inset: 0; transition: transform .15s; filter: drop-shadow(0 6px 5px rgba(0,0,0,.45)); }
+  .broomFx svg { width: 100%; height: 100%; }
+  .broomFx.hover i { transform: rotate(-50deg); animation: broomHover .5s ease-in-out infinite alternate; }
+  @keyframes broomHover { to { translate: 0 -5px; rotate: 8deg; } }
+  .broomFx.flying svg { animation: broomSweep .18s ease-in-out infinite alternate; transform-origin: 30% 50%; }
+  @keyframes broomSweep { from { transform: rotate(-12deg); } to { transform: rotate(12deg); } }
+  .broomFx.bump i { animation: broomBump .22s; }
+  @keyframes broomBump { 40% { scale: .8 1.15; } }
+  .broomFx.snap i { animation: broomSnap .35s forwards; }
+  @keyframes broomSnap { 40% { scale: 1.2 .7; } to { scale: .3; opacity: 0; } }
+
   /* ===== Сміттєбак ===== */
   .bin .crate { background: none; box-shadow: none; inset: 1px; }
   .bin .binBody, .bin .lid, .bin .lid svg { inset: 0; width: 100%; height: 100%; }
@@ -975,6 +1006,7 @@
     🧨 ящик TNT — як дерев'яний (3 удари), але коли ламається — вибухає 3×3<br>
     🗿 кам'яна жаба — спершу невразлива. Щойно ви створите бонус (жабку, блискавку, бомбу чи кулю), вона одразу його ковтає і починає трястися; після цього будь-який удар — і вона вибухає, як бомба 5×5<br>
     🍂 осіннє листя — лежить під фішками; знищте фішку чи перешкоду на клітинці, і листя розлетиться. Для перемоги треба прибрати все листя<br>
+    🧹 мітла — від 1 удару злітає і летить по прямій, вичищаючи листя, слиз і павутину (фішки лишаються). Напрямок обирає за пріоритетом: найбільше листя, потім слизу, потім павутини, потім інших мітел, потім довший шлях. Інші мітли пролітає наскрізь, зачіпаючи їх (вони теж злітають). Наткнувшись на іншу перешкоду, розвертається; долетівши до стінки (краю поля чи броньованої стіни) — з хрустом ламається<br>
     🗑️ сміттєбак — 2 удари: спершу відлітає кришка, потім бак перекидається, засипає листям зону 5×5 і зникає<br>
     🧱 кам'яна стіна — 3 удари; може ховати під собою іншу перешкоду — що саме, дізнаєтесь, лише зруйнувавши стіну. Поки стіну не зруйновано, схована перешкода ніяк себе не проявляє<br>
     🧱 броньована стіна — нічим не зруйнувати; це лише обмеження поля, її не треба знищувати для перемоги<br>
@@ -1140,6 +1172,9 @@ const sfx = {
     tone(strong ? 700 : 1100, { dur: strong ? 0.3 : 0.15, vol: strong ? 0.05 : 0.03, type: 'square', slide: 1.5 });
     noise(strong ? 0.2 : 0.1, strong ? 0.1 : 0.05, 6000);
   },
+  broomWhoosh: () => { noise(0.22, 0.05, 3500); },
+  broomBump: () => { tone(240, { dur: 0.1, vol: 0.08, type: 'triangle', slide: 0.7 }); noise(0.06, 0.04, 1500); },
+  broomBreak: () => { noise(0.08, 0.14, 1400); noise(0.12, 0.1, 900); tone(160, { dur: 0.12, vol: 0.1, type: 'square', slide: 0.5, delay: 0.03 }); },
   leafRustle: () => { noise(0.14, 0.05, 2600); },
   leafSpill: () => { noise(0.5, 0.08, 1800); noise(0.25, 0.04, 3200); },
   binLid: () => { tone(520, { dur: 0.1, vol: 0.06, type: 'square', slide: 1.4 }); tone(260, { dur: 0.15, vol: 0.05, type: 'triangle', delay: 0.06 }); },
@@ -1184,7 +1219,7 @@ const sfx = {
 // ===== Гра =====
 const N = 8, TYPES = 6;
 const RAINBOW = 6, BOMB = 7, LIGHTNING = 8, FROG = 9;
-const CARDBOARD = 10, WOOD = 11, REINFORCED = 12, SLIME = 13, GENERATOR = 14, NAILGUN = 15, TNT = 16, TESLA = 17, CORE = 18, JACK = 19, STONE = 20, STONEPICK = 21, MIXER = 22, ROBOT = 23, MIRROR = 24, MIRROR2 = 25, STONEFROG = 26, WALL = 27, STONEWALL = 28, BIN = 29;
+const CARDBOARD = 10, WOOD = 11, REINFORCED = 12, SLIME = 13, GENERATOR = 14, NAILGUN = 15, TNT = 16, TESLA = 17, CORE = 18, JACK = 19, STONE = 20, STONEPICK = 21, MIXER = 22, ROBOT = 23, MIRROR = 24, MIRROR2 = 25, STONEFROG = 26, WALL = 27, STONEWALL = 28, BIN = 29, BROOM = 30;
 const isMirror = t => t === MIRROR || t === MIRROR2;
 // перешкода, якій зараз можна завдати шкоди
 const damageable = g => isObstacle(g) && g.type !== CORE && g.type !== WALL && !(g.type === STONEFROG && !g.armed) && !g.mixing && !g.final && !(isMirror(g.type) && !g.glass);
@@ -1272,16 +1307,17 @@ function createGem(r, c, type, fromRow = r) {
   return gem;
 }
 
-const BOX_CHARS = { c: CARDBOARD, n: CARDBOARD, w: WOOD, r: REINFORCED, s: SLIME, g: GENERATOR, t: TNT, e: TESLA, o: CORE, j: JACK, k: STONE, q: STONEPICK, m: MIXER, b: ROBOT, z: MIRROR, y: MIRROR2, f: STONEFROG, a: WALL, d: BIN };
+const BOX_CHARS = { c: CARDBOARD, n: CARDBOARD, w: WOOD, r: REINFORCED, s: SLIME, g: GENERATOR, t: TNT, e: TESLA, o: CORE, j: JACK, k: STONE, q: STONEPICK, m: MIXER, b: ROBOT, z: MIRROR, y: MIRROR2, f: STONEFROG, a: WALL, d: BIN, h: BROOM };
 function startLevel(i) {
   level = i;
   const def = LEVELS[i] || randomLevel();
-  board.querySelectorAll('.gem, .beam, .bolt, .shock, .float, .combo, .shard, .tongue, .spiderEl, .nail, .dart, .leaf').forEach(e => e.remove());
+  board.querySelectorAll('.gem, .beam, .bolt, .shock, .float, .combo, .shard, .tongue, .spiderEl, .nail, .dart, .leaf, .broomFx').forEach(e => e.remove());
   pendingFill.length = pendingClear.length = pendingDet.length = 0;
   inFlight = 0;
   turn = 0;
   pendingJack.length = 0;
   pendingSpill.length = 0;
+  pendingBroom.length = 0;
   leaves = [...Array(N)].map(() => Array(N).fill(null));
   pendingMixer.length = 0;
   pendingSuck.length = 0;
@@ -1529,6 +1565,7 @@ const BOX_INFO = {
   [MIRROR2]:    { cls: 'mirror',     hp: 1, pts: 160, shards: ['#e6f6ff', '#9fd2f0', '#ffffff', '#6aa8d8'] },
   [STONEFROG]:  { cls: 'stonefrog',  hp: 1, pts: 300, shards: ['#9a9fa8', '#6c717b', '#4a4e56', '#ff9a3a'] },
   [STONEWALL]:  { cls: 'stonewall',  hp: 3, pts: 120, shards: ['#a39a8e', '#7d746a', '#5a534b', '#c9c1b5'] },
+  [BROOM]:      { cls: 'broom',      hp: 1, pts: 100, shards: ['#e8c25a', '#b8892e', '#8d5a27', '#f2dc8a'] },
   [BIN]:        { cls: 'bin',        hp: 2, pts: 150, shards: ['#5f8a5a', '#3d5c3a', '#e8742a', '#f2b33a'] },
   [WALL]:       { cls: 'wall',       hp: 1, pts: 0,   shards: ['#5d6772', '#3d444c'] },
 };
@@ -1603,6 +1640,92 @@ const STONE_SVG = '<svg class="rock" viewBox="0 0 100 100"><defs>' +
   '<polyline class="c1" points="44,16 50,34 42,46 54,58"/>' +
   '<polyline class="c2" points="82,32 68,44 74,56 60,66 64,84"/>' +
   '<polyline class="c3" points="14,62 30,56 36,68 48,72 46,88"/></svg>';
+// Мітла: зачепили — злітає і чистить лінію від листя, слизу й павутини
+const BROOM_SVG = '<svg viewBox="0 0 100 100">' +
+  '<rect x="2" y="46" width="60" height="8" rx="4" fill="#a8743a" stroke="#5a3a14" stroke-width="2"/>' +
+  '<path d="M60,38 L98,24 Q100,50 98,76 L60,62 Z" fill="#e8c25a" stroke="#8a6420" stroke-width="2"/>' +
+  '<g stroke="#b8892e" stroke-width="2" stroke-linecap="round"><path d="M66,42 L96,32"/><path d="M66,50 L98,50"/><path d="M66,58 L96,68"/><path d="M70,46 L97,41"/><path d="M70,54 L97,60"/></g>' +
+  '<rect x="56" y="36" width="9" height="28" rx="3" fill="#c0392b" stroke="#6b1f16" stroke-width="2"/></svg>';
+const pendingBroom = [];
+const BDIRS = [[0, 1], [0, -1], [1, 0], [-1, 0]];
+// що блокує мітлу: будь-яка перешкода, крім слизу та інших мітел (їх мітла пролітає наскрізь); павук і яйця — теж
+const broomBlocks = g => !g || (isBox(g.type) && !g.broken && g.type !== SLIME && g.type !== BROOM) || g.spider || g.eggs;
+function broomScan(r, c, [dr, dc]) {
+  const path = [];
+  // що є на прямій: листя, слиз, павутина, інші мітли
+  const n = { lf: 0, sl: 0, wb: 0, bm: 0 };
+  let y = r + dr, x = c + dc;
+  while (y >= 0 && y < N && x >= 0 && x < N && !broomBlocks(grid[y][x])) {
+    const g = grid[y][x];
+    path.push([y, x]);
+    if (leaves[y][x]) n.lf++;
+    if (g.type === SLIME && !g.broken) n.sl++;
+    if (g.web && !g.spider && !g.eggs) n.wb++;
+    if (g.type === BROOM && !g.broken) n.bm++;
+    y += dr; x += dc;
+  }
+  const out = y < 0 || y >= N || x < 0 || x >= N || grid[y][x]?.type === WALL;   // стінка: край поля або броньована стіна
+  return { d: [dr, dc], path, n, wall: out };
+}
+// Мітла зачеплена — піднімається над полем і чекає, поки все вляжеться
+function broomLift(r, c) {
+  const el = document.createElement('div');
+  el.className = 'broomFx hover';
+  el.innerHTML = '<i>' + BROOM_SVG + '</i>';
+  el.style.transform = `translate(${c * 100}%, ${r * 100}%)`;
+  board.appendChild(el);
+  sfx.broomWhoosh();
+  pendingBroom.push({ el, r, c });
+}
+async function broomRun({ el, r, c }) {
+  el.classList.remove('hover');
+  let dir = null;
+  for (let turn = 0; turn < 12; turn++) {
+    // напрямок: де більше прибирання, а при рівності — довший шлях; назад — лише якщо інакше ніяк
+    let opts = BDIRS.filter(d => !dir || d[0] !== -dir[0] || d[1] !== -dir[1]).map(d => broomScan(r, c, d)).filter(o => o.path.length);
+    if (!opts.length && dir) opts = [broomScan(r, c, [-dir[0], -dir[1]])].filter(o => o.path.length);
+    if (!opts.length) break;
+    // пріоритет: листя → слиз → павутина → інші мітли → довший шлях
+    opts.sort((a, b) => b.n.lf - a.n.lf || b.n.sl - a.n.sl || b.n.wb - a.n.wb || b.n.bm - a.n.bm || b.path.length - a.path.length || Math.random() - .5);
+    const o = opts[0];
+    dir = o.d;
+    el.querySelector('i').style.transform = `rotate(${Math.atan2(dir[0], dir[1])}rad)`;
+    el.classList.add('flying');
+    sfx.broomWhoosh();
+    for (const [y, x] of o.path) {
+      el.style.transform = `translate(${x * 100}%, ${y * 100}%)`;
+      await wait(95);
+      broomSweep(y, x);
+    }
+    if (o.path.length) [r, c] = o.path[o.path.length - 1];
+    if (o.wall) break;                                   // долетіла до стінки — ламається
+    // наткнулась на перешкоду — відскок і розворот
+    el.classList.remove('bump'); el.getBoundingClientRect(); el.classList.add('bump');
+    sfx.broomBump();
+    await wait(220);
+  }
+  // з хрустом розламується
+  el.classList.add('snap');
+  shatter(r, c, BOX_INFO[BROOM].shards, 12);
+  sfx.broomBreak();
+  setTimeout(() => el.remove(), 400);
+  updateHud();
+  await wait(300);
+}
+// Мітла чистить клітинку: листя, слиз, павутину. Фішки не чіпає
+function broomSweep(y, x) {
+  const g = grid[y][x];
+  if (leaves[y][x]) clearLeaf(y, x);
+  if (g && g.type === SLIME && !g.broken) hitBox(y, x);
+  else if (g && g.web && !g.spider && !g.eggs) hitBox(y, x);
+  else if (g && g.type === BROOM && !g.broken) {
+    // інша мітла: пролітаємо наскрізь, зачеплена теж злітає
+    fx('impact', { left: `calc(var(--cell) * ${x})`, top: `calc(var(--cell) * ${y})` });
+    hitBox(y, x);
+  }
+  updateHud();
+}
+
 // Сміттєбак, забитий листям
 const BIN_SVG = '<svg class="binBody" viewBox="0 0 100 100">' +
   '<g class="stuff"><path d="M24,30 Q30,12 42,24 Q48,10 58,22 Q68,8 76,28 Z" fill="#e8742a" stroke="#9c3f12" stroke-width="2"/>' +
@@ -1745,6 +1868,7 @@ function createBox(r, c, type) {
   if (type === STONEFROG) inner = SFROG_SVG + '<i class="sfglow"></i>';
   if (type === WALL) inner = '<i class="plate"></i>';
   if (type === STONEWALL) inner = SWALL_SVG;
+  if (type === BROOM) inner = '<i class="bstand">' + BROOM_SVG + '</i>';
   if (type === BIN) inner = BIN_SVG + '<i class="lid">' + BIN_LID_SVG + '</i>';
   if (isMirror(type)) inner = '<div class="coin"><div class="side metal"></div><div class="side glass">' + (type === MIRROR2 ? '<div class="sheet"></div>' : '') + '</div></div>';
   if (type === ROBOT) inner = ROBOT_SVG +
@@ -1891,7 +2015,7 @@ function hitBox(r, c) {
        [NAILGUN]: () => sfx.metalBreak(), [TNT]: () => sfx.woodBreak(),
        [TESLA]: () => { sfx.lightning(); sfx.teslaZap(true); },
        [JACK]: () => sfx.cardBreak(), [STONE]: () => sfx.stoneBreak(), [STONEPICK]: () => sfx.stoneBreak(), [MIXER]: () => sfx.metalBreak(), [MIRROR]: () => sfx.glassBreak(), [MIRROR2]: () => sfx.glassBreak(), [STONEFROG]: () => sfx.stoneBreak(), [STONEWALL]: () => sfx.stoneBreak(), [BIN]: () => sfx.binTip() })[box.type]?.();
-    shatter(r, c, box.nailgun ? ['#8fb8ec', '#5b8fd6', '#2c5394', '#f0e1b4'] : info.shards, box.type === REINFORCED || box.type === GENERATOR ? 12 : 8);
+    if (box.type !== BROOM) shatter(r, c, box.nailgun ? ['#8fb8ec', '#5b8fd6', '#2c5394', '#f0e1b4'] : info.shards, box.type === REINFORCED || box.type === GENERATOR ? 12 : 8);
     if (box.type === NAILGUN) [[0,1],[0,-1],[1,0],[-1,0]].forEach(d => fireNail(r, c, d));   // цвяхи в усі 4 боки
     if (box.type === TNT) tntExplode(r, c);
     if (box.type === STONEFROG) tntExplode(r, c, 2);   // заряджена кам'яна жаба — вибух 5×5
@@ -1928,6 +2052,7 @@ function hitBox(r, c) {
     }
     if (box.type === GENERATOR) pendingFill.push([r, c]);   // зона 3×3 заллється слизом
     if (box.type === BIN) pendingSpill.push([r, c]);        // 2: бак перекидається — листя 5×5
+    if (box.type === BROOM) broomLift(r, c);                // мітла злітає, полетить, коли поле вляжеться
     score += info.pts;
     floatText('+' + info.pts, r, c, '#ffd27a');
     setTimeout(() => el.remove(), 400);
@@ -2376,8 +2501,8 @@ async function pickaxeRun(r, c) {
 // 🤡 Шкатулка розкидає 3 випадкові перешкоди (крім шкатулки)
 let turn = 0;                     // скільки ходів зроблено на рівні
 const pendingJack = [];
-const SCATTER = ['c', 'c', 'n', 'w', 'w', 't', 'r', 's', 'g', 'x', 'x', 'p', 'e', 'o', 'k', 'q', 'm', 'b', 'z', 'y', 'f', 'd'];
-const SCATTER_ICON = { c: '📦', n: '📦', w: '🪵', t: '🧨', r: '🛡️', s: '🟢', g: '⚙️', x: '🕸️', p: '🕷️', e: '⚡', o: '⚫', k: '🪨', q: '⛏️', m: '🔄', b: '🤖', z: '🪞', y: '🪞', f: '🗿', d: '🗑️' };
+const SCATTER = ['c', 'c', 'n', 'w', 'w', 't', 'r', 's', 'g', 'x', 'x', 'p', 'e', 'o', 'k', 'q', 'm', 'b', 'z', 'y', 'f', 'd', 'h'];
+const SCATTER_ICON = { c: '📦', n: '📦', w: '🪵', t: '🧨', r: '🛡️', s: '🟢', g: '⚙️', x: '🕸️', p: '🕷️', e: '⚡', o: '⚫', k: '🪨', q: '⛏️', m: '🔄', b: '🤖', z: '🪞', y: '🪞', f: '🗿', d: '🗑️', h: '🧹' };
 async function jackScatter([jr, jc]) {
   const free = [];
   for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) if (grid[r][c] && isFree(r, c)) free.push([r, c]);
@@ -2613,8 +2738,9 @@ async function settle() {
         for (const box of pendingSuck.splice(0)) await mixerSuck(box);
         continue;
       }
-      if (!pendingJack.length && !pendingMixer.length && !pendingSpill.length) return;
+      if (!pendingJack.length && !pendingMixer.length && !pendingSpill.length && !pendingBroom.length) return;
       for (const pos of pendingSpill.splice(0)) await spillLeaves(pos);
+      for (const b of pendingBroom.splice(0)) await broomRun(b);
       for (const pos of pendingJack.splice(0)) await jackScatter(pos);
       for (const m of pendingMixer.splice(0)) await mixerDeliver(m);
       continue;
@@ -3761,7 +3887,7 @@ $('soundBtn').onclick = () => {
 
 // ===================== Рівні з JSON =====================
 // Формат: { "levels": [ { "name": "...", "moves": 20, "map": ["........", ... 8 рядків по 8 символів] } ] }
-const MAP_CHARS = '.cnwtrsgxpeojkqmbzyfad';
+const MAP_CHARS = '.cnwtrsgxpeojkqmbzyfadh';
 function parseLevels(data) {
   const list = Array.isArray(data) ? data : data?.levels;
   if (!Array.isArray(list) || !list.length) throw new Error('у файлі немає списку "levels"');
@@ -3894,12 +4020,13 @@ const INTRO = {
   m: ['Бетономішалка', "Після 2 ударів затягує фішки довкола 3×3 (і листя з зони 5×5) та робить з фішок бонуси, які з'являться поруч."],
   b: ['Робот', '4 удари. Після ударів стріляє цвяхами, а наприкінці біжить по прямій (змітаючи листя) і вибухає 3×3.'],
   z: ['Армоване дзеркало', 'Щоходу перевертається: металева сторона невразлива, скляна розбивається з 1 удару.'],
-  y: ['Дзеркало з простирадлом', 'Як армоване дзеркало, але скло вкрите простирадлом: спершу його треба порвати.'],
-  f: ["Кам'яна жаба", 'Спершу невразлива. Щойно ви створите бонус, жаба його проковтне й затрясеться — тоді один удар, і вона вибухне 5×5.'],
-  a: ['Броньована стіна', 'Її не зруйнувати і не потрібно: це лише межа поля.'],
-  l: ["Кам'яна стіна", 'Руйнується з 3 ударів. Під нею може щось ховатися…'],
-  d: ['Сміттєбак з листям', '2 удари: спершу відлітає кришка, потім бак перекидається й засипає листям зону 5×5.'],
-  v: ['Осіннє листя', 'Лежить під фішками. Знищте фішку чи перешкоду на такій клітинці — листя розлетиться. Для перемоги треба прибрати все листя.'],
+  y: ['Дзеркало з простирадлом', 'Як армоване дзеркало, але скло вкрите простирадлом: спершу його треба скинути.'],
+  f: ["Кам'яна жаба", "Жадібна кам'яна жаба, що пожирає ваші комбінації, доки зрештою не лусне від ненажерливості"],
+  a: ["Броньована стіна", "Незнищенна перешкода, що обмежує ігрове поле"],
+  l: ["Кам'яна стіна", "Руйнується після трьох ударів. Хтозна, що може ховатися за нею…"],
+  h: ["Мітла", "Змете зі шляху опале листя, павутиння та надокучливий слиз"],
+  d: ["Сміттєбак із листям", "Наповнений ущерть осіннім листям. Перевернути його було б украй необачно…"],
+  v: ['Осіннє листя', 'Мальовничий осінній килим, що вперто заважає вашим планам'],
 };
 // символ → як намалювати плитку для вікна
 function introTile(ch) {
