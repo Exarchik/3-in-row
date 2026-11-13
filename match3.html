@@ -614,6 +614,29 @@
   .gem.absorbing { z-index: 6; transition: transform .38s cubic-bezier(.5,0,.8,.6); pointer-events: none; }
   .gem.absorbing .face { transition: transform .38s ease-in, opacity .38s ease-in; transform: scale(.25); opacity: .2; }
 
+  /* ===== Осіннє листя (шар під фішками) ===== */
+  .leaf {
+    position: absolute; left: 0; top: 0; width: var(--cell); height: var(--cell); pointer-events: none;
+    transition: transform .45s cubic-bezier(.3,1.2,.5,1);
+  }
+  .leaf::before { content: ''; position: absolute; inset: 1px; border-radius: 8px; background: radial-gradient(circle, rgba(150,70,20,.55), rgba(200,100,30,.75)); box-shadow: inset 0 0 0 2px rgba(242,179,58,.6); transition: opacity .3s; }
+  .leaf svg { position: absolute; inset: 0; width: 100%; height: 100%; filter: drop-shadow(0 1px 1px rgba(0,0,0,.35)); }
+  .leaf.gone::before { opacity: 0; }
+  .leaf.gone svg { animation: leafGone .45s ease-in forwards; }
+  @keyframes leafGone { to { transform: translate(8px, -16px) rotate(70deg) scale(1.3); opacity: 0; } }
+
+  /* ===== Сміттєбак ===== */
+  .bin .crate { background: none; box-shadow: none; inset: 1px; }
+  .bin .binBody, .bin .lid, .bin .lid svg { inset: 0; width: 100%; height: 100%; }
+  .bin .binBody { filter: drop-shadow(0 3px 3px rgba(0,0,0,.5)); }
+  .bin .stuff { transition: transform .3s cubic-bezier(.3,1.8,.5,1); transform-origin: 50% 30%; }
+  .box.bin.open .stuff { transform: translateY(-5px) scale(1.12); }
+  .bin .lid.fly { animation: lidFly .7s ease-out forwards; }
+  @keyframes lidFly { to { transform: translate(var(--dx), calc(var(--dy) - 30px)) rotate(var(--rot)); opacity: 0; } }
+  .box.bin.breaking .crate { animation: binTip .45s ease-in forwards; transform-origin: 70% 95%; }
+  @keyframes binTip { 60% { transform: rotate(80deg); opacity: 1; } to { transform: rotate(95deg) scale(.6); opacity: 0; } }
+  .introTile .leaf { transform: none !important; }
+
   /* ===== Кам'яна стіна ===== */
   .stonewall .crate { inset: 1px; background: none; box-shadow: none; }
   .stonewall .bricks { inset: 0; width: 100%; height: 100%; filter: drop-shadow(0 2px 2px rgba(0,0,0,.45)); }
@@ -951,12 +974,14 @@
     🔫 цвяхозабивач (лежить у синіх картонних коробках) — 3 удари; від кожного удару стріляє цвяхом в одному з 4 напрямків, а коли ламається — в усі 4. Цвях пролітає крізь фішки і б'є всі перешкоди на шляху<br>
     🧨 ящик TNT — як дерев'яний (3 удари), але коли ламається — вибухає 3×3<br>
     🗿 кам'яна жаба — спершу невразлива. Щойно ви створите бонус (жабку, блискавку, бомбу чи кулю), вона одразу його ковтає і починає трястися; після цього будь-який удар — і вона вибухає, як бомба 5×5<br>
+    🍂 осіннє листя — лежить під фішками; знищте фішку чи перешкоду на клітинці, і листя розлетиться. Для перемоги треба прибрати все листя<br>
+    🗑️ сміттєбак — 2 удари: спершу відлітає кришка, потім бак перекидається, засипає листям зону 5×5 і зникає<br>
     🧱 кам'яна стіна — 3 удари; може ховати під собою іншу перешкоду — що саме, дізнаєтесь, лише зруйнувавши стіну. Поки стіну не зруйновано, схована перешкода ніяк себе не проявляє<br>
     🧱 броньована стіна — нічим не зруйнувати; це лише обмеження поля, її не треба знищувати для перемоги<br>
     🪞 армоване дзеркало — щоходу перевертається, як монета: металева сторона невразлива, скляна розбивається з 1 удару<br>
     🪞 армоване дзеркало 2 — те саме, але скло вкрите простирадлом: перший удар по скляній стороні рве простирадло, другий — розбиває скло<br>
-    🤖 робот — 4 удари. Після 1-го і 2-го удару стріляє цвяхом, який застрягає в першій перешкоді на шляху, після 3-го і 4-го — розганяється і біжить по прямій (перешкода, у яку врізався, отримує 1 удар). Напрямок — насамперед у бік перешкоди, яку можна пошкодити, а в стінку лише якщо інших варіантів нема; серед можливих завжди найдовший шлях. 1: відлітають гайки, дим; 2: голова гойдається на пружині; 3: відпадають руки, іскри; 4: відлітає голова, робот спалахує, біжить і вибухає 3×3<br>
-    🔄 бетономішалка — 1-й удар: починає повільно крутитися; 2-й: крутиться швидко, затягує всі звичайні фішки довкола (3×3) — разом із павутиною, павуками й яйцями на них — і розвалюється. Затягнуті фішки рахуються за кольором, і до кожного кольору додається +1: 5+ → 🌈 куля, 4 → 💣 бомба, 3 → 🐸 жабка (тобто вистачить 4, 3 і 2 однакових); бонуси з'являються поруч і чекають на гравця<br>
+    🤖 робот — 4 удари. Після 1-го і 2-го удару стріляє цвяхом, який застрягає в першій перешкоді на шляху, після 3-го і 4-го — розганяється і біжить по прямій (перешкода, у яку врізався, отримує 1 удар). Напрямок — насамперед у бік перешкоди, яку можна пошкодити, а в стінку лише якщо інших варіантів нема; серед можливих завжди найдовший шлях. 1: відлітають гайки, дим; 2: голова гойдається на пружині; 3: відпадають руки, іскри; 4: відлітає голова, робот спалахує, біжить і вибухає 3×3. Пробігаючи, робот змітає все осіннє листя на своєму шляху<br>
+    🔄 бетономішалка — 1-й удар: починає повільно крутитися; 2-й: крутиться швидко, затягує осіннє листя з зони 5×5 і всі звичайні фішки довкола (3×3) — разом із павутиною, павуками й яйцями на них — і розвалюється. Затягнуті фішки рахуються за кольором, і до кожного кольору додається +1: 5+ → 🌈 куля, 4 → 💣 бомба, 3 → 🐸 жабка (тобто вистачить 4, 3 і 2 однакових); бонуси з'являються поруч і чекають на гравця<br>
     🪨 камінь — 4 удари, з кожним тріщин більше, а камінь меншає; стоїть на місці<br>
     ⛏️ камінь з кіркою — те саме, але коли ламається, кірка літає полем і завдає 10 ударів іншим каменям (а якщо їх немає — іншим перешкодам)<br>
     🤡 шкатулка з клоуном — 3 удари (від кожного крутиться рукоятка); коли ламається — вискакує клоун і розкидає по полю 3 випадкові перешкоди<br>
@@ -1115,6 +1140,10 @@ const sfx = {
     tone(strong ? 700 : 1100, { dur: strong ? 0.3 : 0.15, vol: strong ? 0.05 : 0.03, type: 'square', slide: 1.5 });
     noise(strong ? 0.2 : 0.1, strong ? 0.1 : 0.05, 6000);
   },
+  leafRustle: () => { noise(0.14, 0.05, 2600); },
+  leafSpill: () => { noise(0.5, 0.08, 1800); noise(0.25, 0.04, 3200); },
+  binLid: () => { tone(520, { dur: 0.1, vol: 0.06, type: 'square', slide: 1.4 }); tone(260, { dur: 0.15, vol: 0.05, type: 'triangle', delay: 0.06 }); },
+  binTip: () => { tone(110, { dur: 0.3, vol: 0.18, type: 'triangle', slide: 0.6 }); noise(0.3, 0.08, 900); },
   sfrogGulp: () => { tone(220, { dur: 0.18, vol: 0.12, type: 'triangle', slide: 0.5 }); tone(120, { dur: 0.25, vol: 0.12, type: 'sine', delay: 0.12 }); noise(0.15, 0.05, 400); },
   wallClank: () => { tone(380, { dur: 0.08, vol: 0.04, type: 'square' }); tone(190, { dur: 0.1, vol: 0.04, type: 'triangle', delay: 0.02 }); },
   mirrorFlip: () => { tone(700, { dur: 0.12, vol: 0.05, type: 'triangle', slide: 1.6 }); tone(1300, { dur: 0.1, vol: 0.03, delay: 0.1 }); },
@@ -1155,7 +1184,7 @@ const sfx = {
 // ===== Гра =====
 const N = 8, TYPES = 6;
 const RAINBOW = 6, BOMB = 7, LIGHTNING = 8, FROG = 9;
-const CARDBOARD = 10, WOOD = 11, REINFORCED = 12, SLIME = 13, GENERATOR = 14, NAILGUN = 15, TNT = 16, TESLA = 17, CORE = 18, JACK = 19, STONE = 20, STONEPICK = 21, MIXER = 22, ROBOT = 23, MIRROR = 24, MIRROR2 = 25, STONEFROG = 26, WALL = 27, STONEWALL = 28;
+const CARDBOARD = 10, WOOD = 11, REINFORCED = 12, SLIME = 13, GENERATOR = 14, NAILGUN = 15, TNT = 16, TESLA = 17, CORE = 18, JACK = 19, STONE = 20, STONEPICK = 21, MIXER = 22, ROBOT = 23, MIRROR = 24, MIRROR2 = 25, STONEFROG = 26, WALL = 27, STONEWALL = 28, BIN = 29;
 const isMirror = t => t === MIRROR || t === MIRROR2;
 // перешкода, якій зараз можна завдати шкоди
 const damageable = g => isObstacle(g) && g.type !== CORE && g.type !== WALL && !(g.type === STONEFROG && !g.armed) && !g.mixing && !g.final && !(isMirror(g.type) && !g.glass);
@@ -1219,6 +1248,7 @@ function randomLevel() {
 const board = document.getElementById('board');
 const $ = id => document.getElementById(id);
 let grid = [], score = 0, moves = 0, busy = false, selected = null;
+let leaves = [];   // шар осіннього листя під фішками: елемент або null для кожної клітинки
 let level = 0, levelStartScore = 0, overlayAction = null;
 const wait = ms => new Promise(r => setTimeout(r, ms));
 const rand = () => Math.floor(Math.random() * TYPES);
@@ -1242,15 +1272,17 @@ function createGem(r, c, type, fromRow = r) {
   return gem;
 }
 
-const BOX_CHARS = { c: CARDBOARD, n: CARDBOARD, w: WOOD, r: REINFORCED, s: SLIME, g: GENERATOR, t: TNT, e: TESLA, o: CORE, j: JACK, k: STONE, q: STONEPICK, m: MIXER, b: ROBOT, z: MIRROR, y: MIRROR2, f: STONEFROG, a: WALL };
+const BOX_CHARS = { c: CARDBOARD, n: CARDBOARD, w: WOOD, r: REINFORCED, s: SLIME, g: GENERATOR, t: TNT, e: TESLA, o: CORE, j: JACK, k: STONE, q: STONEPICK, m: MIXER, b: ROBOT, z: MIRROR, y: MIRROR2, f: STONEFROG, a: WALL, d: BIN };
 function startLevel(i) {
   level = i;
   const def = LEVELS[i] || randomLevel();
-  board.querySelectorAll('.gem, .beam, .bolt, .shock, .float, .combo, .shard, .tongue, .spiderEl, .nail, .dart').forEach(e => e.remove());
+  board.querySelectorAll('.gem, .beam, .bolt, .shock, .float, .combo, .shard, .tongue, .spiderEl, .nail, .dart, .leaf').forEach(e => e.remove());
   pendingFill.length = pendingClear.length = pendingDet.length = 0;
   inFlight = 0;
   turn = 0;
   pendingJack.length = 0;
+  pendingSpill.length = 0;
+  leaves = [...Array(N)].map(() => Array(N).fill(null));
   pendingMixer.length = 0;
   pendingSuck.length = 0;
   pendingRun.length = 0;
@@ -1286,6 +1318,8 @@ function startLevel(i) {
       if (ch === 'p') addSpider(r, c);
     }
   }
+  // шар листя
+  def.leaves?.forEach((row, r) => [...row].forEach((ch, c) => { if (ch === 'v' && grid[r][c]?.type !== WALL) addLeaf(r, c); }));
   $('overlay').classList.remove('show');
   updateHud();
   if (!findMove()) shuffle();
@@ -1436,7 +1470,7 @@ function planSpecials(runs, squares, swap) {
 }
 
 function removeCells(cells) {
-  cells.forEach(([r, c]) => { if (grid[r][c]) { grid[r][c].el.remove(); grid[r][c] = null; } });
+  cells.forEach(([r, c]) => { if (grid[r][c]) { grid[r][c].el.remove(); grid[r][c] = null; clearLeaf(r, c); } });
 }
 
 // Гравітація + нові фішки. Ящики стоять на місці і ділять стовпчик на відрізки:
@@ -1495,6 +1529,7 @@ const BOX_INFO = {
   [MIRROR2]:    { cls: 'mirror',     hp: 1, pts: 160, shards: ['#e6f6ff', '#9fd2f0', '#ffffff', '#6aa8d8'] },
   [STONEFROG]:  { cls: 'stonefrog',  hp: 1, pts: 300, shards: ['#9a9fa8', '#6c717b', '#4a4e56', '#ff9a3a'] },
   [STONEWALL]:  { cls: 'stonewall',  hp: 3, pts: 120, shards: ['#a39a8e', '#7d746a', '#5a534b', '#c9c1b5'] },
+  [BIN]:        { cls: 'bin',        hp: 2, pts: 150, shards: ['#5f8a5a', '#3d5c3a', '#e8742a', '#f2b33a'] },
   [WALL]:       { cls: 'wall',       hp: 1, pts: 0,   shards: ['#5d6772', '#3d444c'] },
 };
 const CRACKS = '<svg class="crack" viewBox="0 0 100 100">' +
@@ -1568,6 +1603,73 @@ const STONE_SVG = '<svg class="rock" viewBox="0 0 100 100"><defs>' +
   '<polyline class="c1" points="44,16 50,34 42,46 54,58"/>' +
   '<polyline class="c2" points="82,32 68,44 74,56 60,66 64,84"/>' +
   '<polyline class="c3" points="14,62 30,56 36,68 48,72 46,88"/></svg>';
+// Сміттєбак, забитий листям
+const BIN_SVG = '<svg class="binBody" viewBox="0 0 100 100">' +
+  '<g class="stuff"><path d="M24,30 Q30,12 42,24 Q48,10 58,22 Q68,8 76,28 Z" fill="#e8742a" stroke="#9c3f12" stroke-width="2"/>' +
+  '<path d="M34,28 Q44,16 52,26" fill="none" stroke="#f2b33a" stroke-width="4" stroke-linecap="round"/>' +
+  '<path d="M60,27 Q66,17 72,26" fill="none" stroke="#c94a1a" stroke-width="4" stroke-linecap="round"/></g>' +
+  '<path d="M20,28 H80 L74,92 Q73,96 69,96 H31 Q27,96 26,92 Z" fill="#5f8a5a" stroke="#2e4a2c" stroke-width="3"/>' +
+  '<g stroke="#3d5c3a" stroke-width="4" stroke-linecap="round"><path d="M36,38 L38,86"/><path d="M50,38 V86"/><path d="M64,38 L62,86"/></g>' +
+  '<path d="M23,40 Q50,44 77,40" fill="none" stroke="#8fbf86" stroke-width="2" opacity=".6"/>' +
+  '<path d="M44,90 Q50,80 56,90 Z" fill="#e8742a" opacity=".9"/></svg>';
+const BIN_LID_SVG = '<svg viewBox="0 0 100 100"><rect x="42" y="4" width="16" height="9" rx="4" fill="none" stroke="#2e4a2c" stroke-width="4"/>' +
+  '<path d="M14,26 Q16,12 50,12 Q84,12 86,26 Z" fill="#6f9e69" stroke="#2e4a2c" stroke-width="3"/>' +
+  '<path d="M24,20 Q50,15 74,20" fill="none" stroke="#b3d9aa" stroke-width="2.5" opacity=".7" stroke-linecap="round"/></svg>';
+// Листочки для шару листя (трохи різні в кожній клітинці)
+const LEAF_COLORS = ['#e8742a', '#c94a1a', '#f2b33a', '#d9822b', '#a83b1e'];
+function leafSVG() {
+  const one = (x, y, a, col, k) => `<g transform="translate(${x} ${y}) rotate(${a}) scale(${k})">` +
+    `<path d="M0,-16 C10,-10 10,6 0,16 C-10,6 -10,-10 0,-16 Z" fill="${col}" stroke="rgba(80,30,10,.55)" stroke-width="1.5"/>` +
+    `<path d="M0,-12 V18" stroke="rgba(80,30,10,.6)" stroke-width="1.6"/></g>`;
+  const rnd = a => a[Math.floor(Math.random() * a.length)];
+  // листя по кутах і краях — так його видно з-під фішки
+  const spots = [[14, 15], [86, 14], [15, 86], [85, 85], [50, 8], [92, 50], [50, 92], [8, 50]].sort(() => Math.random() - .5).slice(0, 6);
+  return '<svg viewBox="0 0 100 100">' + spots.map(([x, y]) =>
+    one(x + Math.random() * 6 - 3, y + Math.random() * 6 - 3, Math.random() * 360, rnd(LEAF_COLORS), 0.95 + Math.random() * .3)).join('') + '</svg>';
+}
+function makeLeafEl() {
+  const el = document.createElement('div');
+  el.className = 'leaf';
+  el.innerHTML = leafSVG();
+  return el;
+}
+// Кладе листя на клітинку (from — звідки летить, для розсипання зі сміттєбака)
+function addLeaf(r, c, from = null) {
+  if (leaves[r][c]) return false;
+  const el = makeLeafEl();
+  if (from) el.style.transform = `translate(${from[1] * 100}%, ${from[0] * 100}%) scale(.3) rotate(-90deg)`;
+  else el.style.transform = `translate(${c * 100}%, ${r * 100}%)`;
+  board.prepend(el);   // під фішками
+  if (from) { el.getBoundingClientRect(); el.style.transform = `translate(${c * 100}%, ${r * 100}%)`; }
+  leaves[r][c] = el;
+  return true;
+}
+// Листя на клітинці прибирається, коли на ній щось знищено
+function clearLeaf(r, c) {
+  const el = leaves[r]?.[c];
+  if (!el) return;
+  leaves[r][c] = null;
+  el.classList.add('gone');
+  setTimeout(() => el.remove(), 450);
+  score += 20;
+  const now = performance.now();
+  if (!clearLeaf.last || now - clearLeaf.last > 70) { sfx.leafRustle(); clearLeaf.last = now; }
+}
+// Сміттєбак перекинувся — листя розсипається 5×5
+const pendingSpill = [];
+async function spillLeaves([r, c]) {
+  sfx.leafSpill();
+  floatText('🍂', r, c, '#f2b33a');
+  for (let rr = r - 2; rr <= r + 2; rr++) for (let cc = c - 2; cc <= c + 2; cc++) {
+    if (rr < 0 || rr >= N || cc < 0 || cc >= N) continue;
+    if (grid[rr][cc]?.type === WALL) continue;           // на броньовану стіну листя не лягає
+    const d = Math.hypot(rr - r, cc - c) * 60;
+    setTimeout(() => { if (addLeaf(rr, cc, [r, c])) updateHud(); }, d);
+  }
+  await wait(700);
+  updateHud();
+}
+
 // Кам'яна стіна (може ховати під собою іншу перешкоду)
 const SWALL_SVG = '<svg class="bricks" viewBox="0 0 100 100">' +
   '<rect x="1" y="1" width="98" height="98" rx="8" fill="#5a534b"/>' +
@@ -1643,6 +1745,7 @@ function createBox(r, c, type) {
   if (type === STONEFROG) inner = SFROG_SVG + '<i class="sfglow"></i>';
   if (type === WALL) inner = '<i class="plate"></i>';
   if (type === STONEWALL) inner = SWALL_SVG;
+  if (type === BIN) inner = BIN_SVG + '<i class="lid">' + BIN_LID_SVG + '</i>';
   if (isMirror(type)) inner = '<div class="coin"><div class="side metal"></div><div class="side glass">' + (type === MIRROR2 ? '<div class="sheet"></div>' : '') + '</div></div>';
   if (type === ROBOT) inner = ROBOT_SVG +
     '<i class="rarm l">' + ROBOT_ARM + '</i><i class="rarm r">' + ROBOT_ARM + '</i>' +
@@ -1693,7 +1796,7 @@ const isObstacle = g => g && ((isBox(g.type) && !g.broken) || locked(g));
 const movable = g => g && !isBox(g.type) && !locked(g);
 const isFree = (r, c) => isNormal(grid[r][c].type) && !locked(grid[r][c]);
 
-const boxesLeft = () => grid.flat().filter(g => isObstacle(g) && g.type !== WALL).length;
+const boxesLeft = () => grid.flat().filter(g => isObstacle(g) && g.type !== WALL).length + leaves.flat().filter(Boolean).length;
 
 function flyOff(part) {
   if (!part) return;
@@ -1787,7 +1890,7 @@ function hitBox(r, c) {
        [GENERATOR]: () => { sfx.metalBreak(); sfx.slimeBreak(); },
        [NAILGUN]: () => sfx.metalBreak(), [TNT]: () => sfx.woodBreak(),
        [TESLA]: () => { sfx.lightning(); sfx.teslaZap(true); },
-       [JACK]: () => sfx.cardBreak(), [STONE]: () => sfx.stoneBreak(), [STONEPICK]: () => sfx.stoneBreak(), [MIXER]: () => sfx.metalBreak(), [MIRROR]: () => sfx.glassBreak(), [MIRROR2]: () => sfx.glassBreak(), [STONEFROG]: () => sfx.stoneBreak(), [STONEWALL]: () => sfx.stoneBreak() })[box.type]?.();
+       [JACK]: () => sfx.cardBreak(), [STONE]: () => sfx.stoneBreak(), [STONEPICK]: () => sfx.stoneBreak(), [MIXER]: () => sfx.metalBreak(), [MIRROR]: () => sfx.glassBreak(), [MIRROR2]: () => sfx.glassBreak(), [STONEFROG]: () => sfx.stoneBreak(), [STONEWALL]: () => sfx.stoneBreak(), [BIN]: () => sfx.binTip() })[box.type]?.();
     shatter(r, c, box.nailgun ? ['#8fb8ec', '#5b8fd6', '#2c5394', '#f0e1b4'] : info.shards, box.type === REINFORCED || box.type === GENERATOR ? 12 : 8);
     if (box.type === NAILGUN) [[0,1],[0,-1],[1,0],[-1,0]].forEach(d => fireNail(r, c, d));   // цвяхи в усі 4 боки
     if (box.type === TNT) tntExplode(r, c);
@@ -1807,6 +1910,7 @@ function hitBox(r, c) {
       // з коробки випадає цвяхозабивач
       score += info.pts; floatText('+' + info.pts, r, c, '#ffd27a');
       setTimeout(() => el.remove(), 400);
+      clearLeaf(r, c);
       grid[r][c] = createBox(r, c, NAILGUN);
       grid[r][c].el.classList.add('spawn');
       floatText('🔫', r, c);
@@ -1816,12 +1920,14 @@ function hitBox(r, c) {
     if (box.type === STONEWALL && box.under) {
       score += info.pts; floatText('+' + info.pts, r, c, '#ffd27a');
       setTimeout(() => el.remove(), 400);
+      clearLeaf(r, c);
       const g = spawnCell(r, c, box.under);
       g.el.classList.add(isBox(g.type) ? 'spawn' : 'appear');
       updateHud();
       return;
     }
     if (box.type === GENERATOR) pendingFill.push([r, c]);   // зона 3×3 заллється слизом
+    if (box.type === BIN) pendingSpill.push([r, c]);        // 2: бак перекидається — листя 5×5
     score += info.pts;
     floatText('+' + info.pts, r, c, '#ffd27a');
     setTimeout(() => el.remove(), 400);
@@ -1850,6 +1956,9 @@ function hitBox(r, c) {
   } else if (box.type === MIXER) {
     el.classList.add('spin1');           // 1-й удар: барабан повільно закрутився
     sfx.mixerSlow();
+  } else if (box.type === BIN) {
+    // 1: кришка відлітає, листя випинається
+    q('.lid'); el.classList.add('open'); sfx.binLid();
   } else if (box.type === STONEWALL) {
     el.classList.add('crack' + (BOX_INFO[STONEWALL].hp - box.hp));
     sfx.stoneHit();
@@ -1969,7 +2078,7 @@ const findGem = g => { for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) i
 function applyPendingClear() {
   pendingClear.splice(0).forEach(g => {
     const p = findGem(g);
-    if (p) { g.el.remove(); grid[p[0]][p[1]] = null; }
+    if (p) { g.el.remove(); grid[p[0]][p[1]] = null; clearLeaf(p[0], p[1]); }
   });
 }
 
@@ -2092,6 +2201,8 @@ async function robotRun(box, shoot = false) {
     grid[er][ec] = box;
     el.style.transition = `transform ${path.length * 110}ms linear`;
     setPos(box, er, ec);
+    // робот змітає листя на своєму шляху (зі стартової клітинки теж)
+    [[r, c], ...path].forEach(([pr, pc], i) => setTimeout(() => { clearLeaf(pr, pc); updateHud(); }, i * 110));
     await wait(path.length * 110 + 40);
     el.style.transition = '';
     r = er; c = ec;
@@ -2161,6 +2272,20 @@ async function mixerSuck(box) {
     g.el.style.opacity = 0;
     pendingClear.push(g);
   }
+  // листя з клітинок 5×5 довкола затягує в барабан
+  let sucked = 0;
+  for (let rr = r - 2; rr <= r + 2; rr++) for (let cc = c - 2; cc <= c + 2; cc++) {
+    if (rr < 0 || rr >= N || cc < 0 || cc >= N || !leaves[rr][cc]) continue;
+    const lf = leaves[rr][cc];
+    leaves[rr][cc] = null;
+    lf.style.zIndex = 4;
+    lf.style.transition = `transform .6s cubic-bezier(.5,0,.8,.5) ${sucked * 0.03}s, opacity .25s ${0.4 + sucked * 0.03}s`;
+    lf.style.transform = `translate(${c * 100}%, ${r * 100}%) scale(.1) rotate(720deg)`;
+    lf.style.opacity = 0;
+    setTimeout(() => lf.remove(), 900 + sucked * 30);
+    score += 20; sucked++;
+  }
+  if (sucked) { sfx.leafSpill(); floatText('🍂 +' + sucked * 20, r - 0.6, c, '#f2b33a'); }
   sfx.mixerFast();
   const made = [];
   // при змішуванні кожен наявний тип отримує +1
@@ -2251,8 +2376,8 @@ async function pickaxeRun(r, c) {
 // 🤡 Шкатулка розкидає 3 випадкові перешкоди (крім шкатулки)
 let turn = 0;                     // скільки ходів зроблено на рівні
 const pendingJack = [];
-const SCATTER = ['c', 'c', 'n', 'w', 'w', 't', 'r', 's', 'g', 'x', 'x', 'p', 'e', 'o', 'k', 'q', 'm', 'b', 'z', 'y', 'f'];
-const SCATTER_ICON = { c: '📦', n: '📦', w: '🪵', t: '🧨', r: '🛡️', s: '🟢', g: '⚙️', x: '🕸️', p: '🕷️', e: '⚡', o: '⚫', k: '🪨', q: '⛏️', m: '🔄', b: '🤖', z: '🪞', y: '🪞', f: '🗿' };
+const SCATTER = ['c', 'c', 'n', 'w', 'w', 't', 'r', 's', 'g', 'x', 'x', 'p', 'e', 'o', 'k', 'q', 'm', 'b', 'z', 'y', 'f', 'd'];
+const SCATTER_ICON = { c: '📦', n: '📦', w: '🪵', t: '🧨', r: '🛡️', s: '🟢', g: '⚙️', x: '🕸️', p: '🕷️', e: '⚡', o: '⚫', k: '🪨', q: '⛏️', m: '🔄', b: '🤖', z: '🪞', y: '🪞', f: '🗿', d: '🗑️' };
 async function jackScatter([jr, jc]) {
   const free = [];
   for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) if (grid[r][c] && isFree(r, c)) free.push([r, c]);
@@ -2488,7 +2613,8 @@ async function settle() {
         for (const box of pendingSuck.splice(0)) await mixerSuck(box);
         continue;
       }
-      if (!pendingJack.length && !pendingMixer.length) return;
+      if (!pendingJack.length && !pendingMixer.length && !pendingSpill.length) return;
+      for (const pos of pendingSpill.splice(0)) await spillLeaves(pos);
       for (const pos of pendingJack.splice(0)) await jackScatter(pos);
       for (const m of pendingMixer.splice(0)) await mixerDeliver(m);
       continue;
@@ -2595,7 +2721,7 @@ function applyPendingFill() {
 // Зламані ящики звільняють клітинку
 function sweepBroken() {
   for (let r = 0; r < N; r++) for (let c = 0; c < N; c++)
-    if (grid[r][c]?.broken) grid[r][c] = null;
+    if (grid[r][c]?.broken) { grid[r][c] = null; clearLeaf(r, c); }
 }
 
 function swapCells(a, b) {
@@ -3383,6 +3509,8 @@ async function useDarts() {
     for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
       const g = grid[r][c];
       if (damageable(g)) o.push([r, c]);
+      // фішка на листі — дротик вибиває її разом із листям
+      else if (leaves[r][c] && g && isNormal(g.type) && !locked(g) && !pendingClear.includes(g)) o.push([r, c]);
       // під металевим ядром дротик вибиває звичайну фішку — ядро опускається
       if (g && g.type === CORE && !g.broken) {
         // перша ще не вибита фішка під ядром (кілька дротиків — ядро опускається на кілька клітинок)
@@ -3633,7 +3761,7 @@ $('soundBtn').onclick = () => {
 
 // ===================== Рівні з JSON =====================
 // Формат: { "levels": [ { "name": "...", "moves": 20, "map": ["........", ... 8 рядків по 8 символів] } ] }
-const MAP_CHARS = '.cnwtrsgxpeojkqmbzyfa';
+const MAP_CHARS = '.cnwtrsgxpeojkqmbzyfad';
 function parseLevels(data) {
   const list = Array.isArray(data) ? data : data?.levels;
   if (!Array.isArray(list) || !list.length) throw new Error('у файлі немає списку "levels"');
@@ -3650,6 +3778,9 @@ function parseLevels(data) {
     // cover — другий шар: l — кам'яна стіна поверх клітинки
     if (Array.isArray(lv.cover) && lv.cover.length === N)
       out.cover = lv.cover.map(row => [...String(row).padEnd(N, '.').slice(0, N)].map(ch => ch === 'l' ? 'l' : '.').join(''));
+    // leaves — шар осіннього листя: v — клітинка вкрита листям
+    if (Array.isArray(lv.leaves) && lv.leaves.length === N)
+      out.leaves = lv.leaves.map(row => [...String(row).padEnd(N, '.').slice(0, N)].map(ch => ch === 'v' ? 'v' : '.').join(''));
     return out;
   });
 }
@@ -3760,21 +3891,24 @@ const INTRO = {
   j: ['Шкатулка з клоуном', '3 удари. Коли зламається — клоун розкидає по полю 3 випадкові перешкоди.'],
   k: ['Камінь', '4 удари; з кожним ударом камінь тріскає й меншає.'],
   q: ['Камінь з кіркою', 'Як камінь, але коли зламається, кірка завдасть 10 ударів іншим каменям і перешкодам.'],
-  m: ['Бетономішалка', "Після 2 ударів затягує фішки довкола 3×3 і робить з них бонуси, які з'являться поруч."],
-  b: ['Робот', '4 удари. Після ударів стріляє цвяхами, а наприкінці біжить по прямій і вибухає 3×3.'],
+  m: ['Бетономішалка', "Після 2 ударів затягує фішки довкола 3×3 (і листя з зони 5×5) та робить з фішок бонуси, які з'являться поруч."],
+  b: ['Робот', '4 удари. Після ударів стріляє цвяхами, а наприкінці біжить по прямій (змітаючи листя) і вибухає 3×3.'],
   z: ['Армоване дзеркало', 'Щоходу перевертається: металева сторона невразлива, скляна розбивається з 1 удару.'],
   y: ['Дзеркало з простирадлом', 'Як армоване дзеркало, але скло вкрите простирадлом: спершу його треба порвати.'],
   f: ["Кам'яна жаба", 'Спершу невразлива. Щойно ви створите бонус, жаба його проковтне й затрясеться — тоді один удар, і вона вибухне 5×5.'],
   a: ['Броньована стіна', 'Її не зруйнувати і не потрібно: це лише межа поля.'],
   l: ["Кам'яна стіна", 'Руйнується з 3 ударів. Під нею може щось ховатися…'],
+  d: ['Сміттєбак з листям', '2 удари: спершу відлітає кришка, потім бак перекидається й засипає листям зону 5×5.'],
+  v: ['Осіннє листя', 'Лежить під фішками. Знищте фішку чи перешкоду на такій клітинці — листя розлетиться. Для перемоги треба прибрати все листя.'],
 };
 // символ → як намалювати плитку для вікна
 function introTile(ch) {
   const tile = document.createElement('div');
   tile.className = 'introTile';
   let g;
-  if (ch === 'x' || ch === 'p') {
-    g = createGem(0, 0, 0);
+  if (ch === 'v') tile.appendChild(makeLeafEl());
+  if (ch === 'x' || ch === 'p' || ch === 'v') {
+    g = createGem(0, 0, ch === 'v' ? 2 : 0);
     if (ch === 'x') addWeb(g);
   } else {
     g = createBox(0, 0, ch === 'l' ? STONEWALL : BOX_CHARS[ch]);
@@ -3795,6 +3929,7 @@ function showIntro(def) {
   def.map.forEach((row, r) => [...row].forEach((ch, c) => {
     if (def.cover?.[r][c] === 'l' && ch !== 'o') found.add('l');
     else if (INTRO[ch]) found.add(ch);
+    if (def.leaves?.[r][c] === 'v' && ch !== 'a') found.add('v');
   }));
   introPending = Object.keys(INTRO).filter(ch => found.has(ch) && !seen[ch]);
   if (!introPending.length) { $('intro').classList.remove('show'); return; }
