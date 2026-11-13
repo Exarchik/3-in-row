@@ -142,6 +142,11 @@
     box-shadow: inset 0 0 0 2px #4a443d;
   }
   .cell .sw { position: absolute; opacity: .72; z-index: 2; pointer-events: none; }
+  .k-u .t, .cell .sw.cw {
+    inset: 1px; border-radius: 4px; border: 2px solid #94632e;
+    background: linear-gradient(90deg, transparent 40%, rgba(240,225,180,.9) 40% 60%, transparent 60%) center / 100% 30% no-repeat, linear-gradient(135deg, #e8c48a, #b37d42);
+    box-shadow: none;
+  }
   .k-y .t { background: linear-gradient(135deg, #8b96a3 0 49%, #3d444c 49% 51%, #f1ece0 51%); }
   .k-b .t {
     inset: 12% 18% 6%; border-radius: 6px;
@@ -273,7 +278,7 @@
     <p class="hint">
       Клік або протягування — малювати вибраним інструментом.<br>
       Права кнопка миші — стерти (поставити звичайну фішку).<br>
-      Клавіші 0–9, E, O, J, K, Q, M, B, Z, Y, F, A, L, D, V, H, I — швидкий вибір інструмента, Ctrl+Z / Ctrl+Y — скасувати / повторити.
+      Клавіші 0–9, E, O, J, K, Q, M, B, Z, Y, F, A, L, U, D, V, H, I — швидкий вибір інструмента, Ctrl+Z / Ctrl+Y — скасувати / повторити.
     </p>
     <div class="drops" id="drops">
       <h2>🤡 Що може випасти зі шкатулки з клоуном</h2>
@@ -318,16 +323,17 @@ const TOOLS = [
   { ch: 'f', name: 'Кам\'яна жаба', ico: '🗿' },
   { ch: 'a', name: 'Броньована стіна', ico: '' },
   { ch: 'l', name: 'Кам\'яна стіна (поверх)', ico: '' },
+  { ch: 'u', name: 'Картонна стіна (поверх)', ico: '' },
   { ch: 'd', name: 'Сміттєбак з листям', ico: '🗑️' },
   { ch: 'h', name: 'Мітла', ico: '🧹' },
   { ch: 'i', name: 'Магічний кристал', ico: '' },
   { ch: 'v', name: 'Осіннє листя (під фішками)', ico: '🍂' },
 ];
 const CHARS = TOOLS.map(t => t.ch).join('');
-const MINI = { '.': '', i: '#4a26b4', h: '#e8c25a', l: '#a39a8e', d: '#5f8a5a', v: '#d9822b', f: '#6c717b', a: '#2a2f36', z: '#9fd2f0', y: '#e9e4d8', b: '#b8c0c8', m: '#f2a33a', k: '#8a8f98', q: '#b8bdc5', j: '#ffcc33', o: '#2a2f35', e: '#7cc8ff', c: '#c99357', n: '#5b8fd6', w: '#8d5a27', t: '#d23a2a', r: '#9aa5b1', s: '#5fc93a', g: '#3e454e', x: '#e8e8ff', p: '#c0303a' };
+const MINI = { '.': '', u: '#d9a868', i: '#4a26b4', h: '#e8c25a', l: '#a39a8e', d: '#5f8a5a', v: '#d9822b', f: '#6c717b', a: '#2a2f36', z: '#9fd2f0', y: '#e9e4d8', b: '#b8c0c8', m: '#f2a33a', k: '#8a8f98', q: '#b8bdc5', j: '#ffcc33', o: '#2a2f35', e: '#7cc8ff', c: '#c99357', n: '#5b8fd6', w: '#8d5a27', t: '#d23a2a', r: '#9aa5b1', s: '#5fc93a', g: '#3e454e', x: '#e8e8ff', p: '#c0303a' };
 const LEGEND = {
   '.': 'фішка', c: 'картонна коробка', n: 'синя коробка з цвяхозабивачем', w: "дерев'яний ящик", t: 'ящик TNT',
-  r: 'армований ящик', s: 'слиз', g: 'слизогенератор', x: 'фішка в павутині', p: 'павук на фішці', e: 'електрогенератор', o: 'металеве ядро', j: 'шкатулка з клоуном', k: 'камінь', q: 'камінь з кіркою', m: 'бетономішалка', b: 'робот', z: 'армоване дзеркало', y: 'армоване дзеркало 2 (з простирадлом)', f: 'кам\'яна жаба', a: 'броньована стіна', l: 'кам\'яна стіна', d: 'сміттєбак з листям', h: 'мітла', i: 'магічний кристал', v: 'осіннє листя',
+  r: 'армований ящик', s: 'слиз', g: 'слизогенератор', x: 'фішка в павутині', p: 'павук на фішці', e: 'електрогенератор', o: 'металеве ядро', j: 'шкатулка з клоуном', k: 'камінь', q: 'камінь з кіркою', m: 'бетономішалка', b: 'робот', z: 'армоване дзеркало', y: 'армоване дзеркало 2 (з простирадлом)', f: 'кам\'яна жаба', a: 'броньована стіна', l: 'кам\'яна стіна', u: 'картонна стіна', d: 'сміттєбак з листям', h: 'мітла', i: 'магічний кристал', v: 'осіннє листя',
 };
 
 // Стартовий набір — ті самі рівні, що вбудовані в гру
@@ -367,8 +373,11 @@ function markSaved() { dirty = false; $('fileInfo').textContent = fileName + ' �
 
 function newLevel() { return { name: '', moves: 25, map: Array(N).fill('.'.repeat(N)) }; }
 // cover — другий шар: l — кам'яна стіна поверх клітинки (під нею може лежати перешкода з map)
-const coverAt = (lv, r, c) => lv.cover?.[r]?.[c] === 'l';
-const coverCount = lv => lv.cover ? lv.cover.join('').split('l').length - 1 : 0;
+// cover: l — кам'яна стіна, u — картонна стіна
+const COVERS = 'lu';
+const coverType = (lv, r, c) => { const ch = lv.cover?.[r]?.[c]; return ch && COVERS.includes(ch) ? ch : ''; };
+const coverAt = (lv, r, c) => !!coverType(lv, r, c);
+const coverCount = lv => lv.cover ? lv.cover.join('').split('').filter(ch => COVERS.includes(ch)).length : 0;
 const obstacles = lv => leafCount(lv) + lv.map.join('').replace(/\./g, '').length + lv.map.join('').split('').filter((ch, i) => ch === '.' && coverAt(lv, Math.floor(i / N), i % N)).length;
 const leafAt = (lv, r, c) => lv.leaves?.[r]?.[c] === 'v';
 const leafCount = lv => lv.leaves ? lv.leaves.join('').split('v').length - 1 : 0;
@@ -382,13 +391,15 @@ function setLeaf(r, c, on) {
   if (!leafCount(lv)) delete lv.leaves;
   return true;
 }
+// on: false — зняти стіну, true / 'l' — кам'яна, 'u' — картонна
 function setCover(r, c, on) {
   const lv = levels[cur];
-  if (coverAt(lv, r, c) === on) return false;
-  if (on && lv.map[r][c] === 'o') return false;           // ядро під стіною не сховаєш — воно має падати
+  const want = on === true ? 'l' : on || '';
+  if (coverType(lv, r, c) === want) return false;
+  if (want && lv.map[r][c] === 'o') return false;         // ядро під стіною не сховаєш — воно має падати
   if (!lv.cover) lv.cover = Array(N).fill('.'.repeat(N));
   const row = lv.cover[r];
-  lv.cover[r] = row.slice(0, c) + (on ? 'l' : '.') + row.slice(c + 1);
+  lv.cover[r] = row.slice(0, c) + (want || '.') + row.slice(c + 1);
   if (!coverCount(lv)) delete lv.cover;
   return true;
 }
@@ -466,12 +477,12 @@ function parseLevels(data) {
     const map = lv.map.map((row, r) => {
       row = String(row);
       if (row.length !== N) throw new Error(`рівень ${i + 1}, рядок ${r + 1}: має бути ${N} символів`);
-      return [...row].map(ch => CHARS.includes(ch) && ch !== 'l' ? ch : '.').join('');
+      return [...row].map(ch => CHARS.includes(ch) && !COVERS.includes(ch) ? ch : '.').join('');
     });
     const out = { name: lv.name ? String(lv.name) : '', moves, map };
     if (Array.isArray(lv.cover) && lv.cover.length === N) {
-      const cover = lv.cover.map((row, r) => [...String(row).padEnd(N, '.').slice(0, N)].map((ch, c) => ch === 'l' && map[r][c] !== 'o' ? 'l' : '.').join(''));
-      if (cover.join('').includes('l')) out.cover = cover;
+      const cover = lv.cover.map((row, r) => [...String(row).padEnd(N, '.').slice(0, N)].map((ch, c) => COVERS.includes(ch) && map[r][c] !== 'o' ? ch : '.').join(''));
+      if (/[lu]/.test(cover.join(''))) out.cover = cover;
     }
     if (Array.isArray(lv.leaves) && lv.leaves.length === N) {
       const lf = lv.leaves.map((row, r) => [...String(row).padEnd(N, '.').slice(0, N)].map((ch, c) => ch === 'v' && map[r][c] !== 'a' ? 'v' : '.').join(''));
@@ -507,7 +518,7 @@ function cellHTML(ch, size) {
 function renderList() {
   $('list').innerHTML = levels.map((lv, i) => {
     const w = warningsFor(lv);
-    const mini = lv.map.join('').split('').map((ch, i) => { const col = coverAt(lv, Math.floor(i / N), i % N) ? MINI.l : MINI[ch] || (leafAt(lv, Math.floor(i / N), i % N) ? MINI.v : ''); return `<i${col ? ` style="background:${col}"` : ''}></i>`; }).join('');
+    const mini = lv.map.join('').split('').map((ch, i) => { const cv = coverType(lv, Math.floor(i / N), i % N); const col = cv ? MINI[cv] : MINI[ch] || (leafAt(lv, Math.floor(i / N), i % N) ? MINI.v : ''); return `<i${col ? ` style="background:${col}"` : ''}></i>`; }).join('');
     return `<div class="item${i === cur ? ' sel' : ''}" data-i="${i}">
       <span class="num">${i + 1}</span><div class="mini">${mini}</div>
       <div class="info"><div class="nm">${lv.name || 'Без назви'}</div>
@@ -522,15 +533,15 @@ function renderList() {
 function renderBoard() {
   const lv = levels[cur];
   $('board').innerHTML = lv.map.map((row, r) => [...row].map((ch, c) => {
-    const cov = coverAt(lv, r, c);
-    let h = cellHTML(ch).replace('<div class="cell', `<div data-r="${r}" data-c="${c}" title="${cov ? 'кам\'яна стіна' + (ch !== '.' ? ', під нею: ' + LEGEND[ch] : '') : LEGEND[ch]}" class="cell${cov ? ' obs' : ''}`);
-    if (cov) h = h.replace(/<\/div>$/, '<div class="sw"></div></div>');
+    const cov = coverType(lv, r, c);
+    let h = cellHTML(ch).replace('<div class="cell', `<div data-r="${r}" data-c="${c}" title="${cov ? LEGEND[cov] + (ch !== '.' ? ', під нею: ' + LEGEND[ch] : '') : LEGEND[ch]}" class="cell${cov ? ' obs' : ''}`);
+    if (cov) h = h.replace(/<\/div>$/, `<div class="${cov === 'u' ? 'sw cw' : 'sw'}"></div></div>`);
     if (leafAt(lv, r, c)) h = h.replace(/^(<div [^>]*>)/, '$1<div class="lf"></div>').replace('title="', 'title="листя · ');
     return h;
   }).join('')).join('');
   const counts = {};
   lv.map.join('').split('').forEach(ch => { if (ch !== '.') counts[ch] = (counts[ch] || 0) + 1; });
-  if (coverCount(lv)) counts.l = coverCount(lv);
+  lv.cover?.join('').split('').forEach(ch => { if (COVERS.includes(ch)) counts[ch] = (counts[ch] || 0) + 1; });
   if (leafCount(lv)) counts.v = leafCount(lv);
   $('stats').textContent = Object.keys(counts).length
     ? 'На полі: ' + Object.entries(counts).map(([ch, n]) => `${LEGEND[ch]} × ${n}`).join(', ')
@@ -563,7 +574,7 @@ $('board').addEventListener('pointerdown', e => {
   // повторний клік тим самим інструментом по такій самій клітинці — стирає
   const r = +el.dataset.r, c = +el.dataset.c;
   if (e.button !== 2 && levels[cur].map[r][c] === tool && tool !== '.') painting = '.';
-  if (e.button !== 2 && tool === 'l') painting = coverAt(levels[cur], r, c) ? 'L-' : 'L+';   // повторний клік по стіні — знімає її
+  if (e.button !== 2 && COVERS.includes(tool)) painting = coverType(levels[cur], r, c) === tool ? 'L-' : 'L+' + tool;   // повторний клік по такій самій стіні — знімає її
   if (e.button !== 2 && tool === 'v') painting = leafAt(levels[cur], r, c) ? 'V-' : 'V+';   // так само з листям
   pushUndo();
   if (!paintAt(r, c)) undoStack.pop();
@@ -575,7 +586,7 @@ $('board').addEventListener('pointermove', e => {
 });
 window.addEventListener('pointerup', () => { painting = null; });
 function paintAt(r, c) {
-  const ok = painting === 'L+' ? setCover(r, c, true) : painting === 'L-' ? setCover(r, c, false)
+  const ok = painting.startsWith('L+') ? setCover(r, c, painting.slice(2)) : painting === 'L-' ? setCover(r, c, false)
     : painting === 'V+' ? setLeaf(r, c, true) : painting === 'V-' ? setLeaf(r, c, false) : setCell(r, c, painting);
   if (!ok) return false;
   markDirty();
@@ -648,6 +659,7 @@ document.addEventListener('keydown', e => {
   else if (!e.ctrlKey && !e.metaKey && (e.key.toLowerCase() === 'f' || e.key.toLowerCase() === 'а')) { tool = 'f'; renderPalette(); }
   else if (!e.ctrlKey && !e.metaKey && (e.key.toLowerCase() === 'a' || e.key.toLowerCase() === 'ф')) { tool = 'a'; renderPalette(); }
   else if (e.key.toLowerCase() === 'l' || e.key.toLowerCase() === 'д') { tool = 'l'; renderPalette(); }
+  else if (!e.ctrlKey && !e.metaKey && (e.key.toLowerCase() === 'u' || e.key.toLowerCase() === 'г')) { tool = 'u'; renderPalette(); }
   else if (!e.ctrlKey && !e.metaKey && (e.key.toLowerCase() === 'd' || e.key.toLowerCase() === 'в')) { tool = 'd'; renderPalette(); }
   else if (!e.ctrlKey && !e.metaKey && (e.key.toLowerCase() === 'v' || e.key.toLowerCase() === 'м')) { tool = 'v'; renderPalette(); }
   else if (!e.ctrlKey && !e.metaKey && (e.key.toLowerCase() === 'h' || e.key.toLowerCase() === 'р')) { tool = 'h'; renderPalette(); }

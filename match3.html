@@ -687,6 +687,18 @@
   @keyframes binTip { 60% { transform: rotate(80deg); opacity: 1; } to { transform: rotate(95deg) scale(.6); opacity: 0; } }
   .introTile .leaf { transform: none !important; }
 
+  /* ===== Картонна стіна ===== */
+  .cardwall .crate { inset: 1px; border-radius: 6px; box-shadow: 0 3px 6px rgba(0,0,0,.4); background: none; }
+  .cardwall .cwall {
+    inset: 0; border-radius: 6px; border: 2px solid #94632e;
+    background:
+      repeating-linear-gradient(90deg, rgba(120,80,30,.18) 0 2px, transparent 2px 7px),
+      linear-gradient(#94632e 0 0) 0 50% / 100% 2px no-repeat,
+      linear-gradient(135deg, #e8c48a, #c99357 60%, #b37d42);
+  }
+  .cardwall .tape { left: 8%; right: 8%; top: 22%; height: 14%; background: rgba(240,225,180,.85); transform: rotate(-4deg); border-radius: 2px; }
+  .cardwall .tape.t2 { top: 64%; transform: rotate(3deg); }
+
   /* ===== Кам'яна стіна ===== */
   .stonewall .crate { inset: 1px; background: none; box-shadow: none; }
   .stonewall .bricks { inset: 0; width: 100%; height: 100%; filter: drop-shadow(0 2px 2px rgba(0,0,0,.45)); }
@@ -1028,6 +1040,7 @@
     💎 магічний кристал — 8 ударів; з кожним змінює колір від темно-синього до багряно-червоного, останні удари — з тріщинами й дрижанням. Розбитий, лишає випадкову суперкомбінацію (червону жабу, фіолетову блискавку або велику бомбу), яка одразу спрацьовує. Кірка вважає його каменем. Кожна блискавка, що влучила в кристал, породжує ще одну — зелену, поперек; зелена блискавка інших кристалів не зачіпає. У зоні 3×3 довкола кристала не з'являються слиз і павутина, а павук, що туди заліз, гине. Якщо кристал з'являється посеред гри (з-під кам'яної стіни чи від клоуна), він одразу знищує павутину, слиз і павуків у своїй зоні<br>
     🧹 мітла — від 1 удару злітає і летить по прямій, вичищаючи листя, слиз і павутину (фішки лишаються). Напрямок обирає за пріоритетом: найбільше листя, потім слизу, потім павутини, потім інших мітел, потім довший шлях. Інші мітли пролітає наскрізь, зачіпаючи їх (вони теж злітають). Наткнувшись на іншу перешкоду, розвертається; долетівши до стінки (краю поля чи броньованої стіни) — з хрустом ламається<br>
     🗑️ сміттєбак — 2 удари: спершу відлітає кришка, потім бак перекидається, засипає листям зону 5×5 і зникає<br>
+    📦 картонна стіна — як кам'яна (може ховати під собою перешкоду), але ламається з 1 удару<br>
     🧱 кам'яна стіна — 3 удари; може ховати під собою іншу перешкоду — що саме, дізнаєтесь, лише зруйнувавши стіну. Поки стіну не зруйновано, схована перешкода ніяк себе не проявляє<br>
     🧱 броньована стіна — нічим не зруйнувати; це лише обмеження поля, її не треба знищувати для перемоги<br>
     🪞 армоване дзеркало — щоходу перевертається, як монета: металева сторона невразлива, скляна розбивається з 1 удару<br>
@@ -1242,7 +1255,10 @@ const sfx = {
 // ===== Гра =====
 const N = 8, TYPES = 6;
 const RAINBOW = 6, BOMB = 7, LIGHTNING = 8, FROG = 9;
-const CARDBOARD = 10, WOOD = 11, REINFORCED = 12, SLIME = 13, GENERATOR = 14, NAILGUN = 15, TNT = 16, TESLA = 17, CORE = 18, JACK = 19, STONE = 20, STONEPICK = 21, MIXER = 22, ROBOT = 23, MIRROR = 24, MIRROR2 = 25, STONEFROG = 26, WALL = 27, STONEWALL = 28, BIN = 29, BROOM = 30, CRYSTAL = 31;
+const CARDBOARD = 10, WOOD = 11, REINFORCED = 12, SLIME = 13, GENERATOR = 14, NAILGUN = 15, TNT = 16, TESLA = 17, CORE = 18, JACK = 19, STONE = 20, STONEPICK = 21, MIXER = 22, ROBOT = 23, MIRROR = 24, MIRROR2 = 25, STONEFROG = 26, WALL = 27, STONEWALL = 28, BIN = 29, BROOM = 30, CRYSTAL = 31, CARDWALL = 32;
+// стіни-покриття (шар cover): l — кам'яна, u — картонна; під ними може ховатися перешкода
+const COVER_TYPES = { l: STONEWALL, u: CARDWALL };
+const isCoverWall = t => t === STONEWALL || t === CARDWALL;
 const isMirror = t => t === MIRROR || t === MIRROR2;
 // перешкода, якій зараз можна завдати шкоди
 const damageable = g => isObstacle(g) && g.type !== CORE && g.type !== WALL && !(g.type === STONEFROG && !g.armed) && !g.mixing && !g.final && !(isMirror(g.type) && !g.glass);
@@ -1355,9 +1371,9 @@ function startLevel(i) {
     grid[r] = [];
     for (let c = 0; c < N; c++) {
       const ch = def.map[r][c];
-      if (def.cover?.[r][c] === 'l' && ch !== 'o') {
-        // кам'яна стіна; те, що під нею, з'явиться лише коли стіну зруйнують
-        const sw = createBox(r, c, STONEWALL);
+      if (COVER_TYPES[def.cover?.[r][c]] && ch !== 'o') {
+        // кам'яна / картонна стіна; те, що під нею, з'явиться лише коли стіну зруйнують
+        const sw = createBox(r, c, COVER_TYPES[def.cover[r][c]]);
         if (ch !== '.') sw.under = ch;
         grid[r][c] = sw;
         continue;
@@ -1589,6 +1605,7 @@ const BOX_INFO = {
   [MIRROR]:     { cls: 'mirror',     hp: 1, pts: 120, shards: ['#e6f6ff', '#9fd2f0', '#ffffff', '#6aa8d8'] },
   [MIRROR2]:    { cls: 'mirror',     hp: 1, pts: 160, shards: ['#e6f6ff', '#9fd2f0', '#ffffff', '#6aa8d8'] },
   [STONEFROG]:  { cls: 'stonefrog',  hp: 1, pts: 300, shards: ['#9a9fa8', '#6c717b', '#4a4e56', '#ff9a3a'] },
+  [CARDWALL]:   { cls: 'cardwall',   hp: 1, pts: 60,  shards: ['#e2b77a', '#c99357', '#94632e', '#f0e1b4'] },
   [STONEWALL]:  { cls: 'stonewall',  hp: 3, pts: 120, shards: ['#a39a8e', '#7d746a', '#5a534b', '#c9c1b5'] },
   [CRYSTAL]:    { cls: 'crystal',    hp: 8, pts: 400, shards: ['#ff6b9a', '#c0103a', '#7b2ff7', '#ffd1e0'] },
   [BROOM]:      { cls: 'broom',      hp: 1, pts: 100, shards: ['#e8c25a', '#b8892e', '#8d5a27', '#f2dc8a'] },
@@ -1996,6 +2013,7 @@ function createBox(r, c, type) {
   if (type === STONEFROG) inner = SFROG_SVG + '<i class="sfglow"></i>';
   if (type === WALL) inner = '<i class="plate"></i>';
   if (type === STONEWALL) inner = SWALL_SVG;
+  if (type === CARDWALL) inner = '<i class="cwall"></i><i class="tape"></i><i class="tape t2"></i>';
   if (type === CRYSTAL) inner = CRYSTAL_SVG;
   if (type === BROOM) inner = '<i class="bstand">' + BROOM_SVG + '</i>';
   if (type === BIN) inner = BIN_SVG + '<i class="lid">' + BIN_LID_SVG + '</i>';
@@ -2144,7 +2162,7 @@ function hitBox(r, c) {
        [GENERATOR]: () => { sfx.metalBreak(); sfx.slimeBreak(); },
        [NAILGUN]: () => sfx.metalBreak(), [TNT]: () => sfx.woodBreak(),
        [TESLA]: () => { sfx.lightning(); sfx.teslaZap(true); },
-       [JACK]: () => sfx.cardBreak(), [STONE]: () => sfx.stoneBreak(), [STONEPICK]: () => sfx.stoneBreak(), [MIXER]: () => sfx.metalBreak(), [MIRROR]: () => sfx.glassBreak(), [MIRROR2]: () => sfx.glassBreak(), [STONEFROG]: () => sfx.stoneBreak(), [STONEWALL]: () => sfx.stoneBreak(), [BIN]: () => sfx.binTip(), [CRYSTAL]: () => sfx.crystalBreak() })[box.type]?.();
+       [JACK]: () => sfx.cardBreak(), [STONE]: () => sfx.stoneBreak(), [STONEPICK]: () => sfx.stoneBreak(), [MIXER]: () => sfx.metalBreak(), [MIRROR]: () => sfx.glassBreak(), [MIRROR2]: () => sfx.glassBreak(), [STONEFROG]: () => sfx.stoneBreak(), [STONEWALL]: () => sfx.stoneBreak(), [CARDWALL]: () => sfx.cardBreak(), [BIN]: () => sfx.binTip(), [CRYSTAL]: () => sfx.crystalBreak() })[box.type]?.();
     if (box.type !== BROOM) shatter(r, c, box.nailgun ? ['#8fb8ec', '#5b8fd6', '#2c5394', '#f0e1b4'] : info.shards, box.type === REINFORCED || box.type === GENERATOR ? 12 : 8);
     if (box.type === NAILGUN) [[0,1],[0,-1],[1,0],[-1,0]].forEach(d => fireNail(r, c, d));   // цвяхи в усі 4 боки
     if (box.type === TNT) tntExplode(r, c);
@@ -2179,7 +2197,7 @@ function hitBox(r, c) {
       updateHud();
       return;
     }
-    if (box.type === STONEWALL && box.under) {
+    if (isCoverWall(box.type) && box.under) {
       score += info.pts; floatText('+' + info.pts, r, c, '#ffd27a');
       setTimeout(() => el.remove(), 400);
       clearLeaf(r, c);
@@ -4060,7 +4078,7 @@ function parseLevels(data) {
     const out = { name: lv.name ? String(lv.name) : '', moves, map };
     // cover — другий шар: l — кам'яна стіна поверх клітинки
     if (Array.isArray(lv.cover) && lv.cover.length === N)
-      out.cover = lv.cover.map(row => [...String(row).padEnd(N, '.').slice(0, N)].map(ch => ch === 'l' ? 'l' : '.').join(''));
+      out.cover = lv.cover.map(row => [...String(row).padEnd(N, '.').slice(0, N)].map(ch => COVER_TYPES[ch] ? ch : '.').join(''));
     // leaves — шар осіннього листя: v — клітинка вкрита листям
     if (Array.isArray(lv.leaves) && lv.leaves.length === N)
       out.leaves = lv.leaves.map(row => [...String(row).padEnd(N, '.').slice(0, N)].map(ch => ch === 'v' ? 'v' : '.').join(''));
@@ -4183,6 +4201,7 @@ const INTRO = {
   l: ["Кам'яна стіна", "Руйнується після трьох ударів. Хтозна, що може ховатися за нею…"],
   i: ['Магічний кристал', "Таємничий кристал, що від кожного удару міняє барву — від нічної сині до багрянцю. Розбийте його — і вивільніть суперсилу. Блискавки він подвоює, а слиз, павутиння й павуків довкола себе не терпить — щойно з'явиться, одразу їх знищує"],
   h: ["Мітла", "Змете зі шляху опале листя, павутиння та надокучливий слиз"],
+  u: ['Картонна стіна', 'Легенька перегородка — розлетиться від першого ж удару. Але хтозна, що за нею…'],
   d: ["Сміттєбак із листям", "Наповнений ущерть осіннім листям. Перевернути його було б украй необачно…"],
   v: ['Осіннє листя', 'Мальовничий осінній килим, що вперто заважає вашим планам'],
 };
@@ -4196,7 +4215,7 @@ function introTile(ch) {
     g = createGem(0, 0, ch === 'v' ? 2 : 0);
     if (ch === 'x') addWeb(g);
   } else {
-    g = createBox(0, 0, ch === 'l' ? STONEWALL : BOX_CHARS[ch]);
+    g = createBox(0, 0, COVER_TYPES[ch] ?? BOX_CHARS[ch]);
     if (ch === 'n') g.el.classList.add('ng-box');
   }
   tile.appendChild(g.el);   // createGem/createBox кладуть елемент на поле — переносимо у вікно
@@ -4212,7 +4231,7 @@ function showIntro(def) {
   // лише те, що гравець бачить на старті (під кам'яною стіною — секрет)
   const found = new Set();
   def.map.forEach((row, r) => [...row].forEach((ch, c) => {
-    if (def.cover?.[r][c] === 'l' && ch !== 'o') found.add('l');
+    if (COVER_TYPES[def.cover?.[r][c]] && ch !== 'o') found.add(def.cover[r][c]);
     else if (INTRO[ch]) found.add(ch);
     if (def.leaves?.[r][c] === 'v' && ch !== 'a') found.add('v');
   }));
