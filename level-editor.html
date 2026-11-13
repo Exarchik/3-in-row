@@ -114,6 +114,8 @@
     background: repeating-linear-gradient(45deg, rgba(255,255,255,.08) 0 3px, transparent 3px 8px), linear-gradient(135deg, #6b747e, #3d444c 60%, #4c5560);
     box-shadow: inset 0 0 0 2px #23272e;
   }
+  .k-G .t { inset: 40% 10% 20%; border-radius: 3px 3px 8px 8px; background: #3d444c; box-shadow: 0 -3px 0 #ff7a1a; opacity: .7; }
+  .k-K .t { inset: 30% 12% 8%; border-radius: 3px 3px 10px 10px; background: repeating-linear-gradient(0deg, #c8954a 0 5px, #8d5a27 5px 7px); opacity: .6; }
   .k-i .t { inset: 8% 22%; clip-path: polygon(50% 0, 100% 35%, 85% 100%, 15% 100%, 0 35%); background: linear-gradient(135deg, #4a6cff, #1c2e9e 55%, #0e1866); filter: drop-shadow(0 0 4px #4a6cff); }
   .k-h .t { inset: 10%; border-radius: 6px; background: linear-gradient(135deg, #f2dc8a, #b8892e); opacity: .55; }
   .k-d .t { inset: 14% 20% 6%; border-radius: 4px 4px 8px 8px; background: repeating-linear-gradient(90deg, #5f8a5a 0 6px, #3d5c3a 6px 8px); box-shadow: 0 -4px 0 #e8742a, 0 0 0 2px #2e4a2c; }
@@ -278,7 +280,7 @@
     <p class="hint">
       Клік або протягування — малювати вибраним інструментом.<br>
       Права кнопка миші — стерти (поставити звичайну фішку).<br>
-      Клавіші 0–9, E, O, J, K, Q, M, B, Z, Y, F, A, L, U, D, V, H, I — швидкий вибір інструмента, Ctrl+Z / Ctrl+Y — скасувати / повторити.
+      Клавіші 0–9, E, O, J, K, Q, M, B, Z, Y, F, A, L, U, D, V, H, I, Shift+K, Shift+G — швидкий вибір інструмента, Ctrl+Z / Ctrl+Y — скасувати / повторити.
     </p>
     <div class="drops" id="drops">
       <h2>🤡 Що може випасти зі шкатулки з клоуном</h2>
@@ -327,13 +329,15 @@ const TOOLS = [
   { ch: 'd', name: 'Сміттєбак з листям', ico: '🗑️' },
   { ch: 'h', name: 'Мітла', ico: '🧹' },
   { ch: 'i', name: 'Магічний кристал', ico: '' },
+  { ch: 'K', name: 'Кошик з овочами', ico: '🧺' },
+  { ch: 'G', name: 'Мангал', ico: '🔥' },
   { ch: 'v', name: 'Осіннє листя (під фішками)', ico: '🍂' },
 ];
 const CHARS = TOOLS.map(t => t.ch).join('');
-const MINI = { '.': '', u: '#d9a868', i: '#4a26b4', h: '#e8c25a', l: '#a39a8e', d: '#5f8a5a', v: '#d9822b', f: '#6c717b', a: '#2a2f36', z: '#9fd2f0', y: '#e9e4d8', b: '#b8c0c8', m: '#f2a33a', k: '#8a8f98', q: '#b8bdc5', j: '#ffcc33', o: '#2a2f35', e: '#7cc8ff', c: '#c99357', n: '#5b8fd6', w: '#8d5a27', t: '#d23a2a', r: '#9aa5b1', s: '#5fc93a', g: '#3e454e', x: '#e8e8ff', p: '#c0303a' };
+const MINI = { '.': '', G: '#3d444c', K: '#c8954a', u: '#d9a868', i: '#4a26b4', h: '#e8c25a', l: '#a39a8e', d: '#5f8a5a', v: '#d9822b', f: '#6c717b', a: '#2a2f36', z: '#9fd2f0', y: '#e9e4d8', b: '#b8c0c8', m: '#f2a33a', k: '#8a8f98', q: '#b8bdc5', j: '#ffcc33', o: '#2a2f35', e: '#7cc8ff', c: '#c99357', n: '#5b8fd6', w: '#8d5a27', t: '#d23a2a', r: '#9aa5b1', s: '#5fc93a', g: '#3e454e', x: '#e8e8ff', p: '#c0303a' };
 const LEGEND = {
   '.': 'фішка', c: 'картонна коробка', n: 'синя коробка з цвяхозабивачем', w: "дерев'яний ящик", t: 'ящик TNT',
-  r: 'армований ящик', s: 'слиз', g: 'слизогенератор', x: 'фішка в павутині', p: 'павук на фішці', e: 'електрогенератор', o: 'металеве ядро', j: 'шкатулка з клоуном', k: 'камінь', q: 'камінь з кіркою', m: 'бетономішалка', b: 'робот', z: 'армоване дзеркало', y: 'армоване дзеркало 2 (з простирадлом)', f: 'кам\'яна жаба', a: 'броньована стіна', l: 'кам\'яна стіна', u: 'картонна стіна', d: 'сміттєбак з листям', h: 'мітла', i: 'магічний кристал', v: 'осіннє листя',
+  r: 'армований ящик', s: 'слиз', g: 'слизогенератор', x: 'фішка в павутині', p: 'павук на фішці', e: 'електрогенератор', o: 'металеве ядро', j: 'шкатулка з клоуном', k: 'камінь', q: 'камінь з кіркою', m: 'бетономішалка', b: 'робот', z: 'армоване дзеркало', y: 'армоване дзеркало 2 (з простирадлом)', f: 'кам\'яна жаба', a: 'броньована стіна', l: 'кам\'яна стіна', u: 'картонна стіна', d: 'сміттєбак з листям', h: 'мітла', i: 'магічний кристал', K: 'кошик з овочами', G: 'мангал', v: 'осіннє листя',
 };
 
 // Стартовий набір — ті самі рівні, що вбудовані в гру
@@ -356,7 +360,7 @@ const DEFAULT = [
 let levels = JSON.parse(JSON.stringify(DEFAULT));
 // { символ: з якого рівня, 0 — ніколи } або null — автоматично
 let jackDrops = null;
-const DROP_CHARS = ['c', 'n', 'w', 't', 'r', 's', 'g', 'x', 'p', 'e', 'o', 'k', 'q', 'm', 'b', 'z', 'y', 'f', 'd', 'h', 'i'];
+const DROP_CHARS = ['c', 'n', 'w', 't', 'r', 's', 'g', 'x', 'p', 'e', 'o', 'k', 'q', 'm', 'b', 'z', 'y', 'f', 'd', 'h', 'i', 'K'];
 let cur = 0, tool = 'c', dirty = false, fileName = 'levels.json';
 const undoStack = [], redoStack = [];
 
@@ -496,6 +500,8 @@ function warningsFor(lv) {
   const cnt = obstacles(lv);
   if (!cnt) w.push('немає перешкод — рівень буде пройдено одразу');
   if (lv.moves < 5) w.push('дуже мало ходів');
+  const grills = lv.map.join('').split('G').length - 1, baskets = lv.map.join('').split('K').length - 1;
+  if (grills && baskets * 10 < grills * 10) w.push(`мангалів: ${grills}, а кошиків: ${baskets} — овочів (по 10 у кошику) не вистачить, щоб наповнити всі мангали`);
   const free = lv.map.join('').split('').filter((ch, i) => ch === '.' && !coverAt(lv, Math.floor(i / N), i % N)).length;
   if (free < 12) w.push('замало вільних фішок — гравцю буде важко ходити');
   // ядро має мати змогу впасти до дна: під ним лише звичайні фішки або інші ядра
@@ -646,6 +652,8 @@ document.addEventListener('keydown', e => {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); e.shiftKey ? redo() : undo(); }
   else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') { e.preventDefault(); redo(); }
+  else if (e.key === 'K' || e.key === 'Л') { tool = 'K'; renderPalette(); }
+  else if (e.key === 'G' || e.key === 'П') { tool = 'G'; renderPalette(); }
   else if (/^[0-9]$/.test(e.key) && TOOLS[+e.key]) { tool = TOOLS[+e.key].ch; renderPalette(); }
   else if (e.key.toLowerCase() === 'e' || e.key.toLowerCase() === 'у') { tool = 'e'; renderPalette(); }
   else if (e.key.toLowerCase() === 'o' || e.key.toLowerCase() === 'щ') { tool = 'o'; renderPalette(); }

@@ -640,6 +640,50 @@
   .leaf.gone svg { animation: leafGone .45s ease-in forwards; }
   @keyframes leafGone { to { transform: translate(8px, -16px) rotate(70deg) scale(1.3); opacity: 0; } }
 
+  /* ===== Мангал ===== */
+  .grill .crate { background: none; box-shadow: none; inset: 1px; }
+  .grill .grl { inset: 0; width: 100%; height: 100%; filter: drop-shadow(0 3px 3px rgba(0,0,0,.5)); }
+  .grill .sk, .grill .coals, .grill .flames { opacity: 0; transition: opacity .3s; }
+  .box.grill.k1 .s1, .box.grill.k2 .s2, .box.grill.k3 .s3, .box.grill.k4 .s4, .box.grill.k5 .s5 { opacity: 1; }
+  .box.grill.hot .coals { opacity: 1; animation: coalGlow .8s ease-in-out infinite alternate; }
+  .box.grill.hot .flames { opacity: 1; animation: flameFlick .3s ease-in-out infinite alternate; transform-origin: 50% 60%; }
+  @keyframes coalGlow { to { filter: brightness(1.4); } }
+  @keyframes flameFlick { to { transform: scaleY(1.15) scaleX(.94); } }
+  .box.grill.full .coals { opacity: .45; filter: grayscale(.6); }
+  .box.grill.full .crate { animation: crQuake .5s linear infinite; }
+  .box.grill.gulp .grl { animation: grillGulp .3s; }
+  @keyframes grillGulp { 40% { transform: scale(1.12, .92); } }
+  .box.grill.tink .crate { animation: tink .22s; }
+  .grill .gsmoke { left: 30%; top: -10%; width: 40%; height: 40%; opacity: 0; }
+  .box.grill.full .gsmoke { opacity: 1; }
+  .grill .gsmoke i { position: absolute; left: 30%; bottom: 0; width: 40%; aspect-ratio: 1; border-radius: 50%; background: rgba(200,200,210,.55); animation: smokeUp 1.6s ease-out infinite; }
+  .grill .gsmoke i:nth-child(2) { animation-delay: .55s; left: 10%; }
+  .grill .gsmoke i:nth-child(3) { animation-delay: 1.1s; left: 50%; }
+  @keyframes smokeUp { from { transform: translateY(0) scale(.5); opacity: .8; } to { transform: translateY(-120%) scale(1.6); opacity: 0; } }
+
+  /* ===== Кошик з овочами й овочі ===== */
+  .basket .crate { background: none; box-shadow: none; inset: 1px; }
+  .basket .bsk { inset: 0; width: 100%; height: 100%; filter: drop-shadow(0 3px 3px rgba(0,0,0,.5)); }
+  .basket .pile { transition: opacity .3s, transform .3s; transform-origin: 50% 60%; }
+  .box.basket.less1 .p3, .box.basket.less2 .p3, .box.basket.less2 .p2 { opacity: 0; transform: translateY(-14px) scale(.6); }
+  .gem.veg { padding: 0; }   /* овоч займає всю клітинку, як велика фішка */
+  .gem.veg .face { background: none; border-radius: 0; transform: scale(1.08); box-shadow: none; }
+  .gem.veg.pop .face { animation: vegShock .3s; }   /* овоч не лопається — тремтить і вилітає */
+  @keyframes vegShock { 30% { transform: scale(1.3) rotate(-12deg); } 70% { transform: scale(1.25) rotate(10deg); } }
+  .gem.veg .face svg, .vegFly svg, .vegToss svg { width: 100%; height: 100%; display: block; overflow: visible; filter: drop-shadow(0 2px 2px rgba(0,0,0,.4)); }
+  .gem.veg .eyes, .vegToss .eyes { animation: vegBlink 4s infinite; }
+  @keyframes vegBlink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(.1); } }
+  .vegToss {
+    position: absolute; left: 0; top: 0; width: var(--cell); height: var(--cell); padding: 0; z-index: 18; pointer-events: none;
+    transition: transform .6s cubic-bezier(.3,-0.4,.5,1.2);
+  }
+  .vegFly {
+    position: fixed; z-index: 100; pointer-events: none; padding: 0;
+    transition: transform 1.1s cubic-bezier(.2,.6,.4,1);
+  }
+  .vegFly .eyes { transform: scaleY(1.25); }
+  .vegFly .face { box-shadow: none; background: none; border-radius: 0; }   /* без квадратної тіні фішки */
+
   /* ===== Магічний кристал ===== */
   .crystal .crate { background: none; box-shadow: none; inset: 1px; }
   .crystal .gemc { inset: 0; width: 100%; height: 100%; filter: drop-shadow(0 0 6px var(--c2)) drop-shadow(0 3px 3px rgba(0,0,0,.5)); }
@@ -1040,6 +1084,8 @@
     💎 магічний кристал — 8 ударів; з кожним змінює колір від темно-синього до багряно-червоного, останні удари — з тріщинами й дрижанням. Розбитий, лишає випадкову суперкомбінацію (червону жабу, фіолетову блискавку або велику бомбу), яка одразу спрацьовує. Кірка вважає його каменем. Кожна блискавка, що влучила в кристал, породжує ще одну — зелену, поперек; зелена блискавка інших кристалів не зачіпає. У зоні 3×3 довкола кристала не з'являються слиз і павутина, а павук, що туди заліз, гине. Якщо кристал з'являється посеред гри (з-під кам'яної стіни чи від клоуна), він одразу знищує павутину, слиз і павуків у своїй зоні<br>
     🧹 мітла — від 1 удару злітає і летить по прямій, вичищаючи листя, слиз і павутину (фішки лишаються). Напрямок обирає за пріоритетом: найбільше листя, потім слизу, потім павутини, потім інших мітел, потім довший шлях. Інші мітли пролітає наскрізь, зачіпаючи їх (вони теж злітають). Наткнувшись на іншу перешкоду, розвертається; долетівши до стінки (краю поля чи броньованої стіни) — з хрустом ламається<br>
     🗑️ сміттєбак — 2 удари: спершу відлітає кришка, потім бак перекидається, засипає листям зону 5×5 і зникає<br>
+    🔥 мангал — невразливий, доки на нього не потрапить 10 овочів: кожен прибраний овоч летить на найближчий мангал, якому ще треба овочів. 1-й овоч — шампур і жар, кожні наступні 2 — ще шампур (до 5). На 10-му вогонь згасає, мангал димить і стає вразливим: 1 удар — вибух 3×3, а овочі з шампурів з криком розлітаються<br>
+    🧺 кошик з овочами — 3 удари: після 1-го і 2-го з нього вилітає по 3 овочі різних кольорів, після 3-го — ще 4, і кошик зникає. Овочі падають на випадкові фішки й заміняють їх: збираються в комбінації як фішки свого кольору (🍅 червона, 🌽 жовта, 🥦 зелена, 🥬 блакитна, 🍆 фіолетова, 🫑 помаранчева). Знищений овоч з криком вилітає за межі екрана. Овочі змітають мітла, робот (і пробігаючи, і цвяхом), цвяхи цвяхозабивача, слиз і металеве ядро, що падає; дротик теж може вибити овоч, а павук — накрити його павутиною. Для перемоги треба прибрати зі столу всі овочі<br>
     📦 картонна стіна — як кам'яна (може ховати під собою перешкоду), але ламається з 1 удару<br>
     🧱 кам'яна стіна — 3 удари; може ховати під собою іншу перешкоду — що саме, дізнаєтесь, лише зруйнувавши стіну. Поки стіну не зруйновано, схована перешкода ніяк себе не проявляє<br>
     🧱 броньована стіна — нічим не зруйнувати; це лише обмеження поля, її не треба знищувати для перемоги<br>
@@ -1205,6 +1251,16 @@ const sfx = {
     tone(strong ? 700 : 1100, { dur: strong ? 0.3 : 0.15, vol: strong ? 0.05 : 0.03, type: 'square', slide: 1.5 });
     noise(strong ? 0.2 : 0.1, strong ? 0.1 : 0.05, 6000);
   },
+  // овоч кричить: «А-а-а!» — кожен своїм голосом
+  vegScream: t => {
+    const f = 520 + (t ?? 0) * 70 + Math.random() * 60;
+    tone(f, { dur: 0.18, vol: 0.06, type: 'sawtooth', slide: 1.7 });
+    tone(f * 1.7, { dur: 0.45, vol: 0.05, type: 'square', slide: 0.45, delay: 0.16 });
+    tone(f * 1.72, { dur: 0.45, vol: 0.025, type: 'sawtooth', slide: 0.44, delay: 0.17 });
+  },
+  sizzle: full => { noise(0.35, 0.06, 6000); tone(full ? 300 : 180, { dur: 0.2, vol: 0.05, type: 'triangle', slide: full ? 1.5 : 0.8, delay: 0.05 }); },
+  vegToss: () => { [0, 1, 2].forEach(i => tone(400 + i * 120, { dur: 0.12, vol: 0.05, type: 'triangle', slide: 1.5, delay: i * 0.08 })); },
+  vegLand: i => { tone(300 - i * 20, { dur: 0.1, vol: 0.08, type: 'sine', slide: 0.6 }); },
   crystalHit: dmg => { tone(900 + dmg * 120, { dur: 0.25, vol: 0.05, type: 'triangle' }); tone(1800 + dmg * 240, { dur: 0.18, vol: 0.025, delay: 0.04 }); if (dmg >= 6) noise(0.08, 0.05, 2500); },
   crystalBreak: () => { [0, 1, 2, 3, 4, 5].forEach(i => tone(1400 + i * 300, { dur: 0.3, vol: 0.04, type: 'triangle', delay: i * 0.05 })); noise(0.3, 0.12, 4500); },
   crystalZap: () => { tone(1500, { dur: 0.12, vol: 0.05, type: 'sawtooth', slide: 0.4 }); },
@@ -1255,13 +1311,13 @@ const sfx = {
 // ===== Гра =====
 const N = 8, TYPES = 6;
 const RAINBOW = 6, BOMB = 7, LIGHTNING = 8, FROG = 9;
-const CARDBOARD = 10, WOOD = 11, REINFORCED = 12, SLIME = 13, GENERATOR = 14, NAILGUN = 15, TNT = 16, TESLA = 17, CORE = 18, JACK = 19, STONE = 20, STONEPICK = 21, MIXER = 22, ROBOT = 23, MIRROR = 24, MIRROR2 = 25, STONEFROG = 26, WALL = 27, STONEWALL = 28, BIN = 29, BROOM = 30, CRYSTAL = 31, CARDWALL = 32;
+const CARDBOARD = 10, WOOD = 11, REINFORCED = 12, SLIME = 13, GENERATOR = 14, NAILGUN = 15, TNT = 16, TESLA = 17, CORE = 18, JACK = 19, STONE = 20, STONEPICK = 21, MIXER = 22, ROBOT = 23, MIRROR = 24, MIRROR2 = 25, STONEFROG = 26, WALL = 27, STONEWALL = 28, BIN = 29, BROOM = 30, CRYSTAL = 31, CARDWALL = 32, BASKET = 33, GRILL = 34;
 // стіни-покриття (шар cover): l — кам'яна, u — картонна; під ними може ховатися перешкода
 const COVER_TYPES = { l: STONEWALL, u: CARDWALL };
 const isCoverWall = t => t === STONEWALL || t === CARDWALL;
 const isMirror = t => t === MIRROR || t === MIRROR2;
 // перешкода, якій зараз можна завдати шкоди
-const damageable = g => isObstacle(g) && g.type !== CORE && g.type !== WALL && !(g.type === STONEFROG && !g.armed) && !g.mixing && !g.final && !(isMirror(g.type) && !g.glass);
+const damageable = g => isObstacle(g) && g.type !== CORE && g.type !== WALL && !(g.type === GRILL && !g.full) && !(g.type === STONEFROG && !g.armed) && !g.mixing && !g.final && !(isMirror(g.type) && !g.glass);
 const isNormal = t => t >= 0 && t < TYPES;   // -1 — фішку вже «затягнула» бетономішалка
 const isSpecial = t => t >= RAINBOW && t <= FROG;
 const isBox = t => t >= CARDBOARD;
@@ -1346,7 +1402,7 @@ function createGem(r, c, type, fromRow = r) {
   return gem;
 }
 
-const BOX_CHARS = { c: CARDBOARD, n: CARDBOARD, w: WOOD, r: REINFORCED, s: SLIME, g: GENERATOR, t: TNT, e: TESLA, o: CORE, j: JACK, k: STONE, q: STONEPICK, m: MIXER, b: ROBOT, z: MIRROR, y: MIRROR2, f: STONEFROG, a: WALL, d: BIN, h: BROOM, i: CRYSTAL };
+const BOX_CHARS = { c: CARDBOARD, n: CARDBOARD, w: WOOD, r: REINFORCED, s: SLIME, g: GENERATOR, t: TNT, e: TESLA, o: CORE, j: JACK, k: STONE, q: STONEPICK, m: MIXER, b: ROBOT, z: MIRROR, y: MIRROR2, f: STONEFROG, a: WALL, d: BIN, h: BROOM, i: CRYSTAL, K: BASKET, G: GRILL };
 function startLevel(i) {
   level = i;
   const def = LEVELS[i] || randomLevel();
@@ -1358,6 +1414,8 @@ function startLevel(i) {
   pendingSpill.length = 0;
   pendingBroom.length = 0;
   pendingBolts.length = 0;
+  pendingVeg.length = 0;
+  document.querySelectorAll('.vegFly').forEach(e => e.remove());
   leaves = [...Array(N)].map(() => Array(N).fill(null));
   pendingMixer.length = 0;
   pendingSuck.length = 0;
@@ -1546,7 +1604,7 @@ function planSpecials(runs, squares, swap) {
 }
 
 function removeCells(cells) {
-  cells.forEach(([r, c]) => { if (grid[r][c]) { grid[r][c].el.remove(); grid[r][c] = null; clearLeaf(r, c); } });
+  cells.forEach(([r, c]) => { if (grid[r][c]) { removeGemEl(grid[r][c]); grid[r][c] = null; clearLeaf(r, c); } });
 }
 
 // Гравітація + нові фішки. Ящики стоять на місці і ділять стовпчик на відрізки:
@@ -1556,6 +1614,17 @@ function collapse() {
   sweepBroken();
   applyPendingFill();
   applyPendingClear();
+  // металеве ядро падає крізь овочі: змітає їх, доки не сяде на справжню фішку
+  for (let c = 0; c < N; c++) for (let r = N - 2; r >= 0; r--) {
+    const core = grid[r][c];
+    if (!core || core.type !== CORE || core.broken) continue;
+    for (let k = r + 1; k < N; k++) {
+      const g = grid[k][c];
+      if (!g) continue;
+      if (!g.veg || locked(g)) break;
+      removeGemEl(g); grid[k][c] = null; clearLeaf(k, c); score += 10;
+    }
+  }
   const mono = monoNext;
   monoNext = null;
   let created = 0;
@@ -1605,6 +1674,8 @@ const BOX_INFO = {
   [MIRROR]:     { cls: 'mirror',     hp: 1, pts: 120, shards: ['#e6f6ff', '#9fd2f0', '#ffffff', '#6aa8d8'] },
   [MIRROR2]:    { cls: 'mirror',     hp: 1, pts: 160, shards: ['#e6f6ff', '#9fd2f0', '#ffffff', '#6aa8d8'] },
   [STONEFROG]:  { cls: 'stonefrog',  hp: 1, pts: 300, shards: ['#9a9fa8', '#6c717b', '#4a4e56', '#ff9a3a'] },
+  [GRILL]:      { cls: 'grill',      hp: 1, pts: 500, shards: ['#2b2b2b', '#5d6772', '#ff7a1a', '#ffcc33'] },
+  [BASKET]:     { cls: 'basket',     hp: 3, pts: 200, shards: ['#c8954a', '#8d5a27', '#e8402a', '#6bff95', '#ffe66d'] },
   [CARDWALL]:   { cls: 'cardwall',   hp: 1, pts: 60,  shards: ['#e2b77a', '#c99357', '#94632e', '#f0e1b4'] },
   [STONEWALL]:  { cls: 'stonewall',  hp: 3, pts: 120, shards: ['#a39a8e', '#7d746a', '#5a534b', '#c9c1b5'] },
   [CRYSTAL]:    { cls: 'crystal',    hp: 8, pts: 400, shards: ['#ff6b9a', '#c0103a', '#7b2ff7', '#ffd1e0'] },
@@ -1683,6 +1754,226 @@ const STONE_SVG = '<svg class="rock" viewBox="0 0 100 100"><defs>' +
   '<polyline class="c1" points="44,16 50,34 42,46 54,58"/>' +
   '<polyline class="c2" points="82,32 68,44 74,56 60,66 64,84"/>' +
   '<polyline class="c3" points="14,62 30,56 36,68 48,72 46,88"/></svg>';
+// ===================== Кошик з овочами =====================
+// Колір фішки → овоч: 0 червона — томат, 1 жовта — кукурудза, 2 зелена — броколі,
+// 3 блакитна — синя капуста, 4 фіолетова — баклажан, 5 помаранчева — болгарський перець
+const VEG_NAMES = ['томат', 'кукурудза', 'броколі', 'капуста', 'баклажан', 'перець'];
+const VEG_EYES = (y, k = 1) => `<g class="eyes" style="transform-origin: 50px ${y}px">` +
+  `<ellipse cx="${50 - 9 * k}" cy="${y}" rx="${6 * k}" ry="${7 * k}" fill="#fff"/><ellipse cx="${50 + 9 * k}" cy="${y}" rx="${6 * k}" ry="${7 * k}" fill="#fff"/>` +
+  `<circle cx="${51 - 9 * k}" cy="${y + 1}" r="${3.2 * k}" fill="#1b1b1b"/><circle cx="${51 + 9 * k}" cy="${y + 1}" r="${3.2 * k}" fill="#1b1b1b"/>` +
+  `<circle cx="${52 - 9 * k}" cy="${y - 1}" r="${1.1 * k}" fill="#fff"/><circle cx="${52 + 9 * k}" cy="${y - 1}" r="${1.1 * k}" fill="#fff"/></g>`;
+const VEG_SVG = [
+  // 0 томат
+  '<svg viewBox="0 0 100 100"><defs><radialGradient id="vg0" cx=".35" cy=".35" r=".8"><stop offset="0" stop-color="#ff8a7a"/><stop offset=".55" stop-color="#e8402a"/><stop offset="1" stop-color="#a8231a"/></radialGradient></defs>' +
+  '<ellipse cx="50" cy="58" rx="40" ry="35" fill="url(#vg0)"/><path d="M30,36 Q40,48 50,40 Q60,48 70,36" fill="none" stroke="#b02a1c" stroke-width="2" opacity=".5"/>' +
+  '<path d="M50,26 L40,16 L46,28 L30,24 L44,32 L36,40 L50,34 L64,40 L56,32 L70,24 L54,28 L60,16 Z" fill="#3fae2e" stroke="#2a7a1e" stroke-width="1.5"/>' +
+  '<rect x="48" y="10" width="4" height="12" rx="2" fill="#2a7a1e"/>' + VEG_EYES(58) + '</svg>',
+  // 1 кукурудза
+  '<svg viewBox="0 0 100 100"><defs><linearGradient id="vg1" x1="0" x2="1"><stop offset="0" stop-color="#ffe66d"/><stop offset="1" stop-color="#f0b020"/></linearGradient>' +
+  '<pattern id="vk1" width="9" height="9" patternUnits="userSpaceOnUse"><rect width="9" height="9" fill="url(#vg1)"/><rect x="1" y="1" width="7" height="7" rx="3" fill="#fff3a8" opacity=".55"/></pattern></defs>' +
+  '<ellipse cx="50" cy="48" rx="20" ry="40" fill="url(#vk1)" stroke="#d08f10" stroke-width="2"/>' +
+  '<path d="M50,96 Q22,80 24,44 Q34,70 46,86 Z" fill="#6bd04a" stroke="#3f8f2a" stroke-width="2"/>' +
+  '<path d="M50,96 Q78,80 76,44 Q66,70 54,86 Z" fill="#58b83c" stroke="#3f8f2a" stroke-width="2"/>' + VEG_EYES(42, .85) + '</svg>',
+  // 2 броколі
+  '<svg viewBox="0 0 100 100"><path d="M40,58 L36,94 Q50,98 64,94 L60,58 Z" fill="#b8e68a" stroke="#6f9e44" stroke-width="2"/>' +
+  '<g fill="#3fae2e" stroke="#25752a" stroke-width="2"><circle cx="28" cy="42" r="16"/><circle cx="72" cy="42" r="16"/><circle cx="50" cy="28" r="20"/><circle cx="50" cy="52" r="18"/><circle cx="34" cy="58" r="12"/><circle cx="66" cy="58" r="12"/></g>' +
+  '<g fill="#6bff95" opacity=".55"><circle cx="44" cy="22" r="4"/><circle cx="24" cy="38" r="3"/><circle cx="66" cy="36" r="3"/></g>' + VEG_EYES(46) + '</svg>',
+  // 3 синя капуста: качан, обгорнутий листям
+  '<svg viewBox="0 0 100 100"><defs><radialGradient id="vg3" cx=".45" cy=".35" r=".75"><stop offset="0" stop-color="#c4e6ff"/><stop offset=".55" stop-color="#5aa8e6"/><stop offset="1" stop-color="#2a6aa8"/></radialGradient>' +
+  '<linearGradient id="vl3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fc0f0"/><stop offset="1" stop-color="#2f6fae"/></linearGradient></defs>' +
+  // зовнішнє листя з хвилястим краєм
+  '<path d="M50,96 Q14,96 4,66 Q0,48 12,40 Q10,52 18,58 Q16,44 26,36 Q30,60 50,70 Q70,60 74,36 Q84,44 82,58 Q90,52 88,40 Q100,48 96,66 Q86,96 50,96 Z" fill="url(#vl3)" stroke="#1d4f80" stroke-width="2"/>' +
+  // качан
+  '<circle cx="50" cy="46" r="31" fill="url(#vg3)" stroke="#1d4f80" stroke-width="2"/>' +
+  // складки листків на качані
+  '<g fill="none" stroke="#1f5f96" stroke-width="2.2" stroke-linecap="round" opacity=".75">' +
+  '<path d="M22,40 Q30,22 50,20 Q42,30 44,46"/><path d="M78,40 Q70,22 50,20"/><path d="M74,52 Q66,40 56,44"/><path d="M26,56 Q36,48 44,56"/></g>' +
+  '<g fill="none" stroke="#e4f4ff" stroke-width="2" stroke-linecap="round" opacity=".6"><path d="M32,28 Q40,22 48,23"/></g>' +
+  // передній лист, що обгортає качан, з прожилками
+  '<path d="M16,70 Q30,58 50,64 Q70,58 84,70 Q78,92 50,94 Q22,92 16,70 Z" fill="#6fb6ec" stroke="#1d4f80" stroke-width="2"/>' +
+  '<g fill="none" stroke="#d4ecff" stroke-width="1.8" stroke-linecap="round" opacity=".85"><path d="M50,66 V92"/><path d="M50,74 L36,70"/><path d="M50,74 L64,70"/><path d="M50,83 L32,80"/><path d="M50,83 L68,80"/></g>' +
+  VEG_EYES(44) + '</svg>',
+  // 4 баклажан
+  '<svg viewBox="0 0 100 100"><defs><linearGradient id="vg4" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c47bf0"/><stop offset=".5" stop-color="#7b2fb0"/><stop offset="1" stop-color="#4a1470"/></linearGradient></defs>' +
+  '<path d="M44,22 Q24,30 22,58 Q20,92 50,94 Q80,92 78,64 Q76,40 58,22 Z" fill="url(#vg4)" stroke="#3a0f58" stroke-width="2"/>' +
+  '<path d="M36,22 Q50,10 64,22 Q58,30 50,26 Q42,30 36,22 Z" fill="#3fae2e" stroke="#25752a" stroke-width="2"/><rect x="47" y="4" width="6" height="14" rx="3" fill="#2a7a1e"/>' +
+  '<path d="M32,46 Q30,62 36,74" fill="none" stroke="#e2b8ff" stroke-width="3" opacity=".5" stroke-linecap="round"/>' + VEG_EYES(56) + '</svg>',
+  // 5 болгарський перець
+  '<svg viewBox="0 0 100 100"><defs><linearGradient id="vg5" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffc07a"/><stop offset=".5" stop-color="#f07a1a"/><stop offset="1" stop-color="#b84a08"/></linearGradient></defs>' +
+  '<path d="M22,40 Q20,26 36,26 Q50,20 64,26 Q80,26 78,40 Q84,64 72,86 Q62,96 50,88 Q38,96 28,86 Q16,64 22,40 Z" fill="url(#vg5)" stroke="#8a3a06" stroke-width="2"/>' +
+  '<path d="M50,30 V86" stroke="#c45a10" stroke-width="2" opacity=".5"/><path d="M50,26 Q48,12 58,6" fill="none" stroke="#2a7a1e" stroke-width="6" stroke-linecap="round"/>' +
+  '<path d="M38,26 Q50,34 62,26" fill="#3fae2e" stroke="#25752a" stroke-width="2"/>' + VEG_EYES(54) + '</svg>',
+];
+// Робить звичайну фішку овочем свого кольору
+function makeVeg(g) {
+  g.veg = true;
+  g.el.classList.add('veg');
+  g.el.innerHTML = '<div class="face">' + VEG_SVG[g.type] + '</div>';
+  const eyes = g.el.querySelector('.eyes');
+  if (eyes) eyes.style.animationDelay = (-Math.random() * 4).toFixed(2) + 's';   // кліпають не синхронно
+}
+// Знищення фішки: овоч не зникає, а з криком вилітає за межі екрана
+function removeGemEl(g) {
+  const el = g.el;
+  if (!g.veg || g.type < 0 || el.classList.contains('eaten')) { el.remove(); return; }
+  const rect = el.getBoundingClientRect();
+  const fly = el.cloneNode(true);
+  fly.className = 'vegFly';
+  Object.assign(fly.style, { left: rect.left + 'px', top: rect.top + 'px', width: rect.width + 'px', height: rect.height + 'px', transform: 'none' });
+  document.body.appendChild(fly);
+  el.remove();
+  sfx.vegScream(g.type);
+  // є мангал, якому ще треба овочів, — овоч летить на нього
+  const gr = grillTarget(rect);
+  if (gr) {
+    gr.count++;
+    const tr = gr.el.getBoundingClientRect();
+    fly.style.transition = 'transform .65s cubic-bezier(.4,-0.3,.6,1)';
+    fly.getBoundingClientRect();
+    fly.style.transform = `translate(${tr.left - rect.left}px, ${tr.top - rect.top}px) rotate(${(Math.random() < .5 ? -1 : 1) * 360}deg) scale(.45)`;
+    setTimeout(() => { fly.remove(); grillAdd(gr); }, 650);
+    return;
+  }
+  const side = Math.random() < .5 ? -1 : 1;
+  const dx = side * (innerWidth * .4 + Math.random() * innerWidth * .4);
+  const dy = -(rect.top + rect.height + 80 + Math.random() * 120);
+  fly.getBoundingClientRect();
+  fly.style.transform = `translate(${dx}px, ${dy}px) rotate(${side * (540 + Math.random() * 360)}deg) scale(1.3)`;
+  setTimeout(() => fly.remove(), 1300);
+}
+// ===================== Мангал =====================
+// Невразливий, доки на нього не потрапить 10 овочів: 1-й — шампур і жар, кожні наступні 2 — ще шампур (до 5),
+// на 10-му вогонь гасне, мангал димить і стає вразливим: 1 удар — вибух 3×3, овочі з шампурів розлітаються
+const GRILL_NEED = 10;
+const GRILL_SVG = '<svg class="grl" viewBox="0 0 100 100">' +
+  '<g stroke="#2b2b2b" stroke-width="4" stroke-linecap="round"><path d="M26,72 L18,96"/><path d="M74,72 L82,96"/><path d="M50,74 V96"/></g>' +
+  '<g class="coals"><ellipse cx="50" cy="60" rx="34" ry="7" fill="#ff7a1a"/><circle cx="34" cy="58" r="5" fill="#ffcc33"/><circle cx="52" cy="57" r="4" fill="#ffe680"/><circle cx="66" cy="59" r="5" fill="#ffcc33"/></g>' +
+  '<g class="flames"><path d="M30,58 Q28,44 36,38 Q36,48 42,52 Z" fill="#ff9a2a"/><path d="M48,58 Q46,40 56,34 Q55,46 60,52 Z" fill="#ffb43a"/><path d="M64,58 Q64,46 72,42 Q70,52 74,56 Z" fill="#ff8a1a"/></g>' +
+  [22, 36, 50, 64, 78].map((x, i) =>
+    `<g class="sk s${i + 1}"><path d="M${x},22 V70" stroke="#b8c0c8" stroke-width="2.5" stroke-linecap="round"/>` +
+    `<circle cx="${x}" cy="32" r="5.5" fill="${['#e8402a', '#3fae2e', '#f07a1a', '#8e44ad', '#ffd23a'][i]}"/>` +
+    `<circle cx="${x}" cy="44" r="5.5" fill="${['#ffd23a', '#e8402a', '#4fa3e0', '#3fae2e', '#f07a1a'][i]}"/>` +
+    `<circle cx="${x}" cy="56" r="5.5" fill="${['#8e44ad', '#f07a1a', '#3fae2e', '#e8402a', '#4fa3e0'][i]}"/></g>`).join('') +
+  '<path d="M10,58 H90 L84,76 Q83,80 78,80 H22 Q17,80 16,76 Z" fill="#3d444c" stroke="#1b1f24" stroke-width="2.5"/>' +
+  '<g fill="#1b1f24"><circle cx="30" cy="70" r="2.5"/><circle cx="42" cy="70" r="2.5"/><circle cx="54" cy="70" r="2.5"/><circle cx="66" cy="70" r="2.5"/></g>' +
+  '<path d="M14,61 H86" stroke="#6b747e" stroke-width="2"/></svg>';
+// кількість шампурів за кількістю овочів: 1 → 1, 3 → 2, 5 → 3, 7 → 4, 9 → 5
+const grillSkewers = n => n <= 0 ? 0 : Math.min(5, 1 + Math.floor((n - 1) / 2));
+function setGrillStage(box) {
+  const n = box.shown || 0;
+  const k = grillSkewers(n);
+  for (let i = 1; i <= 5; i++) box.el.classList.toggle('k' + i, i <= k);
+  box.full = n >= GRILL_NEED;
+  box.el.classList.toggle('hot', n > 0 && !box.full);   // жар під шампурами
+  box.el.classList.toggle('full', box.full);            // повний: вогонь згас, мангал димить
+}
+// найближчий мангал, якому ще потрібні овочі
+function grillTarget(rect) {
+  let best = null, bd = Infinity;
+  for (const g of grid.flat()) {
+    if (!g || g.type !== GRILL || g.broken || (g.count || 0) >= GRILL_NEED) continue;
+    const r = g.el.getBoundingClientRect();
+    const d = Math.hypot(r.left - rect.left, r.top - rect.top);
+    if (d < bd) { bd = d; best = g; }
+  }
+  return best;
+}
+function grillAdd(box) {
+  if (box.broken) return;
+  box.shown = (box.shown || 0) + 1;
+  setGrillStage(box);
+  box.el.classList.remove('gulp'); box.el.getBoundingClientRect(); box.el.classList.add('gulp');
+  sfx.sizzle(box.full);
+  const p = findGem(box);
+  if (p) floatText(box.full ? '🔥 Готово!' : `🍢 ${box.shown}/${GRILL_NEED}`, p[0], p[1], box.full ? '#ffcc33' : '#ffd27a');
+  updateHud();
+}
+// мангал вибухнув — овочі з шампурів з криком розлітаються за екран
+function grillBlast(box, r, c) {
+  tntExplode(r, c);
+  const rect = box.el.getBoundingClientRect();
+  const types = [0, 2, 5, 4, 1, 3, 0, 2, 5, 3];
+  types.forEach((t, i) => setTimeout(() => {
+    const f = document.createElement('div');
+    f.className = 'vegFly';
+    f.innerHTML = '<div class="face">' + VEG_SVG[t] + '</div>';
+    Object.assign(f.style, { left: rect.left + 'px', top: rect.top + 'px', width: rect.width + 'px', height: rect.height + 'px', transform: 'scale(.5)' });
+    document.body.appendChild(f);
+    const side = i % 2 ? -1 : 1;
+    f.getBoundingClientRect();
+    f.style.transform = `translate(${side * (innerWidth * .3 + Math.random() * innerWidth * .5)}px, ${-(rect.top + 200 + Math.random() * 200)}px) rotate(${side * 720}deg) scale(1.2)`;
+    if (i % 3 === 0) sfx.vegScream(t);
+    setTimeout(() => f.remove(), 1300);
+  }, i * 40));
+}
+
+// Овоч змітають (мітла, робот, цвях): одразу вилітає з криком, клітинка звільниться при наступному осіданні поля
+function vegSweep(g) {
+  if (!g || !g.veg || locked(g)) return;
+  removeGemEl(g);
+  g.veg = false;
+  if (!pendingClear.includes(g)) pendingClear.push(g);
+  score += 10;
+  updateHud();
+}
+// Кошик зачепили — з нього вилітають овочі різних кольорів і падають на випадкові фішки
+const pendingVeg = [];
+async function basketThrow({ r, c, n }) {
+  const colors = [...Array(TYPES).keys()].sort(() => Math.random() - .5).slice(0, n);
+  // куди падати: звичайні фішки, бажано так, щоб не склалась готова комбінація
+  const free = [];
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++)
+    if (grid[y][x] && isFree(y, x) && !isSpecial(grid[y][x].type)) free.push([y, x]);
+  free.sort(() => Math.random() - .5);
+  const makesRun = (y, x, t) => {
+    const T = (yy, xx) => yy >= 0 && yy < N && xx >= 0 && xx < N && grid[yy][xx] && grid[yy][xx].type === t;
+    let h = 1, v = 1;
+    for (let k = x - 1; T(y, k); k--) h++; for (let k = x + 1; T(y, k); k++) h++;
+    for (let k = y - 1; T(k, x); k--) v++; for (let k = y + 1; T(k, x); k++) v++;
+    return h >= 3 || v >= 3;
+  };
+  const picks = [];
+  colors.forEach(t => {
+    let i = free.findIndex(([y, x]) => !picks.some(p => p[0] === y && p[1] === x) && !makesRun(y, x, t));
+    if (i < 0) i = free.findIndex(([y, x]) => !picks.some(p => p[0] === y && p[1] === x));
+    if (i >= 0) picks.push([...free[i], t]);
+  });
+  if (!picks.length) return;
+  sfx.vegToss();
+  picks.forEach(([y, x, t], i) => {
+    const f = document.createElement('div');
+    f.className = 'vegToss';
+    f.innerHTML = VEG_SVG[t];
+    f.style.transform = `translate(${c * 100}%, ${r * 100}%) scale(.4)`;
+    f.style.transitionDelay = i * 0.1 + 's';
+    board.appendChild(f);
+    f.getBoundingClientRect();
+    f.style.transform = `translate(${x * 100}%, ${y * 100}%) scale(1)`;
+    setTimeout(() => {
+      f.remove();
+      const g = grid[y][x];
+      if (!g || !isFree(y, x) || isSpecial(g.type)) return;
+      g.type = t;
+      g.el.className = 'gem t' + t;
+      makeVeg(g);
+      g.el.classList.add('appear');
+      sfx.vegLand(i);
+      updateHud();
+    }, 600 + i * 100);
+  });
+  await wait(800 + picks.length * 100);
+  if (!findMove()) await shuffle();
+}
+const BASKET_SVG = '<svg class="bsk" viewBox="0 0 100 100">' +
+  '<path d="M20,46 Q50,4 80,46" fill="none" stroke="#8d5a27" stroke-width="6" stroke-linecap="round"/>' +
+  '<g class="pile p3"><circle cx="34" cy="44" r="10" fill="#e8402a"/><ellipse cx="66" cy="40" rx="7" ry="13" fill="#ffd23a"/></g>' +
+  '<g class="pile p2"><circle cx="50" cy="40" r="11" fill="#3fae2e"/><circle cx="44" cy="34" r="6" fill="#3fae2e"/><circle cx="56" cy="34" r="6" fill="#3fae2e"/></g>' +
+  '<g class="pile p1"><ellipse cx="38" cy="50" rx="11" ry="8" fill="#8e44ad"/><circle cx="62" cy="50" r="10" fill="#4fa3e0"/><path d="M48,52 Q46,40 56,42 Q60,52 52,56 Z" fill="#f07a1a"/></g>' +
+  '<path d="M14,50 H86 L78,90 Q77,94 72,94 H28 Q23,94 22,90 Z" fill="#c8954a" stroke="#6b4318" stroke-width="2.5"/>' +
+  '<g stroke="#8d5a27" stroke-width="2.5" fill="none"><path d="M18,62 H82"/><path d="M20,74 H80"/><path d="M22,86 H78"/>' +
+  '<path d="M32,50 L34,94"/><path d="M50,50 V94"/><path d="M68,50 L66,94"/></g>' +
+  '<rect x="12" y="46" width="76" height="8" rx="4" fill="#a8733a" stroke="#6b4318" stroke-width="2"/></svg>';
+
 // Магічний кристал: 8 ударів, колір від темно-синього до багряного
 const CRYSTAL_SVG = '<svg class="gemc" viewBox="0 0 100 100">' +
   '<path class="f2" d="M30,92 L18,58 L30,40 L42,60 Z"/>' +
@@ -1798,7 +2089,7 @@ const broomBlocks = g => !g || (isBox(g.type) && !g.broken && g.type !== SLIME &
 function broomScan(r, c, [dr, dc]) {
   const path = [];
   // що є на прямій: листя, слиз, павутина, інші мітли
-  const n = { lf: 0, sl: 0, wb: 0, bm: 0 };
+  const n = { lf: 0, sl: 0, wb: 0, bm: 0, vg: 0 };
   let y = r + dr, x = c + dc;
   while (y >= 0 && y < N && x >= 0 && x < N && !broomBlocks(grid[y][x])) {
     const g = grid[y][x];
@@ -1807,6 +2098,7 @@ function broomScan(r, c, [dr, dc]) {
     if (g.type === SLIME && !g.broken) n.sl++;
     if (g.web && !g.spider && !g.eggs) n.wb++;
     if (g.type === BROOM && !g.broken) n.bm++;
+    if (g.veg && !locked(g)) n.vg++;
     y += dr; x += dc;
   }
   const out = y < 0 || y >= N || x < 0 || x >= N || grid[y][x]?.type === WALL;   // стінка: край поля або броньована стіна
@@ -1830,8 +2122,8 @@ async function broomRun({ el, r, c }) {
     let opts = BDIRS.filter(d => !dir || d[0] !== -dir[0] || d[1] !== -dir[1]).map(d => broomScan(r, c, d)).filter(o => o.path.length);
     if (!opts.length && dir) opts = [broomScan(r, c, [-dir[0], -dir[1]])].filter(o => o.path.length);
     if (!opts.length) break;
-    // пріоритет: листя → слиз → павутина → інші мітли → довший шлях
-    opts.sort((a, b) => b.n.lf - a.n.lf || b.n.sl - a.n.sl || b.n.wb - a.n.wb || b.n.bm - a.n.bm || b.path.length - a.path.length || Math.random() - .5);
+    // пріоритет: листя → слиз → павутина → інші мітли → овочі → довший шлях
+    opts.sort((a, b) => b.n.lf - a.n.lf || b.n.sl - a.n.sl || b.n.wb - a.n.wb || b.n.bm - a.n.bm || b.n.vg - a.n.vg || b.path.length - a.path.length || Math.random() - .5);
     const o = opts[0];
     dir = o.d;
     el.querySelector('i').style.transform = `rotate(${Math.atan2(dir[0], dir[1])}rad)`;
@@ -1863,6 +2155,7 @@ function broomSweep(y, x) {
   if (leaves[y][x]) clearLeaf(y, x);
   if (g && g.type === SLIME && !g.broken) hitBox(y, x);
   else if (g && g.web && !g.spider && !g.eggs) hitBox(y, x);
+  else if (g && g.veg && !locked(g)) vegSweep(g);   // овоч мітла змітає
   else if (g && g.type === BROOM && !g.broken) {
     // інша мітла: пролітаємо наскрізь, зачеплена теж злітає
     fx('impact', { left: `calc(var(--cell) * ${x})`, top: `calc(var(--cell) * ${y})` });
@@ -2013,6 +2306,8 @@ function createBox(r, c, type) {
   if (type === STONEFROG) inner = SFROG_SVG + '<i class="sfglow"></i>';
   if (type === WALL) inner = '<i class="plate"></i>';
   if (type === STONEWALL) inner = SWALL_SVG;
+  if (type === BASKET) inner = BASKET_SVG;
+  if (type === GRILL) inner = GRILL_SVG + '<i class="gsmoke"><i></i><i></i><i></i></i>';
   if (type === CARDWALL) inner = '<i class="cwall"></i><i class="tape"></i><i class="tape t2"></i>';
   if (type === CRYSTAL) inner = CRYSTAL_SVG;
   if (type === BROOM) inner = '<i class="bstand">' + BROOM_SVG + '</i>';
@@ -2032,6 +2327,7 @@ function createBox(r, c, type) {
   const box = { type, el, hp: BOX_INFO[type].hp, broken: false };
   // на старті рівня дзеркало повернуте склом (неармованою стороною)
   if (type === CRYSTAL) setCrystalStage(box);
+  if (type === GRILL) { box.count = 0; box.shown = 0; setGrillStage(box); }
   if (isMirror(type)) { box.glass = true; box.sheet = type === MIRROR2; el.classList.add('glass'); }
   // у дерев'яному ящику зрідка лежить бонус
   if (type === WOOD && Math.random() < 0.08) box.loot = ['hammer', 'glove', 'dart'][Math.floor(Math.random() * 3)];
@@ -2066,9 +2362,12 @@ function tearWeb(gem, r, c) {
 const locked = g => g && (g.web || g.spider || g.eggs);
 const isObstacle = g => g && ((isBox(g.type) && !g.broken) || locked(g));
 const movable = g => g && !isBox(g.type) && !locked(g);
-const isFree = (r, c) => isNormal(grid[r][c].type) && !locked(grid[r][c]);
+const isFree = (r, c) => isNormal(grid[r][c].type) && !locked(grid[r][c]) && !grid[r][c].veg;
+// те саме, але овочі теж підходять (на них може лягти слиз чи павутина)
+const isFreeV = (r, c) => isNormal(grid[r][c].type) && !locked(grid[r][c]);
 
-const boxesLeft = () => grid.flat().filter(g => isObstacle(g) && g.type !== WALL).length + leaves.flat().filter(Boolean).length;
+const boxesLeft = () => grid.flat().filter(g => isObstacle(g) && g.type !== WALL).length + leaves.flat().filter(Boolean).length +
+  grid.flat().filter(g => g && g.veg).length;
 
 function flyOff(part) {
   if (!part) return;
@@ -2116,7 +2415,7 @@ function hitBox(r, c) {
     }
   }
   if (box.type === ROBOT && box.final) return;      // уже біжить на вибух     // уже затягує фішки
-  if (box.type === WALL || (box.type === STONEFROG && !box.armed && !box.broken)) {
+  if (box.type === WALL || (box.type === STONEFROG && !box.armed && !box.broken) || (box.type === GRILL && !box.full && !box.broken)) {
     // броньована стіна і «спляча» кам'яна жаба — невразливі
     box.el.classList.remove('tink'); box.el.getBoundingClientRect(); box.el.classList.add('tink');
     const now = performance.now();
@@ -2162,7 +2461,7 @@ function hitBox(r, c) {
        [GENERATOR]: () => { sfx.metalBreak(); sfx.slimeBreak(); },
        [NAILGUN]: () => sfx.metalBreak(), [TNT]: () => sfx.woodBreak(),
        [TESLA]: () => { sfx.lightning(); sfx.teslaZap(true); },
-       [JACK]: () => sfx.cardBreak(), [STONE]: () => sfx.stoneBreak(), [STONEPICK]: () => sfx.stoneBreak(), [MIXER]: () => sfx.metalBreak(), [MIRROR]: () => sfx.glassBreak(), [MIRROR2]: () => sfx.glassBreak(), [STONEFROG]: () => sfx.stoneBreak(), [STONEWALL]: () => sfx.stoneBreak(), [CARDWALL]: () => sfx.cardBreak(), [BIN]: () => sfx.binTip(), [CRYSTAL]: () => sfx.crystalBreak() })[box.type]?.();
+       [JACK]: () => sfx.cardBreak(), [STONE]: () => sfx.stoneBreak(), [STONEPICK]: () => sfx.stoneBreak(), [MIXER]: () => sfx.metalBreak(), [MIRROR]: () => sfx.glassBreak(), [MIRROR2]: () => sfx.glassBreak(), [STONEFROG]: () => sfx.stoneBreak(), [STONEWALL]: () => sfx.stoneBreak(), [CARDWALL]: () => sfx.cardBreak(), [BASKET]: () => sfx.cardBreak(), [GRILL]: () => sfx.metalBreak(), [BIN]: () => sfx.binTip(), [CRYSTAL]: () => sfx.crystalBreak() })[box.type]?.();
     if (box.type !== BROOM) shatter(r, c, box.nailgun ? ['#8fb8ec', '#5b8fd6', '#2c5394', '#f0e1b4'] : info.shards, box.type === REINFORCED || box.type === GENERATOR ? 12 : 8);
     if (box.type === NAILGUN) [[0,1],[0,-1],[1,0],[-1,0]].forEach(d => fireNail(r, c, d));   // цвяхи в усі 4 боки
     if (box.type === TNT) tntExplode(r, c);
@@ -2209,6 +2508,8 @@ function hitBox(r, c) {
     }
     if (box.type === GENERATOR) pendingFill.push([r, c]);   // зона 3×3 заллється слизом
     if (box.type === BIN) pendingSpill.push([r, c]);        // 2: бак перекидається — листя 5×5
+    if (box.type === GRILL) grillBlast(box, r, c);          // повний мангал вибухає 3×3
+    if (box.type === BASKET) pendingVeg.push({ r, c, n: 4 });   // 3-й удар: останні 4 овочі, кошик зникає
     if (box.type === BROOM) broomLift(r, c);                // мітла злітає, полетить, коли поле вляжеться
     score += info.pts;
     floatText('+' + info.pts, r, c, '#ffd27a');
@@ -2238,6 +2539,11 @@ function hitBox(r, c) {
   } else if (box.type === MIXER) {
     el.classList.add('spin1');           // 1-й удар: барабан повільно закрутився
     sfx.mixerSlow();
+  } else if (box.type === BASKET) {
+    // 1–2 удари: вилітає по 3 овочі, кошик пустішає
+    el.classList.add('less' + (BOX_INFO[BASKET].hp - box.hp));
+    sfx.cardHit();
+    pendingVeg.push({ r, c, n: 3 });
   } else if (box.type === CRYSTAL) {
     setCrystalStage(box);
     sfx.crystalHit(BOX_INFO[CRYSTAL].hp - box.hp);
@@ -2307,7 +2613,7 @@ async function spreadSlime() {
     if (!g || g.type !== SLIME || g.broken) continue;
     [[1,0],[-1,0],[0,1],[0,-1]].forEach(([dr, dc]) => {
       const rr = r + dr, cc = c + dc;
-      if (rr >= 0 && rr < N && cc >= 0 && cc < N && isFree(rr, cc) && !inAura(rr, cc)) options.push([r, c, rr, cc]);
+      if (rr >= 0 && rr < N && cc >= 0 && cc < N && isFreeV(rr, cc) && !inAura(rr, cc)) options.push([r, c, rr, cc]);
     });
   }
   if (!options.length) return;
@@ -2320,7 +2626,11 @@ async function spreadSlime() {
 async function makeSlime(cells) {
   cells = cells.filter(([r, c]) => !inAura(r, c));   // біля кристала слиз не з'являється
   if (!cells.length) return;
-  cells.forEach(([r, c]) => grid[r][c].el.classList.add('pop'));
+  cells.forEach(([r, c]) => {
+    const g = grid[r][c];
+    if (g.veg) { removeGemEl(g); g.veg = false; }   // слиз змітає овоч — той вилітає з криком
+    else g.el.classList.add('pop');
+  });
   sfx.slimeGrow();
   await wait(250);
   cells.forEach(([r, c]) => {
@@ -2342,7 +2652,7 @@ async function runGenerators() {
     const opts = [];
     for (const [dr, dc] of [[1,0],[-1,0],[0,1],[0,-1]]) {
       const rr = r + dr, cc = c + dc;
-      if (rr >= 0 && rr < N && cc >= 0 && cc < N && isFree(rr, cc) && !inAura(rr, cc) &&
+      if (rr >= 0 && rr < N && cc >= 0 && cc < N && isFreeV(rr, cc) && !inAura(rr, cc) &&
           !targets.some(([a, b]) => a === rr && b === cc)) opts.push([rr, cc]);
     }
     if (!opts.length) continue;
@@ -2364,7 +2674,7 @@ const findGem = g => { for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) i
 function applyPendingClear() {
   pendingClear.splice(0).forEach(g => {
     const p = findGem(g);
-    if (p) { g.el.remove(); grid[p[0]][p[1]] = null; clearLeaf(p[0], p[1]); }
+    if (p) { removeGemEl(g); grid[p[0]][p[1]] = null; clearLeaf(p[0], p[1]); }
   });
 }
 
@@ -2395,7 +2705,7 @@ function fireNail(r, c, [dr, dc], stopAtFirst = false) {
   inFlight++;
   for (let i = 1; i <= len; i++) {
     const rr = r + dr * i, cc = c + dc * i;
-    setTimeout(() => { if (isObstacle(grid[rr][cc])) hitBox(rr, cc); }, i * step);
+    setTimeout(() => { const g = grid[rr][cc]; if (g?.veg && !locked(g)) vegSweep(g); else if (isObstacle(g)) hitBox(rr, cc); }, i * step);
   }
   setTimeout(() => { el.remove(); inFlight--; }, fly * step + (stuck ? 250 : 30));
 }
@@ -2476,6 +2786,8 @@ async function robotRun(box, shoot = false) {
   el.classList.add('running');
   if (path.length) {
     sfx.robotRun(path.length);
+    // овочі на шляху робот змітає
+    path.forEach(([pr, pc], i) => { const vg = grid[pr][pc]; if (vg?.veg) setTimeout(() => vegSweep(vg), (i + 1) * 110); });
     // фішки зсуваються назад, робот займає останню клітинку шляху
     let prev = [r, c];
     for (const [pr, pc] of path) {
@@ -2662,8 +2974,8 @@ async function pickaxeRun(r, c) {
 // 🤡 Шкатулка розкидає 3 випадкові перешкоди (крім шкатулки)
 let turn = 0;                     // скільки ходів зроблено на рівні
 const pendingJack = [];
-const SCATTER = ['c', 'c', 'n', 'w', 'w', 't', 'r', 's', 'g', 'x', 'x', 'p', 'e', 'o', 'k', 'q', 'm', 'b', 'z', 'y', 'f', 'd', 'h', 'i'];
-const SCATTER_ICON = { c: '📦', n: '📦', w: '🪵', t: '🧨', r: '🛡️', s: '🟢', g: '⚙️', x: '🕸️', p: '🕷️', e: '⚡', o: '⚫', k: '🪨', q: '⛏️', m: '🔄', b: '🤖', z: '🪞', y: '🪞', f: '🗿', d: '🗑️', h: '🧹', i: '💎' };
+const SCATTER = ['c', 'c', 'n', 'w', 'w', 't', 'r', 's', 'g', 'x', 'x', 'p', 'e', 'o', 'k', 'q', 'm', 'b', 'z', 'y', 'f', 'd', 'h', 'i', 'K'];
+const SCATTER_ICON = { c: '📦', n: '📦', w: '🪵', t: '🧨', r: '🛡️', s: '🟢', g: '⚙️', x: '🕸️', p: '🕷️', e: '⚡', o: '⚫', k: '🪨', q: '⛏️', m: '🔄', b: '🤖', z: '🪞', y: '🪞', f: '🗿', d: '🗑️', h: '🧹', i: '💎', K: '🧺' };
 async function jackScatter([jr, jc]) {
   const free = [];
   for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) if (grid[r][c] && isFree(r, c)) free.push([r, c]);
@@ -2903,7 +3215,8 @@ async function settle() {
         for (const box of pendingSuck.splice(0)) await mixerSuck(box);
         continue;
       }
-      if (!pendingJack.length && !pendingMixer.length && !pendingSpill.length && !pendingBroom.length) return;
+      if (!pendingJack.length && !pendingMixer.length && !pendingSpill.length && !pendingBroom.length && !pendingVeg.length) return;
+      for (const v of pendingVeg.splice(0)) await basketThrow(v);
       for (const pos of pendingSpill.splice(0)) await spillLeaves(pos);
       for (const b of pendingBroom.splice(0)) await broomRun(b);
       for (const pos of pendingJack.splice(0)) await jackScatter(pos);
@@ -2973,7 +3286,7 @@ async function moveSpiders() {
   let moved = false;
   for (const [r, c] of list) {
     const opts = [[1,0],[-1,0],[0,1],[0,-1]].map(([dr, dc]) => [r + dr, c + dc])
-      .filter(([rr, cc]) => rr >= 0 && rr < N && cc >= 0 && cc < N && isFree(rr, cc) && !taken.has(key(rr, cc)));
+      .filter(([rr, cc]) => rr >= 0 && rr < N && cc >= 0 && cc < N && isFreeV(rr, cc) && !taken.has(key(rr, cc)));   // павук лізе й на овочі — накриває їх павутиною
     if (!opts.length) continue;
     const [nr, nc] = opts[Math.floor(Math.random() * opts.length)];
     taken.add(key(nr, nc));
@@ -3002,7 +3315,7 @@ function applyPendingFill() {
       const g = grid[r][c];
       if (g && !(isNormal(g.type) && !locked(g))) continue;  // інші перешкоди, бонуси, павутину не чіпаємо
       if (inAura(r, c)) continue;                           // біля кристала слиз не з'являється
-      if (g) g.el.remove();
+      if (g) removeGemEl(g);                                 // овоч слиз змітає
       grid[r][c] = createBox(r, c, SLIME);
       grid[r][c].el.classList.add('grow');
       any = true;
@@ -3377,7 +3690,7 @@ async function rainbowConvert(rbPos, otherPos, newType, dir) {
   const rb = grid[rr][rc];
   const cells = [];
   for (let r = 0; r < N; r++) for (let c = 0; c < N; c++)
-    if (grid[r][c].type === target && !locked(grid[r][c])) cells.push([r, c]);
+    if (grid[r][c].type === target && !locked(grid[r][c]) && !grid[r][c].veg) cells.push([r, c]);
 
   rb.el.classList.add('charging');
   sfx.rainbow();
@@ -3811,7 +4124,7 @@ async function useDarts() {
       const g = grid[r][c];
       if (damageable(g)) o.push([r, c]);
       // фішка на листі — дротик вибиває її разом із листям
-      else if (leaves[r][c] && g && isNormal(g.type) && !locked(g) && !pendingClear.includes(g)) o.push([r, c]);
+      else if ((leaves[r][c] || g?.veg) && g && isNormal(g.type) && !locked(g) && !pendingClear.includes(g)) o.push([r, c]);   // фішка на листі або овоч
       // під металевим ядром дротик вибиває звичайну фішку — ядро опускається
       if (g && g.type === CORE && !g.broken) {
         // перша ще не вибита фішка під ядром (кілька дротиків — ядро опускається на кілька клітинок)
@@ -4062,7 +4375,7 @@ $('soundBtn').onclick = () => {
 
 // ===================== Рівні з JSON =====================
 // Формат: { "levels": [ { "name": "...", "moves": 20, "map": ["........", ... 8 рядків по 8 символів] } ] }
-const MAP_CHARS = '.cnwtrsgxpeojkqmbzyfadhi';
+const MAP_CHARS = '.cnwtrsgxpeojkqmbzyfadhiKG';
 function parseLevels(data) {
   const list = Array.isArray(data) ? data : data?.levels;
   if (!Array.isArray(list) || !list.length) throw new Error('у файлі немає списку "levels"');
@@ -4201,6 +4514,8 @@ const INTRO = {
   l: ["Кам'яна стіна", "Руйнується після трьох ударів. Хтозна, що може ховатися за нею…"],
   i: ['Магічний кристал', "Таємничий кристал, що від кожного удару міняє барву — від нічної сині до багрянцю. Розбийте його — і вивільніть суперсилу. Блискавки він подвоює, а слиз, павутиння й павуків довкола себе не терпить — щойно з'явиться, одразу їх знищує"],
   h: ["Мітла", "Змете зі шляху опале листя, павутиння та надокучливий слиз"],
+  G: ['Мангал', 'Холодний і порожній — його нічим не взяти. Нагодуйте його 10 овочами: з кожним новим шампуром жар сильнішає. Коли мангал повний і димить — один удар, і він вибухне!'],
+  K: ['Кошик з овочами', 'Повнісінький кошик. Від кожного удару з нього вистрибують овочі — і кліпають на вас оченятами. Щоб пройти рівень, приберіть зі столу всі овочі!'],
   u: ['Картонна стіна', 'Легенька перегородка — розлетиться від першого ж удару. Але хтозна, що за нею…'],
   d: ["Сміттєбак із листям", "Наповнений ущерть осіннім листям. Перевернути його було б украй необачно…"],
   v: ['Осіннє листя', 'Мальовничий осінній килим, що вперто заважає вашим планам'],
