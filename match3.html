@@ -1959,6 +1959,7 @@ function lockOpen(lock) {
   const pos = findGem(lock);
   if (!pos) return 0;
   const [r, c] = pos;
+  lock.unlocked = true;   // одразу: якщо кілька ключів прилетять майже разом, кожен замок уже бачить інші відчиненими
   lock.el.classList.add('unlock');
   sfx.unlock();
   const group = [], seen = new Set(), queue = [];
@@ -1975,7 +1976,7 @@ function lockOpen(lock) {
   // група ланцюгів тримається, доки її торкається хоч один інший ще не відчинений замок
   const otherLock = group.some(([y, x]) => D4.some(([dr, dc]) => {
     const g = grid[y + dr]?.[x + dc];
-    return g && g.type === PADLOCK && g !== lock && !g.broken;
+    return g && g.type === PADLOCK && g !== lock && !g.broken && !g.unlocked;
   }));
   if (otherLock) {
     group.forEach(([y, x]) => { const el = grid[y][x].el; el.classList.remove('tink'); el.getBoundingClientRect(); el.classList.add('tink'); });
