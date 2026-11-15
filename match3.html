@@ -644,6 +644,26 @@
   .leaf.gone svg { animation: leafGone .45s ease-in forwards; }
   @keyframes leafGone { to { transform: translate(8px, -16px) rotate(70deg) scale(1.3); opacity: 0; } }
 
+  /* ===== Ланцюги, замок, ключ ===== */
+  .chain .crate { background: none; box-shadow: none; inset: -2px; z-index: 3; }
+  .chain .chn { position: absolute; inset: 0; width: 100%; height: 100%; filter: drop-shadow(0 2px 2px rgba(0,0,0,.6)); }
+  .gem.box.chain { z-index: 5; }
+  .box.chain.tink .crate { animation: tink .22s; }
+  .box.chain.snap .crate { animation: chainSnap .45s forwards; }
+  @keyframes chainSnap { 30% { transform: scale(1.15); } to { transform: scale(1.4) rotate(20deg); opacity: 0; } }
+  .padlock .crate { background: none; box-shadow: none; inset: 2px; }
+  .padlock .lck { position: absolute; inset: 0; width: 100%; height: 100%; filter: drop-shadow(0 3px 3px rgba(0,0,0,.55)); }
+  .padlock .shackle { transition: transform .3s cubic-bezier(.3,1.6,.5,1); }
+  .box.padlock.unlock .shackle { transform: translateY(-12px) rotate(-18deg); transform-origin: 70% 50%; }
+  .box.padlock.tink .crate { animation: tink .22s; }
+  .gem.key .face { background: none; box-shadow: none; border-radius: 0; }
+  .gem.key .face svg { width: 100%; height: 100%; filter: drop-shadow(0 0 5px rgba(255,220,90,.8)) drop-shadow(0 2px 2px rgba(0,0,0,.4)); }
+  .gem.key .face { animation: keyGlint 2.4s ease-in-out infinite; }
+  @keyframes keyGlint { 50% { filter: brightness(1.25); } }
+  .gem.key.keyHit .face { animation: keyJolt .3s; }
+  @keyframes keyJolt { 30% { transform: scale(1.25) rotate(-15deg); } 70% { transform: scale(1.2) rotate(12deg); } }
+  .gem.keyFly { z-index: 20; transition: transform .65s cubic-bezier(.4,-0.3,.5,1.2); pointer-events: none; }
+
   /* ===== Мангал ===== */
   .grill .crate { background: none; box-shadow: none; inset: 1px; }
   .grill .grl { inset: 0; width: 100%; height: 100%; filter: drop-shadow(0 3px 3px rgba(0,0,0,.5)); }
@@ -1045,6 +1065,7 @@
     box-shadow: inset 0 0 0 1px rgba(255,255,255,.18), inset 0 -2px 4px rgba(0,0,0,.35);
   }
   .gem.box, .gem.webbed, .gem.spidered { isolation: isolate; }
+  .gem.box.chain::before { display: none; }   /* під ланцюгами видно те, що вони тримають */
   .gem.box.breaking::before { animation: bgFade .35s .1s forwards; }
   @keyframes bgFade { to { opacity: 0; } }
 </style>
@@ -1092,6 +1113,9 @@
     🍂 осіннє листя — лежить під фішками; знищте фішку чи перешкоду на клітинці, і листя розлетиться. Для перемоги треба прибрати все листя<br>
     💎 магічний кристал — 8 ударів; з кожним змінює колір від темно-синього до багряно-червоного, останні удари — з тріщинами й дрижанням. Розбитий, лишає випадкову суперкомбінацію (червону жабу, фіолетову блискавку або велику бомбу), яка одразу спрацьовує. Кірка вважає його каменем. Кожна блискавка, що влучила в кристал, породжує ще одну — зелену, поперек; зелена блискавка інших кристалів не зачіпає. У зоні 3×3 довкола кристала не з'являються слиз і павутина, а павук, що туди заліз, гине. Якщо кристал з'являється посеред гри (з-під кам'яної стіни чи від клоуна), він одразу знищує павутину, слиз і павуків у своїй зоні<br>
     🧹 мітла — від 1 удару злітає і летить по прямій, вичищаючи листя, слиз і павутину (фішки лишаються). Напрямок обирає за пріоритетом: найбільше листя, потім слизу, потім павутини, потім інших мітел, потім довший шлях. Інші мітли пролітає наскрізь, зачіпаючи їх (вони теж злітають). Наткнувшись на іншу перешкоду, розвертається; долетівши до стінки (краю поля чи броньованої стіни) — з хрустом ламається<br>
+    ⛓️ ланцюги — лежать поверх клітинки; їх не можна пошкодити, а те, що під ними, не можна ні зрушити, ні пошкодити<br>
+    🔒 навісний замок — стоїть поруч із ланцюгами, невразливий; відчиняється ключем і зникає; група ланцюгів, що його торкається, розбивається, коли відчинено всі замки, які її тримають<br>
+    🔑 ключ — рухається як фішка, але не збирається в комбінації; коли отримує шкоду (комбінація поруч, бонус, вибух, молоток, дротик), летить до найближчого замка й відмикає його. Якщо замок є, а ключа на полі нема, один ключ випадає разом із новими фішками<br>
     🌱 грядка — лежить під фішками і прибирається так само, як листя; з прибраної грядки вилазить випадковий овоч і лишається на її місці<br>
     🗑️ сміттєбак — 2 удари: спершу відлітає кришка, потім бак перекидається, засипає листям зону 5×5 і зникає<br>
     🔥 мангал — невразливий, доки на нього не потрапить 10 овочів: кожен прибраний овоч летить на найближчий мангал, якому ще треба овочів. 1-й овоч — шампур і жар, кожні наступні 2 — ще шампур (до 5). На 10-му вогонь згасає, мангал димить і стає вразливим: 1 удар — вибух 3×3, а овочі з шампурів з криком розлітаються<br>
@@ -1273,6 +1297,9 @@ const sfx = {
     tone(f * 1.72, { dur: 0.45, vol: 0.025, type: 'sawtooth', slide: 0.44, delay: 0.17 });
   },
   dig: () => { noise(0.18, 0.08, 700); tone(150, { dur: 0.12, vol: 0.08, type: 'triangle', slide: 1.6, delay: 0.05 }); },
+  keyWhoosh: () => { tone(900, { dur: 0.3, vol: 0.04, type: 'triangle', slide: 1.8 }); },
+  unlock: () => { tone(1200, { dur: 0.06, vol: 0.08, type: 'square' }); tone(800, { dur: 0.08, vol: 0.07, type: 'square', delay: 0.07 }); tone(1600, { dur: 0.25, vol: 0.05, type: 'triangle', delay: 0.15 }); },
+  chainSnap: () => { tone(500 + Math.random() * 300, { dur: 0.08, vol: 0.05, type: 'square', slide: 0.6 }); noise(0.1, 0.06, 3000); },
   sizzle: full => { noise(0.35, 0.06, 6000); tone(full ? 300 : 180, { dur: 0.2, vol: 0.05, type: 'triangle', slide: full ? 1.5 : 0.8, delay: 0.05 }); },
   vegToss: () => { [0, 1, 2].forEach(i => tone(400 + i * 120, { dur: 0.12, vol: 0.05, type: 'triangle', slide: 1.5, delay: i * 0.08 })); },
   vegLand: i => { tone(300 - i * 20, { dur: 0.1, vol: 0.08, type: 'sine', slide: 0.6 }); },
@@ -1326,13 +1353,14 @@ const sfx = {
 // ===== Гра =====
 const N = 8, TYPES = 6;
 const RAINBOW = 6, BOMB = 7, LIGHTNING = 8, FROG = 9;
-const CARDBOARD = 10, WOOD = 11, REINFORCED = 12, SLIME = 13, GENERATOR = 14, NAILGUN = 15, TNT = 16, TESLA = 17, CORE = 18, JACK = 19, STONE = 20, STONEPICK = 21, MIXER = 22, ROBOT = 23, MIRROR = 24, MIRROR2 = 25, STONEFROG = 26, WALL = 27, STONEWALL = 28, BIN = 29, BROOM = 30, CRYSTAL = 31, CARDWALL = 32, BASKET = 33, GRILL = 34;
+const CARDBOARD = 10, WOOD = 11, REINFORCED = 12, SLIME = 13, GENERATOR = 14, NAILGUN = 15, TNT = 16, TESLA = 17, CORE = 18, JACK = 19, STONE = 20, STONEPICK = 21, MIXER = 22, ROBOT = 23, MIRROR = 24, MIRROR2 = 25, STONEFROG = 26, WALL = 27, STONEWALL = 28, BIN = 29, BROOM = 30, CRYSTAL = 31, CARDWALL = 32, BASKET = 33, GRILL = 34, CHAIN = 35, PADLOCK = 36;
+const KEYT = -2;   // ключ — фішка без кольору: рухається й падає, але не збирається в комбінації
 // стіни-покриття (шар cover): l — кам'яна, u — картонна; під ними може ховатися перешкода
 const COVER_TYPES = { l: STONEWALL, u: CARDWALL };
 const isCoverWall = t => t === STONEWALL || t === CARDWALL;
 const isMirror = t => t === MIRROR || t === MIRROR2;
 // перешкода, якій зараз можна завдати шкоди
-const damageable = g => isObstacle(g) && g.type !== CORE && g.type !== WALL && !(g.type === GRILL && !g.full) && !(g.type === STONEFROG && !g.armed) && !g.mixing && !g.final && !(isMirror(g.type) && !g.glass);
+const damageable = g => isObstacle(g) && g.type !== CORE && g.type !== WALL && g.type !== CHAIN && g.type !== PADLOCK && !(g.type === GRILL && !g.full) && !(g.type === STONEFROG && !g.armed) && !g.mixing && !g.final && !(isMirror(g.type) && !g.glass);
 const isNormal = t => t >= 0 && t < TYPES;   // -1 — фішку вже «затягнула» бетономішалка
 const isSpecial = t => t >= RAINBOW && t <= FROG;
 const isBox = t => t >= CARDBOARD;
@@ -1417,7 +1445,7 @@ function createGem(r, c, type, fromRow = r) {
   return gem;
 }
 
-const BOX_CHARS = { c: CARDBOARD, n: CARDBOARD, w: WOOD, r: REINFORCED, s: SLIME, g: GENERATOR, t: TNT, e: TESLA, o: CORE, j: JACK, k: STONE, q: STONEPICK, m: MIXER, b: ROBOT, z: MIRROR, y: MIRROR2, f: STONEFROG, a: WALL, d: BIN, h: BROOM, i: CRYSTAL, K: BASKET, G: GRILL };
+const BOX_CHARS = { c: CARDBOARD, n: CARDBOARD, w: WOOD, r: REINFORCED, s: SLIME, g: GENERATOR, t: TNT, e: TESLA, o: CORE, j: JACK, k: STONE, q: STONEPICK, m: MIXER, b: ROBOT, z: MIRROR, y: MIRROR2, f: STONEFROG, a: WALL, d: BIN, h: BROOM, i: CRYSTAL, K: BASKET, G: GRILL, P: PADLOCK };
 function startLevel(i) {
   level = i;
   const def = LEVELS[i] || randomLevel();
@@ -1431,6 +1459,7 @@ function startLevel(i) {
   pendingBolts.length = 0;
   pendingVeg.length = 0;
   pendingBedVeg.length = 0;
+  keysFlying = 0;
   document.querySelectorAll('.vegFly').forEach(e => e.remove());
   leaves = [...Array(N)].map(() => Array(N).fill(null));
   pendingMixer.length = 0;
@@ -1445,6 +1474,14 @@ function startLevel(i) {
     grid[r] = [];
     for (let c = 0; c < N; c++) {
       const ch = def.map[r][c];
+      if (def.cover?.[r][c] === 'C' && ch !== 'o' && ch !== 'P') {
+        // ланцюги: під ними — фішка чи перешкода, яку не можна ні зрушити, ні пошкодити
+        const inner = makeCellObj(r, c, ch);
+        const chain = createBox(r, c, CHAIN);
+        chain.inner = inner; chain.innerSpider = ch === 'p';
+        grid[r][c] = chain;
+        continue;
+      }
       if (COVER_TYPES[def.cover?.[r][c]] && ch !== 'o') {
         // кам'яна / картонна стіна; те, що під нею, з'явиться лише коли стіну зруйнують
         const sw = createBox(r, c, COVER_TYPES[def.cover[r][c]]);
@@ -1466,8 +1503,11 @@ function startLevel(i) {
       grid[r][c] = createGem(r, c, t, r - N);
       if (ch === 'x') addWeb(grid[r][c]);
       if (ch === 'p') addSpider(r, c);
+      if (ch === 'Q') makeKey(grid[r][c]);
     }
   }
+  // є замок, а ключа нема — один ключ з'являється на полі
+  if (needKey()) { const free = []; for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) if (isFree(r, c)) free.push(grid[r][c]); if (free.length) makeKey(free[Math.floor(Math.random() * free.length)]); }
   // шар листя
   def.leaves?.forEach((row, r) => [...row].forEach((ch, c) => { if ((ch === 'v' || ch === 'B') && grid[r][c]?.type !== WALL) addLeaf(r, c, null, ch); }));
   $('overlay').classList.remove('show');
@@ -1645,6 +1685,7 @@ function collapse() {
   const mono = monoNext;
   monoNext = null;
   let created = 0;
+  const fresh = [];
   // суперкомбінація з розбитого кристала (pinned) теж стоїть на місці, доки не спрацює
   const boxAt = (r, c) => grid[r][c] && grid[r][c].type !== CORE && (isBox(grid[r][c].type) || locked(grid[r][c]) || grid[r][c].pinned);
   for (let c = 0; c < N; c++) {
@@ -1665,11 +1706,13 @@ function collapse() {
         }
       }
       const missing = write - top + 1;
-      for (let r = write; r >= top; r--) { grid[r][c] = createGem(r, c, mono ?? rand(), top === 0 ? r - missing : top - 1); created++; }
+      for (let r = write; r >= top; r--) { grid[r][c] = createGem(r, c, mono ?? rand(), top === 0 ? r - missing : top - 1); created++; fresh.push(grid[r][c]); }
       bottom = top - 1;
     }
   }
   if (mono != null && created) floatText('🍀 Удача!', 3.5, 2.6, '#6bff95');
+  // замок є, а ключа на полі нема — один із нових фішок стає ключем
+  if (fresh.length && needKey()) makeKey(fresh[Math.floor(Math.random() * fresh.length)]);
 }
 
 // ===== Перешкоди =====
@@ -1691,6 +1734,8 @@ const BOX_INFO = {
   [MIRROR]:     { cls: 'mirror',     hp: 1, pts: 120, shards: ['#e6f6ff', '#9fd2f0', '#ffffff', '#6aa8d8'] },
   [MIRROR2]:    { cls: 'mirror',     hp: 1, pts: 160, shards: ['#e6f6ff', '#9fd2f0', '#ffffff', '#6aa8d8'] },
   [STONEFROG]:  { cls: 'stonefrog',  hp: 1, pts: 300, shards: ['#9a9fa8', '#6c717b', '#4a4e56', '#ff9a3a'] },
+  [CHAIN]:      { cls: 'chain',      hp: 1, pts: 50,  shards: ['#b8c0c8', '#6b747e', '#3d444c'] },
+  [PADLOCK]:    { cls: 'padlock',    hp: 1, pts: 300, shards: ['#ffd23a', '#c99a1a', '#8a6420', '#b8c0c8'] },
   [GRILL]:      { cls: 'grill',      hp: 1, pts: 500, shards: ['#2b2b2b', '#5d6772', '#ff7a1a', '#ffcc33'] },
   [BASKET]:     { cls: 'basket',     hp: 3, pts: 200, shards: ['#c8954a', '#8d5a27', '#e8402a', '#6bff95', '#ffe66d'] },
   [CARDWALL]:   { cls: 'cardwall',   hp: 1, pts: 60,  shards: ['#e2b77a', '#c99357', '#94632e', '#f0e1b4'] },
@@ -1832,6 +1877,7 @@ function makeVeg(g) {
 // Знищення фішки: овоч не зникає, а з криком вилітає за межі екрана
 function removeGemEl(g) {
   const el = g.el;
+  if (g.key) { g.key = false; keyFly(g); return; }
   if (!g.veg || g.type < 0 || el.classList.contains('eaten')) { el.remove(); return; }
   const rect = el.getBoundingClientRect();
   const fly = el.cloneNode(true);
@@ -1861,6 +1907,105 @@ function vegLaunch(fly, rect) {
   fly.style.transform = `translate(${dx}px, ${dy}px) rotate(${side * (540 + Math.random() * 360)}deg) scale(1.3)`;
   setTimeout(() => fly.remove(), 1300);
 }
+// ===================== Ланцюги, навісний замок і ключ =====================
+const CHAIN_SVG = '<svg class="chn" viewBox="0 0 100 100"><g fill="none" stroke-linecap="round">' +
+  [[-1, 'M8,8 L92,92'], [1, 'M92,8 L8,92']].map(([k, d]) => `<path d="${d}" stroke="#2d3340" stroke-width="13" opacity=".55"/>`).join('') +
+  [0, 1, 2, 3, 4, 5, 6].map(i => { const t = 10 + i * 13; return `<ellipse cx="${t}" cy="${t}" rx="8" ry="5" transform="rotate(45 ${t} ${t})" stroke="${i % 2 ? '#8b96a3' : '#c3ccd5'}" stroke-width="3.5"/>`; }).join('') +
+  [0, 1, 2, 3, 4, 5, 6].map(i => { const t = 10 + i * 13; return `<ellipse cx="${100 - t}" cy="${t}" rx="8" ry="5" transform="rotate(-45 ${100 - t} ${t})" stroke="${i % 2 ? '#c3ccd5' : '#8b96a3'}" stroke-width="3.5"/>`; }).join('') +
+  '</g></svg>';
+const LOCK_SVG = '<svg class="lck" viewBox="0 0 100 100">' +
+  '<path class="shackle" d="M30,48 V32 Q30,12 50,12 Q70,12 70,32 V48" fill="none" stroke="#a8b0b8" stroke-width="9" stroke-linecap="round"/>' +
+  '<path class="shackle" d="M30,48 V32 Q30,12 50,12 Q70,12 70,32 V48" fill="none" stroke="#e3e8ee" stroke-width="3" stroke-linecap="round" opacity=".6"/>' +
+  '<rect x="18" y="44" width="64" height="46" rx="9" fill="#e8b828" stroke="#8a6420" stroke-width="3"/>' +
+  '<rect x="24" y="50" width="52" height="8" rx="4" fill="#ffe680" opacity=".6"/>' +
+  '<circle cx="50" cy="66" r="7" fill="#3d2a08"/><path d="M47,68 L45,82 H55 L53,68 Z" fill="#3d2a08"/></svg>';
+const KEY_SVG = '<svg viewBox="0 0 100 100"><g transform="rotate(-35 50 50)">' +
+  '<circle cx="28" cy="50" r="17" fill="none" stroke="#e8b828" stroke-width="9"/>' +
+  '<circle cx="28" cy="50" r="17" fill="none" stroke="#fff3a8" stroke-width="2.5" opacity=".7"/>' +
+  '<rect x="42" y="45" width="46" height="10" rx="3" fill="#e8b828" stroke="#8a6420" stroke-width="2"/>' +
+  '<rect x="70" y="55" width="7" height="14" rx="2" fill="#e8b828" stroke="#8a6420" stroke-width="2"/>' +
+  '<rect x="82" y="55" width="6" height="10" rx="2" fill="#e8b828" stroke="#8a6420" stroke-width="2"/></g></svg>';
+function makeKey(g) {
+  g.type = KEYT; g.key = true;
+  g.el.className = 'gem key';
+  g.el.innerHTML = '<div class="face">' + KEY_SVG + '</div>';
+}
+let keysFlying = 0;
+const closedLocks = () => grid.flat().filter(g => g && g.type === PADLOCK && !g.broken && !g.opening);
+// ключ «є на столі», навіть якщо його сховано під кам'яною / картонною стіною чи під ланцюгами
+const hasKey = g => g && (g.key || g.under === 'Q' || g.inner?.key);
+const needKey = () => closedLocks().length > 0 && keysFlying === 0 && !grid.flat().some(hasKey);
+// Ключ отримав шкоду — летить до найближчого замка й відчиняє його
+function keyFly(g) {
+  const el = g.el;
+  const br = board.getBoundingClientRect(), er = el.getBoundingClientRect(), cell = br.width / N;
+  const kr = (er.top - br.top) / cell, kc = (er.left - br.left) / cell;
+  const locks = closedLocks();
+  if (!locks.length) { el.classList.add('pop'); setTimeout(() => el.remove(), 300); return; }
+  let lock = null, ld = Infinity;
+  locks.forEach(l => { const [lr, lc] = findGem(l); const d = Math.hypot(lr - kr, lc - kc); if (d < ld) { ld = d; lock = l; } });
+  lock.opening = true;
+  const [lr, lc] = findGem(lock);
+  el.className = 'gem key keyFly';
+  el.style.transform = `translate(${kc * 100}%, ${kr * 100}%)`;
+  el.getBoundingClientRect();
+  el.style.transform = `translate(${lc * 100}%, ${lr * 100}%) rotate(360deg) scale(.7)`;
+  sfx.keyWhoosh();
+  keysFlying++; inFlight++;
+  setTimeout(() => { el.remove(); keysFlying--; const d = lockOpen(lock); setTimeout(() => inFlight--, d + 150); }, 650);
+}
+// Замок відчинено — ланцюги, що торкаються його (і вся їхня суцільна група), розлітаються
+function lockOpen(lock) {
+  const pos = findGem(lock);
+  if (!pos) return 0;
+  const [r, c] = pos;
+  lock.el.classList.add('unlock');
+  sfx.unlock();
+  const group = [], seen = new Set(), queue = [];
+  const D4 = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+  D4.forEach(([dr, dc]) => queue.push([r + dr, c + dc]));
+  while (queue.length) {
+    const [y, x] = queue.shift();
+    if (y < 0 || y >= N || x < 0 || x >= N || seen.has(key(y, x))) continue;
+    seen.add(key(y, x));
+    if (grid[y][x]?.type !== CHAIN) continue;
+    group.push([y, x]);
+    D4.forEach(([dr, dc]) => queue.push([y + dr, x + dc]));
+  }
+  // група ланцюгів тримається, доки її торкається хоч один інший ще не відчинений замок
+  const otherLock = group.some(([y, x]) => D4.some(([dr, dc]) => {
+    const g = grid[y + dr]?.[x + dc];
+    return g && g.type === PADLOCK && g !== lock && !g.broken;
+  }));
+  if (otherLock) {
+    group.forEach(([y, x]) => { const el = grid[y][x].el; el.classList.remove('tink'); el.getBoundingClientRect(); el.classList.add('tink'); });
+    floatText('🔒 ще замок!', r, c, '#ffd23a');
+    group.length = 0;
+  }
+  let maxD = 300;
+  group.forEach(([y, x]) => { const d = 200 + Math.hypot(y - r, x - c) * 70; maxD = Math.max(maxD, d); setTimeout(() => chainRelease(y, x), d); });
+  setTimeout(() => {
+    lock.broken = true;
+    lock.el.classList.add('breaking');
+    score += BOX_INFO[PADLOCK].pts; floatText('🔓 +' + BOX_INFO[PADLOCK].pts, r, c, '#ffd23a');
+    setTimeout(() => lock.el.remove(), 400);
+    updateHud();
+  }, 250);
+  return maxD + 450;
+}
+function chainRelease(r, c) {
+  const ch = grid[r][c];
+  if (!ch || ch.type !== CHAIN) return;
+  grid[r][c] = ch.inner;
+  if (ch.innerSpider) addSpider(r, c);
+  ch.el.classList.add('snap');
+  shatter(r, c, BOX_INFO[CHAIN].shards, 6);
+  setTimeout(() => ch.el.remove(), 450);
+  sfx.chainSnap();
+  score += BOX_INFO[CHAIN].pts;
+  updateHud();
+}
+
 // ===================== Мангал =====================
 // Невразливий, доки на нього не потрапить 10 овочів: 1-й — шампур і жар, кожні наступні 2 — ще шампур (до 5),
 // на 10-му вогонь гасне, мангал димить і стає вразливим: 1 удар — вибух 3×3, овочі з шампурів розлітаються
@@ -2379,6 +2524,8 @@ function createBox(r, c, type) {
   if (type === WALL) inner = '<i class="plate"></i>';
   if (type === STONEWALL) inner = SWALL_SVG;
   if (type === BASKET) inner = BASKET_SVG;
+  if (type === CHAIN) inner = CHAIN_SVG;
+  if (type === PADLOCK) inner = LOCK_SVG;
   if (type === GRILL) inner = GRILL_SVG + '<i class="gsmoke"><i></i><i></i><i></i></i>';
   if (type === CARDWALL) inner = '<i class="cwall"></i><i class="tape"></i><i class="tape t2"></i>';
   if (type === CRYSTAL) inner = CRYSTAL_SVG;
@@ -2487,7 +2634,7 @@ function hitBox(r, c) {
     }
   }
   if (box.type === ROBOT && box.final) return;      // уже біжить на вибух     // уже затягує фішки
-  if (box.type === WALL || (box.type === STONEFROG && !box.armed && !box.broken) || (box.type === GRILL && !box.full && !box.broken)) {
+  if (box.type === WALL || box.type === CHAIN || box.type === PADLOCK || (box.type === STONEFROG && !box.armed && !box.broken) || (box.type === GRILL && !box.full && !box.broken)) {
     // броньована стіна і «спляча» кам'яна жаба — невразливі
     box.el.classList.remove('tink'); box.el.getBoundingClientRect(); box.el.classList.add('tink');
     const now = performance.now();
@@ -2663,7 +2810,7 @@ function neighborBoxes(r, c) {
   [[1,0],[-1,0],[0,1],[0,-1]].forEach(([dr, dc]) => {
     const rr = r + dr, cc = c + dc;
     if (rr < 0 || rr >= N || cc < 0 || cc >= N) return;
-    if (isObstacle(grid[rr][cc]) && grid[rr][cc].type !== WALL) out.push([rr, cc]);
+    if (isObstacle(grid[rr][cc]) && ![WALL, CHAIN, PADLOCK].includes(grid[rr][cc].type)) out.push([rr, cc]);
   });
   return out;
 }
@@ -2673,6 +2820,11 @@ function hitAdjacent(cells) {
   const hit = new Set();
   cells.forEach(([r, c]) => neighborBoxes(r, c).forEach(([rr, cc]) => {
     if (!hit.has(key(rr, cc))) { hit.add(key(rr, cc)); hitBox(rr, cc); }
+  }));
+  // ключ поруч із комбінацією теж «отримує шкоду» — злетить до замка, коли поле почне осідати
+  cells.forEach(([r, c]) => [[1,0],[-1,0],[0,1],[0,-1]].forEach(([dr, dc]) => {
+    const g = grid[r + dr]?.[c + dc];
+    if (g?.key && !pendingClear.includes(g)) { pendingClear.push(g); g.el.classList.add('keyHit'); }
   }));
 }
 
@@ -3244,6 +3396,18 @@ function tntExplode(r, c, rad = 1) {
 }
 
 // Ставить у клітинку перешкоду за символом карти (для кам'яної стіни)
+// Об'єкт клітинки за символом карти, не кладучи його в сітку (для того, що лежить під ланцюгами)
+function makeCellObj(r, c, ch) {
+  if (ch in BOX_CHARS) {
+    const b = createBox(r, c, BOX_CHARS[ch]);
+    if (ch === 'n') { b.nailgun = true; b.el.classList.add('ng-box'); }
+    return b;
+  }
+  const g = createGem(r, c, rand());
+  if (ch === 'x' || ch === 'p') addWeb(g);
+  if (ch === 'Q') makeKey(g);
+  return g;
+}
 function spawnCell(r, c, ch) {
   if (ch in BOX_CHARS) {
     grid[r][c] = createBox(r, c, BOX_CHARS[ch]);
@@ -3252,6 +3416,7 @@ function spawnCell(r, c, ch) {
     grid[r][c] = createGem(r, c, rand());
     if (ch === 'x') addWeb(grid[r][c]);
     if (ch === 'p') addSpider(r, c);
+    if (ch === 'Q') makeKey(grid[r][c]);   // ключ, схований під стіною
   }
   return grid[r][c];
 }
@@ -4492,7 +4657,7 @@ $('soundBtn').onclick = () => {
 
 // ===================== Рівні з JSON =====================
 // Формат: { "levels": [ { "name": "...", "moves": 20, "map": ["........", ... 8 рядків по 8 символів] } ] }
-const MAP_CHARS = '.cnwtrsgxpeojkqmbzyfadhiKG';
+const MAP_CHARS = '.cnwtrsgxpeojkqmbzyfadhiKGPQ';
 function parseLevels(data) {
   const list = Array.isArray(data) ? data : data?.levels;
   if (!Array.isArray(list) || !list.length) throw new Error('у файлі немає списку "levels"');
@@ -4508,7 +4673,7 @@ function parseLevels(data) {
     const out = { name: lv.name ? String(lv.name) : '', moves, map };
     // cover — другий шар: l — кам'яна стіна поверх клітинки
     if (Array.isArray(lv.cover) && lv.cover.length === N)
-      out.cover = lv.cover.map(row => [...String(row).padEnd(N, '.').slice(0, N)].map(ch => COVER_TYPES[ch] ? ch : '.').join(''));
+      out.cover = lv.cover.map(row => [...String(row).padEnd(N, '.').slice(0, N)].map(ch => COVER_TYPES[ch] || ch === 'C' ? ch : '.').join(''));
     // leaves — шар осіннього листя: v — клітинка вкрита листям
     if (Array.isArray(lv.leaves) && lv.leaves.length === N)
       out.leaves = lv.leaves.map(row => [...String(row).padEnd(N, '.').slice(0, N)].map(ch => ch === 'v' || ch === 'B' ? ch : '.').join(''));
@@ -4631,6 +4796,9 @@ const INTRO = {
   l: ["Кам'яна стіна", "Руйнується після трьох ударів. Хтозна, що може ховатися за нею…"],
   i: ['Магічний кристал', "Таємничий кристал, що від кожного удару міняє барву — від нічної сині до багрянцю. Розбийте його — і вивільніть суперсилу. Блискавки він подвоює, а слиз, павутиння й павуків довкола себе не терпить — щойно з'явиться, одразу їх знищує"],
   h: ["Мітла", "Змете зі шляху опале листя, павутиння та надокучливий слиз"],
+  C: ['Ланцюги', 'Сковують усе, що під ними: його не зрушити й не пошкодити. Самі ланцюги теж не розбити — потрібен ключ до замка.'],
+  P: ['Навісний замок', 'Тримає ланцюги поруч. Його не зламати — лише відімкнути ключем. Коли відчинено всі замки, що тримають групу ланцюгів, вона розлітається.'],
+  Q: ['Ключ', 'Звичайна фішка без кольору: його можна рухати, але не зібрати в комбінацію. Зберіть комбінацію поруч або вдарте по ключу (бонусом, вибухом, молотком) — і він полетить відмикати замок. Поки на полі є замок, а ключа нема, новий ключ випаде разом із фішками.'],
   B: ['Грядка', 'Лежить під фішками, як листя. Знищте фішку чи перешкоду на ній — і з грядки вилізе свіжий овоч!'],
   G: ['Мангал', 'Холодний і порожній — його нічим не взяти. Нагодуйте його 10 овочами: з кожним новим шампуром жар сильнішає. Коли мангал повний і димить — один удар, і він вибухне!'],
   K: ['Кошик з овочами', 'Повнісінький кошик. Від кожного удару з нього вистрибують овочі — і кліпають на вас оченятами. Щоб пройти рівень, приберіть зі столу всі овочі!'],
@@ -4648,7 +4816,8 @@ function introTile(ch) {
     g = createGem(0, 0, ch === 'v' ? 2 : ch === 'B' ? 1 : 0);
     if (ch === 'x') addWeb(g);
   } else {
-    g = createBox(0, 0, COVER_TYPES[ch] ?? BOX_CHARS[ch]);
+    if (ch === 'Q') { g = createGem(0, 0, 0); makeKey(g); }
+    else g = createBox(0, 0, ch === 'C' ? CHAIN : COVER_TYPES[ch] ?? BOX_CHARS[ch]);
     if (ch === 'n') g.el.classList.add('ng-box');
   }
   tile.appendChild(g.el);   // createGem/createBox кладуть елемент на поле — переносимо у вікно
@@ -4664,8 +4833,12 @@ function showIntro(def) {
   // лише те, що гравець бачить на старті (під кам'яною стіною — секрет)
   const found = new Set();
   def.map.forEach((row, r) => [...row].forEach((ch, c) => {
-    if (COVER_TYPES[def.cover?.[r][c]] && ch !== 'o') found.add(def.cover[r][c]);
-    else if (INTRO[ch]) found.add(ch);
+    const cv = def.cover?.[r][c];
+    if ((COVER_TYPES[cv] || cv === 'C') && ch !== 'o') {
+      found.add(cv);
+      if (cv === 'C' && INTRO[ch]) found.add(ch);   // під ланцюгами все видно (під стінами — секрет)
+    } else if (INTRO[ch]) found.add(ch);
+    if (ch === 'P') found.add('Q');   // є замок — буде й ключ
     if ((def.leaves?.[r][c] === 'v' || def.leaves?.[r][c] === 'B') && ch !== 'a') found.add(def.leaves[r][c]);
   }));
   introPending = Object.keys(INTRO).filter(ch => found.has(ch) && !seen[ch]);

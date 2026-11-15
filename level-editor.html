@@ -148,6 +148,15 @@
     box-shadow: inset 0 0 0 2px #4a443d;
   }
   .cell .sw { position: absolute; opacity: .72; z-index: 2; pointer-events: none; }
+  .k-C .t, .cell .sw.chn {
+    inset: 0; border-radius: 4px; box-shadow: none; opacity: 1;
+    background:
+      repeating-linear-gradient(45deg, transparent 0 9px, #c3ccd5 9px 12px, #6b747e 12px 14px, transparent 14px 22px),
+      repeating-linear-gradient(-45deg, transparent 0 9px, #c3ccd5 9px 12px, #6b747e 12px 14px, transparent 14px 22px);
+  }
+  .k-C .ico, .k-P .ico, .k-Q .ico { display: none; }
+  .k-P .t { inset: 22% 22% 14%; border-radius: 4px; background: #e8b828; box-shadow: 0 -6px 0 -2px #a8b0b8, 0 0 0 2px #8a6420; }
+  .k-Q .t { inset: 38% 14%; border-radius: 6px; background: linear-gradient(90deg, #e8b828 0 30%, transparent 30% 34%, #e8b828 34%); box-shadow: 0 0 6px #ffe066; }
   .k-u .t, .cell .sw.cw {
     inset: 1px; border-radius: 4px; border: 2px solid #94632e;
     background: linear-gradient(90deg, transparent 40%, rgba(240,225,180,.9) 40% 60%, transparent 60%) center / 100% 30% no-repeat, linear-gradient(135deg, #e8c48a, #b37d42);
@@ -284,7 +293,7 @@
     <p class="hint">
       Клік або протягування — малювати вибраним інструментом.<br>
       Права кнопка миші — стерти (поставити звичайну фішку).<br>
-      Клавіші 0–9, E, O, J, K, Q, M, B, Z, Y, F, A, L, U, D, V, H, I, Shift+K, Shift+G, Shift+B — швидкий вибір інструмента, Ctrl+Z / Ctrl+Y — скасувати / повторити.
+      Клавіші 0–9, E, O, J, K, Q, M, B, Z, Y, F, A, L, U, D, V, H, I, Shift+K, Shift+G, Shift+B, Shift+C, Shift+P, Shift+Q — швидкий вибір інструмента, Ctrl+Z / Ctrl+Y — скасувати / повторити.
     </p>
     <div class="drops" id="drops">
       <h2>🤡 Що може випасти зі шкатулки з клоуном</h2>
@@ -330,6 +339,9 @@ const TOOLS = [
   { ch: 'a', name: 'Броньована стіна', ico: '' },
   { ch: 'l', name: 'Кам\'яна стіна (поверх)', ico: '' },
   { ch: 'u', name: 'Картонна стіна (поверх)', ico: '' },
+  { ch: 'C', name: 'Ланцюги (поверх)', ico: '⛓️' },
+  { ch: 'P', name: 'Навісний замок', ico: '🔒' },
+  { ch: 'Q', name: 'Ключ', ico: '🔑' },
   { ch: 'd', name: 'Сміттєбак з листям', ico: '🗑️' },
   { ch: 'h', name: 'Мітла', ico: '🧹' },
   { ch: 'i', name: 'Магічний кристал', ico: '' },
@@ -339,10 +351,10 @@ const TOOLS = [
   { ch: 'B', name: 'Грядка (під фішками)', ico: '🌱' },
 ];
 const CHARS = TOOLS.map(t => t.ch).join('');
-const MINI = { '.': '', B: '#6b3f1c', G: '#3d444c', K: '#c8954a', u: '#d9a868', i: '#4a26b4', h: '#e8c25a', l: '#a39a8e', d: '#5f8a5a', v: '#d9822b', f: '#6c717b', a: '#2a2f36', z: '#9fd2f0', y: '#e9e4d8', b: '#b8c0c8', m: '#f2a33a', k: '#8a8f98', q: '#b8bdc5', j: '#ffcc33', o: '#2a2f35', e: '#7cc8ff', c: '#c99357', n: '#5b8fd6', w: '#8d5a27', t: '#d23a2a', r: '#9aa5b1', s: '#5fc93a', g: '#3e454e', x: '#e8e8ff', p: '#c0303a' };
+const MINI = { '.': '', C: '#8b96a3', P: '#e8b828', Q: '#ffe066', B: '#6b3f1c', G: '#3d444c', K: '#c8954a', u: '#d9a868', i: '#4a26b4', h: '#e8c25a', l: '#a39a8e', d: '#5f8a5a', v: '#d9822b', f: '#6c717b', a: '#2a2f36', z: '#9fd2f0', y: '#e9e4d8', b: '#b8c0c8', m: '#f2a33a', k: '#8a8f98', q: '#b8bdc5', j: '#ffcc33', o: '#2a2f35', e: '#7cc8ff', c: '#c99357', n: '#5b8fd6', w: '#8d5a27', t: '#d23a2a', r: '#9aa5b1', s: '#5fc93a', g: '#3e454e', x: '#e8e8ff', p: '#c0303a' };
 const LEGEND = {
   '.': 'фішка', c: 'картонна коробка', n: 'синя коробка з цвяхозабивачем', w: "дерев'яний ящик", t: 'ящик TNT',
-  r: 'армований ящик', s: 'слиз', g: 'слизогенератор', x: 'фішка в павутині', p: 'павук на фішці', e: 'електрогенератор', o: 'металеве ядро', j: 'шкатулка з клоуном', k: 'камінь', q: 'камінь з кіркою', m: 'бетономішалка', b: 'робот', z: 'армоване дзеркало', y: 'армоване дзеркало 2 (з простирадлом)', f: 'кам\'яна жаба', a: 'броньована стіна', l: 'кам\'яна стіна', u: 'картонна стіна', d: 'сміттєбак з листям', h: 'мітла', i: 'магічний кристал', K: 'кошик з овочами', G: 'мангал', v: 'осіннє листя', B: 'грядка',
+  r: 'армований ящик', s: 'слиз', g: 'слизогенератор', x: 'фішка в павутині', p: 'павук на фішці', e: 'електрогенератор', o: 'металеве ядро', j: 'шкатулка з клоуном', k: 'камінь', q: 'камінь з кіркою', m: 'бетономішалка', b: 'робот', z: 'армоване дзеркало', y: 'армоване дзеркало 2 (з простирадлом)', f: 'кам\'яна жаба', a: 'броньована стіна', l: 'кам\'яна стіна', u: 'картонна стіна', C: 'ланцюги', P: 'навісний замок', Q: 'ключ', d: 'сміттєбак з листям', h: 'мітла', i: 'магічний кристал', K: 'кошик з овочами', G: 'мангал', v: 'осіннє листя', B: 'грядка',
 };
 
 // Стартовий набір — ті самі рівні, що вбудовані в гру
@@ -383,7 +395,7 @@ function markSaved() { dirty = false; $('fileInfo').textContent = fileName + ' �
 function newLevel() { return { name: '', moves: 25, map: Array(N).fill('.'.repeat(N)) }; }
 // cover — другий шар: l — кам'яна стіна поверх клітинки (під нею може лежати перешкода з map)
 // cover: l — кам'яна стіна, u — картонна стіна
-const COVERS = 'lu';
+const COVERS = 'luC';
 const coverType = (lv, r, c) => { const ch = lv.cover?.[r]?.[c]; return ch && COVERS.includes(ch) ? ch : ''; };
 const coverAt = (lv, r, c) => !!coverType(lv, r, c);
 const coverCount = lv => lv.cover ? lv.cover.join('').split('').filter(ch => COVERS.includes(ch)).length : 0;
@@ -410,6 +422,7 @@ function setCover(r, c, on) {
   const want = on === true ? 'l' : on || '';
   if (coverType(lv, r, c) === want) return false;
   if (want && lv.map[r][c] === 'o') return false;         // ядро під стіною не сховаєш — воно має падати
+  if (want && lv.map[r][c] === 'P') return false;         // замок не можна накрити ні стіною, ні ланцюгами
   if (!lv.cover) lv.cover = Array(N).fill('.'.repeat(N));
   const row = lv.cover[r];
   lv.cover[r] = row.slice(0, c) + (want || '.') + row.slice(c + 1);
@@ -419,6 +432,11 @@ function setCover(r, c, on) {
 function setCell(r, c, ch) {
   const row = levels[cur].map[r];
   let changed = false;
+  // замок — лише впритул до ланцюгів (по горизонталі чи вертикалі) і не під покриттям
+  if (ch === 'P' && (coverAt(levels[cur], r, c) || ![[1,0],[-1,0],[0,1],[0,-1]].some(([dr, dc]) => coverType(levels[cur], r + dr, c + dc) === 'C'))) {
+    $('warnings').textContent = '⚠ Навісний замок ставиться лише впритул до ланцюгів';
+    return false;
+  }
   if (ch === 'o' || ch === '.') changed = setCover(r, c, false);   // гумка й ядро знімають стіну
   if (ch === 'a' || ch === '.') changed = setLeaf(r, c, false) || changed;   // гумка й броньована стіна знімають листя
   if (row[c] === ch) return changed;
@@ -495,7 +513,7 @@ function parseLevels(data) {
     const out = { name: lv.name ? String(lv.name) : '', moves, map };
     if (Array.isArray(lv.cover) && lv.cover.length === N) {
       const cover = lv.cover.map((row, r) => [...String(row).padEnd(N, '.').slice(0, N)].map((ch, c) => COVERS.includes(ch) && map[r][c] !== 'o' ? ch : '.').join(''));
-      if (/[lu]/.test(cover.join(''))) out.cover = cover;
+      if (/[luC]/.test(cover.join(''))) out.cover = cover;
     }
     if (Array.isArray(lv.leaves) && lv.leaves.length === N) {
       const lf = lv.leaves.map((row, r) => [...String(row).padEnd(N, '.').slice(0, N)].map((ch, c) => LAYERS.includes(ch) && map[r][c] !== 'a' ? ch : '.').join(''));
@@ -509,6 +527,38 @@ function warningsFor(lv) {
   const cnt = obstacles(lv);
   if (!cnt) w.push('немає перешкод — рівень буде пройдено одразу');
   if (lv.moves < 5) w.push('дуже мало ходів');
+  {
+    // кожна група ланцюгів має торкатися замка, кожен замок — ланцюгів
+    const isC = (r, c) => coverType(lv, r, c) === 'C';
+    const isP = (r, c) => lv.map[r]?.[c] === 'P';
+    const D4 = [[1,0],[-1,0],[0,1],[0,-1]];
+    const seen = new Set();
+    let noLock = 0;
+    for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
+      if (!isC(r, c) || seen.has(r * N + c)) continue;
+      let lock = false; const q = [[r, c]]; seen.add(r * N + c);
+      while (q.length) {
+        const [y, x] = q.shift();
+        D4.forEach(([dr, dc]) => {
+          const yy = y + dr, xx = x + dc;
+          if (isP(yy, xx)) lock = true;
+          if (yy >= 0 && yy < N && xx >= 0 && xx < N && isC(yy, xx) && !seen.has(yy * N + xx)) { seen.add(yy * N + xx); q.push([yy, xx]); }
+        });
+      }
+      if (!lock) noLock++;
+    }
+    if (noLock) w.push(`груп ланцюгів без замка: ${noLock} — їх неможливо відкрити`);
+    let loose = 0;
+    for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) if (isP(r, c) && !D4.some(([dr, dc]) => isC(r + dr, c + dc))) loose++;
+    if (loose) w.push(`замків без ланцюгів поруч: ${loose}`);
+    // гра не підкидає ключ, поки на полі є хоч один (навіть схований); якщо всі ключі під ланцюгами — рівень застрягне
+    let keys = 0, chained = 0, locks = 0;
+    for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
+      if (lv.map[r][c] === 'P') locks++;
+      if (lv.map[r][c] === 'Q') { keys++; if (isC(r, c)) chained++; }
+    }
+    if (locks && keys && keys === chained) w.push('усі ключі під ланцюгами — їх не дістати, а новий ключ не випаде, поки ці на полі');
+  }
   const grills = lv.map.join('').split('G').length - 1, baskets = lv.map.join('').split('K').length - 1;
   const beds = (lv.leaves || []).join('').split('B').length - 1;
   if (grills && baskets * 10 + beds < grills * 10) w.push(`мангалам потрібно ${grills * 10} овочів, а є лише ${baskets * 10 + beds} (по 10 у кошику й по 1 з грядки)`);
@@ -551,7 +601,7 @@ function renderBoard() {
   $('board').innerHTML = lv.map.map((row, r) => [...row].map((ch, c) => {
     const cov = coverType(lv, r, c);
     let h = cellHTML(ch).replace('<div class="cell', `<div data-r="${r}" data-c="${c}" title="${cov ? LEGEND[cov] + (ch !== '.' ? ', під нею: ' + LEGEND[ch] : '') : LEGEND[ch]}" class="cell${cov ? ' obs' : ''}`);
-    if (cov) h = h.replace(/<\/div>$/, `<div class="${cov === 'u' ? 'sw cw' : 'sw'}"></div></div>`);
+    if (cov) h = h.replace(/<\/div>$/, `<div class="${cov === 'u' ? 'sw cw' : cov === 'C' ? 'sw chn' : 'sw'}"></div></div>`);
     const lt = leafType(lv, r, c);
     if (lt) h = h.replace(/^(<div [^>]*>)/, `$1<div class="lf${lt === 'B' ? ' bed' : ''}"></div>`).replace('title="', `title="${LEGEND[lt]} · `);
     return h;
@@ -666,6 +716,9 @@ document.addEventListener('keydown', e => {
   else if (e.key === 'K' || e.key === 'Л') { tool = 'K'; renderPalette(); }
   else if (e.key === 'G' || e.key === 'П') { tool = 'G'; renderPalette(); }
   else if (e.key === 'B' || e.key === 'И') { tool = 'B'; renderPalette(); }
+  else if (e.key === 'C' || e.key === 'С') { tool = 'C'; renderPalette(); }
+  else if (e.key === 'P' || e.key === 'З') { tool = 'P'; renderPalette(); }
+  else if (e.key === 'Q' || e.key === 'Й') { tool = 'Q'; renderPalette(); }
   else if (/^[0-9]$/.test(e.key) && TOOLS[+e.key]) { tool = TOOLS[+e.key].ch; renderPalette(); }
   else if (e.key.toLowerCase() === 'e' || e.key.toLowerCase() === 'у') { tool = 'e'; renderPalette(); }
   else if (e.key.toLowerCase() === 'o' || e.key.toLowerCase() === 'щ') { tool = 'o'; renderPalette(); }
