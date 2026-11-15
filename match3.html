@@ -637,6 +637,10 @@
   .leaf::before { content: ''; position: absolute; inset: 1px; border-radius: 8px; background: radial-gradient(circle, rgba(150,70,20,.55), rgba(200,100,30,.75)); box-shadow: inset 0 0 0 2px rgba(242,179,58,.6); transition: opacity .3s; }
   .leaf svg { position: absolute; inset: 0; width: 100%; height: 100%; filter: drop-shadow(0 1px 1px rgba(0,0,0,.35)); }
   .leaf.gone::before { opacity: 0; }
+  .leaf.bed::before { background: linear-gradient(160deg, #7a4a22, #5a3416); box-shadow: inset 0 0 0 2px #3e230c, inset 0 2px 6px rgba(0,0,0,.4); }
+  .leaf.bed svg { filter: none; }
+  .leaf.bed.gone svg { animation: bedGone .45s ease-in forwards; }
+  @keyframes bedGone { to { transform: scale(1.2); opacity: 0; } }
   .leaf.gone svg { animation: leafGone .45s ease-in forwards; }
   @keyframes leafGone { to { transform: translate(8px, -16px) rotate(70deg) scale(1.3); opacity: 0; } }
 
@@ -675,8 +679,13 @@
   @keyframes vegBlink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(.1); } }
   .vegToss {
     position: absolute; left: 0; top: 0; width: var(--cell); height: var(--cell); padding: 0; z-index: 18; pointer-events: none;
-    transition: transform .6s cubic-bezier(.3,-0.4,.5,1.2);
+    transition: transform .6s cubic-bezier(.3,-0.4,.5,1.2), translate .25s, scale .25s;
   }
+  .gem.veg.sprout .face { animation: vegSprout .5s cubic-bezier(.3,1.6,.5,1); }
+  @keyframes vegSprout { from { transform: translateY(35%) scale(.2); } }
+  .vegToss.hover { translate: 0 -45%; animation: vegHop .45s cubic-bezier(.3,1.6,.5,1), vegBob .6s .45s ease-in-out infinite alternate; }
+  @keyframes vegHop { from { translate: 0 0; scale: .3; } }
+  @keyframes vegBob { from { translate: 0 -45%; } to { translate: 0 -60%; } }
   .vegFly {
     position: fixed; z-index: 100; pointer-events: none; padding: 0;
     transition: transform 1.1s cubic-bezier(.2,.6,.4,1);
@@ -1083,6 +1092,7 @@
     🍂 осіннє листя — лежить під фішками; знищте фішку чи перешкоду на клітинці, і листя розлетиться. Для перемоги треба прибрати все листя<br>
     💎 магічний кристал — 8 ударів; з кожним змінює колір від темно-синього до багряно-червоного, останні удари — з тріщинами й дрижанням. Розбитий, лишає випадкову суперкомбінацію (червону жабу, фіолетову блискавку або велику бомбу), яка одразу спрацьовує. Кірка вважає його каменем. Кожна блискавка, що влучила в кристал, породжує ще одну — зелену, поперек; зелена блискавка інших кристалів не зачіпає. У зоні 3×3 довкола кристала не з'являються слиз і павутина, а павук, що туди заліз, гине. Якщо кристал з'являється посеред гри (з-під кам'яної стіни чи від клоуна), він одразу знищує павутину, слиз і павуків у своїй зоні<br>
     🧹 мітла — від 1 удару злітає і летить по прямій, вичищаючи листя, слиз і павутину (фішки лишаються). Напрямок обирає за пріоритетом: найбільше листя, потім слизу, потім павутини, потім інших мітел, потім довший шлях. Інші мітли пролітає наскрізь, зачіпаючи їх (вони теж злітають). Наткнувшись на іншу перешкоду, розвертається; долетівши до стінки (краю поля чи броньованої стіни) — з хрустом ламається<br>
+    🌱 грядка — лежить під фішками і прибирається так само, як листя; з прибраної грядки вилазить випадковий овоч і лишається на її місці<br>
     🗑️ сміттєбак — 2 удари: спершу відлітає кришка, потім бак перекидається, засипає листям зону 5×5 і зникає<br>
     🔥 мангал — невразливий, доки на нього не потрапить 10 овочів: кожен прибраний овоч летить на найближчий мангал, якому ще треба овочів. 1-й овоч — шампур і жар, кожні наступні 2 — ще шампур (до 5). На 10-му вогонь згасає, мангал димить і стає вразливим: 1 удар — вибух 3×3, а овочі з шампурів з криком розлітаються<br>
     🧺 кошик з овочами — 3 удари: після 1-го і 2-го з нього вилітає по 3 овочі різних кольорів, після 3-го — ще 4, і кошик зникає. Овочі падають на випадкові фішки й заміняють їх: збираються в комбінації як фішки свого кольору (🍅 червона, 🌽 жовта, 🥦 зелена, 🥬 блакитна, 🍆 фіолетова, 🫑 помаранчева). Знищений овоч з криком вилітає за межі екрана. Овочі змітають мітла, робот (і пробігаючи, і цвяхом), цвяхи цвяхозабивача, слиз і металеве ядро, що падає; дротик теж може вибити овоч, а павук — накрити його павутиною. Для перемоги треба прибрати зі столу всі овочі<br>
@@ -1109,11 +1119,11 @@
     Після рівня — лотерея: зітріть 4 клітинки, дві однакові дають приз.<br>
     4 в ряд → ⚡ блискавка (зсув по горизонталі → б'є стовпчик, по вертикалі → рядок)<br>
     Г / Т → 💣 бомба (вибух 5×5) · 5 в ряд → 🌈 куля (усі фішки одного кольору)<br>
-    Квадрат 2×2 → 🐸 жабка (з'їдає 3 випадкові фішки)<br>
+    Квадрат 2×2 → 🐸 жабка (з'їдає 3 випадкові фішки; один язик завжди підкидає овоч, якщо він є)<br>
     🌈+💣 / 🌈+⚡ — один колір стає бомбами / блискавками · 🌈+🐸 — дві нові кулі<br>
     💣+⚡ — вибух і 6 блискавок · 🐸+💣 / 🐸+⚡ — жабка ковтає бонус і ставить 3 таких<br>
     Суперкомбінації: 🌈+🌈 — знищує все поле (перешкодам 1 удар) · 💣+💣 — велика бомба 7×7 ·
-    ⚡+⚡ — фіолетова блискавка в 4 напрямках · 🐸+🐸 — червона жабка з'їдає 10 фішок
+    ⚡+⚡ — фіолетова блискавка в 4 напрямках · 🐸+🐸 — червона жабка з'їдає 10 фішок (2 язики завжди підкидають овочі, якщо вони є)
   </details>
 
   <div class="modal" id="intro">
@@ -1159,6 +1169,10 @@
   </div>
 
 <script>
+// ===== Файли з рівнями (лежать поруч із грою) =====
+const LEVELS_JS_FILE = 'levels.js';       // копія рівнів для запуску гри просто з диска (file://)
+const LEVELS_JSON_FILE = 'levels.json';   // рівні, коли гра відкрита з сервера/хостингу
+
 // ===== Звук (Web Audio, м'які синтезовані тони) =====
 let actx = null, muted = false, master = null;
 function audio() {
@@ -1258,6 +1272,7 @@ const sfx = {
     tone(f * 1.7, { dur: 0.45, vol: 0.05, type: 'square', slide: 0.45, delay: 0.16 });
     tone(f * 1.72, { dur: 0.45, vol: 0.025, type: 'sawtooth', slide: 0.44, delay: 0.17 });
   },
+  dig: () => { noise(0.18, 0.08, 700); tone(150, { dur: 0.12, vol: 0.08, type: 'triangle', slide: 1.6, delay: 0.05 }); },
   sizzle: full => { noise(0.35, 0.06, 6000); tone(full ? 300 : 180, { dur: 0.2, vol: 0.05, type: 'triangle', slide: full ? 1.5 : 0.8, delay: 0.05 }); },
   vegToss: () => { [0, 1, 2].forEach(i => tone(400 + i * 120, { dur: 0.12, vol: 0.05, type: 'triangle', slide: 1.5, delay: i * 0.08 })); },
   vegLand: i => { tone(300 - i * 20, { dur: 0.1, vol: 0.08, type: 'sine', slide: 0.6 }); },
@@ -1406,7 +1421,7 @@ const BOX_CHARS = { c: CARDBOARD, n: CARDBOARD, w: WOOD, r: REINFORCED, s: SLIME
 function startLevel(i) {
   level = i;
   const def = LEVELS[i] || randomLevel();
-  board.querySelectorAll('.gem, .beam, .bolt, .shock, .float, .combo, .shard, .tongue, .spiderEl, .nail, .dart, .leaf, .broomFx').forEach(e => e.remove());
+  board.querySelectorAll('.gem, .beam, .bolt, .shock, .float, .combo, .shard, .tongue, .spiderEl, .nail, .dart, .leaf, .broomFx, .vegToss').forEach(e => e.remove());
   pendingFill.length = pendingClear.length = pendingDet.length = 0;
   inFlight = 0;
   turn = 0;
@@ -1415,6 +1430,7 @@ function startLevel(i) {
   pendingBroom.length = 0;
   pendingBolts.length = 0;
   pendingVeg.length = 0;
+  pendingBedVeg.length = 0;
   document.querySelectorAll('.vegFly').forEach(e => e.remove());
   leaves = [...Array(N)].map(() => Array(N).fill(null));
   pendingMixer.length = 0;
@@ -1453,7 +1469,7 @@ function startLevel(i) {
     }
   }
   // шар листя
-  def.leaves?.forEach((row, r) => [...row].forEach((ch, c) => { if (ch === 'v' && grid[r][c]?.type !== WALL) addLeaf(r, c); }));
+  def.leaves?.forEach((row, r) => [...row].forEach((ch, c) => { if ((ch === 'v' || ch === 'B') && grid[r][c]?.type !== WALL) addLeaf(r, c, null, ch); }));
   $('overlay').classList.remove('show');
   updateHud();
   if (!findMove()) shuffle();
@@ -1614,6 +1630,7 @@ function collapse() {
   sweepBroken();
   applyPendingFill();
   applyPendingClear();
+  applyBedVeg();
   // металеве ядро падає крізь овочі: змітає їх, доки не сяде на справжню фішку
   for (let c = 0; c < N; c++) for (let r = N - 2; r >= 0; r--) {
     const core = grid[r][c];
@@ -1823,7 +1840,10 @@ function removeGemEl(g) {
   document.body.appendChild(fly);
   el.remove();
   sfx.vegScream(g.type);
-  // є мангал, якому ще треба овочів, — овоч летить на нього
+  vegLaunch(fly, rect);
+}
+// Овоч (елемент fly у position: fixed на місці rect) летить на мангал, якому ще треба овочів, або за межі екрана
+function vegLaunch(fly, rect) {
   const gr = grillTarget(rect);
   if (gr) {
     gr.count++;
@@ -1918,8 +1938,9 @@ function vegSweep(g) {
 }
 // Кошик зачепили — з нього вилітають овочі різних кольорів і падають на випадкові фішки
 const pendingVeg = [];
-async function basketThrow({ r, c, n }) {
-  const colors = [...Array(TYPES).keys()].sort(() => Math.random() - .5).slice(0, n);
+async function basketThrow({ r, c, n, t: fixedT, el: hoverEl }) {
+  // hoverEl — овоч, що вже вистрибнув з грядки й висить над полем; він і полетить
+  const colors = fixedT != null ? [fixedT] : [...Array(TYPES).keys()].sort(() => Math.random() - .5).slice(0, n);
   // куди падати: звичайні фішки, бажано так, щоб не склалась готова комбінація
   const free = [];
   for (let y = 0; y < N; y++) for (let x = 0; x < N; x++)
@@ -1933,20 +1954,28 @@ async function basketThrow({ r, c, n }) {
     return h >= 3 || v >= 3;
   };
   const picks = [];
+  const taken = (y, x) => picks.some(p => p[0] === y && p[1] === x);
   colors.forEach(t => {
-    let i = free.findIndex(([y, x]) => !picks.some(p => p[0] === y && p[1] === x) && !makesRun(y, x, t));
-    if (i < 0) i = free.findIndex(([y, x]) => !picks.some(p => p[0] === y && p[1] === x));
+    // спершу — фішка того самого кольору (овоч просто «заміняє» її, нових комбінацій не з'являється);
+    // якщо такої нема — будь-яка інша вільна фішка (але не овоч), бажано без готової комбінації
+    let i = free.findIndex(([y, x]) => !taken(y, x) && grid[y][x].type === t);
+    if (i < 0) i = free.findIndex(([y, x]) => !taken(y, x) && !makesRun(y, x, t));
+    if (i < 0) i = free.findIndex(([y, x]) => !taken(y, x));
     if (i >= 0) picks.push([...free[i], t]);
   });
-  if (!picks.length) return;
-  sfx.vegToss();
+  if (!picks.length) { hoverEl?.remove(); return; }
+  if (!hoverEl) sfx.vegToss();
   picks.forEach(([y, x, t], i) => {
-    const f = document.createElement('div');
-    f.className = 'vegToss';
-    f.innerHTML = VEG_SVG[t];
-    f.style.transform = `translate(${c * 100}%, ${r * 100}%) scale(.4)`;
-    f.style.transitionDelay = i * 0.1 + 's';
-    board.appendChild(f);
+    let f = hoverEl;
+    if (f) f.classList.remove('hover');
+    else {
+      f = document.createElement('div');
+      f.className = 'vegToss';
+      f.innerHTML = VEG_SVG[t];
+      f.style.transform = `translate(${c * 100}%, ${r * 100}%) scale(.4)`;
+      f.style.transitionDelay = i * 0.1 + 's';
+      board.appendChild(f);
+    }
     f.getBoundingClientRect();
     f.style.transform = `translate(${x * 100}%, ${y * 100}%) scale(1)`;
     setTimeout(() => {
@@ -2152,10 +2181,11 @@ async function broomRun({ el, r, c }) {
 // Мітла чистить клітинку: листя, слиз, павутину. Фішки не чіпає
 function broomSweep(y, x) {
   const g = grid[y][x];
+  const wasVeg = !!g?.veg;   // овоч, що щойно виліз із грядки під мітлою, лишається
   if (leaves[y][x]) clearLeaf(y, x);
   if (g && g.type === SLIME && !g.broken) hitBox(y, x);
   else if (g && g.web && !g.spider && !g.eggs) hitBox(y, x);
-  else if (g && g.veg && !locked(g)) vegSweep(g);   // овоч мітла змітає
+  else if (g && wasVeg && !locked(g)) vegSweep(g);   // овоч мітла змітає
   else if (g && g.type === BROOM && !g.broken) {
     // інша мітла: пролітаємо наскрізь, зачеплена теж злітає
     fx('impact', { left: `calc(var(--cell) * ${x})`, top: `calc(var(--cell) * ${y})` });
@@ -2188,16 +2218,57 @@ function leafSVG() {
   return '<svg viewBox="0 0 100 100">' + spots.map(([x, y]) =>
     one(x + Math.random() * 6 - 3, y + Math.random() * 6 - 3, Math.random() * 360, rnd(LEAF_COLORS), 0.95 + Math.random() * .3)).join('') + '</svg>';
 }
-function makeLeafEl() {
+// Грядка: земля з борознами й паростком; прибрана грядка дає на стіл 1 випадковий овоч
+const BED_SVG = '<svg viewBox="0 0 100 100">' +
+  '<g stroke="#4a2c12" stroke-width="5" stroke-linecap="round" opacity=".55"><path d="M10,22 Q50,16 90,22"/><path d="M10,50 Q50,44 90,50"/><path d="M10,78 Q50,72 90,78"/></g>' +
+  '<g fill="#8a5a2e"><circle cx="20" cy="34" r="3"/><circle cx="70" cy="62" r="3.5"/><circle cx="44" cy="90" r="2.5"/><circle cx="84" cy="32" r="2.5"/></g>' +
+  '<g class="sprout"><path d="M14,14 V6" stroke="#3fae2e" stroke-width="2.5" stroke-linecap="round"/><path d="M14,8 Q8,2 4,6 Q8,10 14,8 Z M14,8 Q20,2 24,6 Q20,10 14,8 Z" fill="#6bd04a"/>' +
+  '<path d="M86,94 V86" stroke="#3fae2e" stroke-width="2.5" stroke-linecap="round"/><path d="M86,88 Q80,82 76,86 Q80,90 86,88 Z M86,88 Q92,82 96,86 Q92,90 86,88 Z" fill="#6bd04a"/></g></svg>';
+function makeLeafEl(kind = 'v') {
   const el = document.createElement('div');
-  el.className = 'leaf';
-  el.innerHTML = leafSVG();
+  el.className = 'leaf' + (kind === 'B' ? ' bed' : '');
+  el.dataset.kind = kind;
+  el.innerHTML = kind === 'B' ? BED_SVG : leafSVG();
   return el;
 }
+// Грядку прибрано — з неї вилазить овоч і лишається на цій клітинці.
+// Якщо на клітинці вже стоїть звичайна фішка, вона стає овочем свого кольору; якщо клітинка звільняється —
+// овоч з'являється в ній, щойно поле почне осідати; якщо там перешкода чи бонус — овоч перелітає на фішку свого кольору
+const pendingBedVeg = [];
+function bedVeg(r, c) {
+  sfx.dig();
+  const g = grid[r][c];
+  if (g && !g.veg && isFree(r, c) && !isSpecial(g.type) && !pendingClear.includes(g) && !g.el.classList.contains('pop')) {
+    makeVeg(g); g.el.classList.add('sprout'); updateHud(); return;
+  }
+  pendingBedVeg.push([r, c]);
+}
+function applyBedVeg() {
+  pendingBedVeg.splice(0).forEach(([r, c]) => {
+    const g = grid[r][c];
+    if (!g) {
+      const n = createGem(r, c, rand());
+      grid[r][c] = n; makeVeg(n); n.el.classList.add('sprout');
+    } else if (!g.veg && isFree(r, c) && !isSpecial(g.type)) { makeVeg(g); g.el.classList.add('sprout'); }
+    else bedPop(r, c);
+  });
+  updateHud();
+}
+// запасний варіант: овоч вистрибує й висить над полем, а падає на фішку свого кольору, коли поле вляжеться й висить над полем, а падає на фішку свого кольору, коли поле вляжеться
+function bedPop(r, c) {
+  const t = Math.floor(Math.random() * TYPES);
+  const f = document.createElement('div');
+  f.className = 'vegToss hover';
+  f.innerHTML = VEG_SVG[t];
+  f.style.transform = `translate(${c * 100}%, ${r * 100}%)`;
+  board.appendChild(f);
+  sfx.vegToss();
+  pendingVeg.push({ r, c, n: 1, t, el: f });
+}
 // Кладе листя на клітинку (from — звідки летить, для розсипання зі сміттєбака)
-function addLeaf(r, c, from = null) {
+function addLeaf(r, c, from = null, kind = 'v') {
   if (leaves[r][c]) return false;
-  const el = makeLeafEl();
+  const el = makeLeafEl(kind);
   if (from) el.style.transform = `translate(${from[1] * 100}%, ${from[0] * 100}%) scale(.3) rotate(-90deg)`;
   else el.style.transform = `translate(${c * 100}%, ${r * 100}%)`;
   board.prepend(el);   // під фішками
@@ -2213,6 +2284,7 @@ function clearLeaf(r, c) {
   el.classList.add('gone');
   setTimeout(() => el.remove(), 450);
   score += 20;
+  if (el.dataset.kind === 'B') { bedVeg(r, c); return; }   // з грядки вилазить овоч і лишається на її місці
   const now = performance.now();
   if (!clearLeaf.last || now - clearLeaf.last > 70) { sfx.leafRustle(); clearLeaf.last = now; }
 }
@@ -2845,6 +2917,7 @@ async function mixerSuck(box) {
   const [r, c] = pos;
   const el = box.el;
   const counts = {};
+  const suckedVeg = [];
   for (let rr = r - 1; rr <= r + 1; rr++) for (let cc = c - 1; cc <= c + 1; cc++) {
     if (rr < 0 || rr >= N || cc < 0 || cc >= N || (rr === r && cc === c)) continue;
     const g = grid[rr][cc];
@@ -2863,6 +2936,7 @@ async function mixerSuck(box) {
     g.spider = false; g.spiderEl = null; g.web = false; g.eggs = null; g.eggsEl = null;
     g.el.classList.remove('spidered', 'webbed', 'egged');
     counts[g.type] = (counts[g.type] || 0) + 1;
+    if (g.veg) { suckedVeg.push(g.type); g.veg = false; }   // овоч затягнуто — після змішування він вилетить
     g.type = -1;                                  // фішка вже не бере участі в комбінаціях
     g.el.style.zIndex = 4;
     g.el.style.transition = 'transform .55s cubic-bezier(.5,0,.8,.5), opacity .2s .4s';
@@ -2876,6 +2950,7 @@ async function mixerSuck(box) {
     if (rr < 0 || rr >= N || cc < 0 || cc >= N || !leaves[rr][cc]) continue;
     const lf = leaves[rr][cc];
     leaves[rr][cc] = null;
+    if (lf.dataset.kind === 'B') bedVeg(rr, cc);
     lf.style.zIndex = 4;
     lf.style.transition = `transform .6s cubic-bezier(.5,0,.8,.5) ${sucked * 0.03}s, opacity .25s ${0.4 + sucked * 0.03}s`;
     lf.style.transform = `translate(${c * 100}%, ${r * 100}%) scale(.1) rotate(720deg)`;
@@ -2901,6 +2976,18 @@ async function mixerSuck(box) {
   setTimeout(() => el.remove(), 400);
   if (made.length) pendingMixer.push({ r, c, made });
   else floatText('нічого не змішалось', r, c, '#ccc');
+  // затягнуті овочі з криком вилітають з барабана: на мангал або за межі екрана
+  const mrect = el.getBoundingClientRect();
+  suckedVeg.forEach((t, i) => setTimeout(() => {
+    const f = document.createElement('div');
+    f.className = 'vegFly';
+    f.innerHTML = '<div class="face">' + VEG_SVG[t] + '</div>';
+    Object.assign(f.style, { left: mrect.left + 'px', top: mrect.top + 'px', width: mrect.width + 'px', height: mrect.height + 'px', transform: 'none' });
+    document.body.appendChild(f);
+    sfx.vegScream(t);
+    vegLaunch(f, mrect);
+  }, 150 + i * 120));
+  if (suckedVeg.length) await wait(150 + suckedVeg.length * 120);
   updateHud();
   await wait(250);
 }
@@ -3204,7 +3291,7 @@ async function settle() {
     if (landCores()) { await wait(250); while (inFlight > 0) await wait(50); }
     if (pendingBolts.length) { await detonate(pendingBolts.splice(0)); await resolve(); continue; }
     const dets = pendingDet.splice(0).map(findGem).filter(p => p && isSpecial(grid[p[0]][p[1]].type));
-    const dirty = pendingClear.length || pendingFill.length || grid.flat().some(g => g && g.broken);
+    const dirty = pendingClear.length || pendingFill.length || pendingBedVeg.length || grid.flat().some(g => g && g.broken);
     if (!dets.length && !dirty) {
       if (pendingRun.length) {                        // поле стабільне — роботи біжать
         for (const job of pendingRun.splice(0)) { while (inFlight > 0) await wait(50); await robotRun(job.box, job.shoot); }
@@ -3380,6 +3467,19 @@ async function frogEat(f, [r, c], frogEl, i, convert = false, speed = 1) {
   tongue.style.transform = `rotate(${ang}) scaleX(1)`;   // язик вилітає
   await wait(190 * speed);
 
+  if (convert === 'veg') {
+    // язик хапає овоч і підкидає його: той з криком летить на мангал або за межі екрана
+    const g = grid[r][c];
+    if (g?.veg) { removeGemEl(g); g.veg = false; }
+    tongue.style.transition = `transform ${.22 * speed}s ease-in`;
+    tongue.style.transform = `rotate(${ang}) scaleX(0)`;
+    await wait(230 * speed);
+    tongue.remove();
+    frogEl.classList.remove('gulp'); frogEl.getBoundingClientRect(); frogEl.classList.add('gulp');
+    sfx.gulp(i);
+    await wait(120 * speed);
+    return;
+  }
   if (convert === 'spider') {
     // язик хапає павука, фішка під ним лишається
     const g = grid[r][c], sel = g.spiderEl;
@@ -3494,10 +3594,27 @@ async function fire(t, idx, destroyed, next) {
     const spiders = [];
     for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) if (grid[r][c]?.spider) spiders.push([r, c]);
     const spiderCell = spiders.length ? spiders[Math.floor(Math.random() * spiders.length)] : null;
-    const spiderAt = spiderCell ? Math.floor(Math.random() * count) : -1;
+    // овочі: зелена жабка завжди хапає 1, червона — 2 (якщо вони є); язик підкидає овоч — він летить на мангал або за екран
+    const vegQueue = [];
+    for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
+      const g = grid[r][c];
+      if (g?.veg && !locked(g) && !destroyed.has(key(r, c))) vegQueue.push([r, c]);
+    }
+    vegQueue.sort(() => Math.random() - .5);
+    vegQueue.length = Math.min(vegQueue.length, count >= 10 ? 2 : 1, count);
+    const vegN = vegQueue.length;
+    const spiderAt = spiderCell ? vegN + Math.floor(Math.random() * Math.max(1, count - vegN)) : -1;
     let eaten = 0;
     const queue = pool.slice();
     while (eaten < count) {
+      if (vegQueue.length) {
+        const cell = vegQueue.shift();
+        if (destroyed.has(key(...cell)) || !grid[cell[0]][cell[1]]?.veg) continue;
+        destroyed.add(key(...cell));
+        await frogEat(t, cell, gem.el, eaten++, 'veg', speed);
+        hitAround(...cell);
+        continue;
+      }
       if (eaten === spiderAt && grid[spiderCell[0]][spiderCell[1]]?.spider) {
         await frogEat(t, spiderCell, gem.el, eaten++, 'spider', speed);
         continue;
@@ -4394,7 +4511,7 @@ function parseLevels(data) {
       out.cover = lv.cover.map(row => [...String(row).padEnd(N, '.').slice(0, N)].map(ch => COVER_TYPES[ch] ? ch : '.').join(''));
     // leaves — шар осіннього листя: v — клітинка вкрита листям
     if (Array.isArray(lv.leaves) && lv.leaves.length === N)
-      out.leaves = lv.leaves.map(row => [...String(row).padEnd(N, '.').slice(0, N)].map(ch => ch === 'v' ? 'v' : '.').join(''));
+      out.leaves = lv.leaves.map(row => [...String(row).padEnd(N, '.').slice(0, N)].map(ch => ch === 'v' || ch === 'B' ? ch : '.').join(''));
     return out;
   });
 }
@@ -4514,6 +4631,7 @@ const INTRO = {
   l: ["Кам'яна стіна", "Руйнується після трьох ударів. Хтозна, що може ховатися за нею…"],
   i: ['Магічний кристал', "Таємничий кристал, що від кожного удару міняє барву — від нічної сині до багрянцю. Розбийте його — і вивільніть суперсилу. Блискавки він подвоює, а слиз, павутиння й павуків довкола себе не терпить — щойно з'явиться, одразу їх знищує"],
   h: ["Мітла", "Змете зі шляху опале листя, павутиння та надокучливий слиз"],
+  B: ['Грядка', 'Лежить під фішками, як листя. Знищте фішку чи перешкоду на ній — і з грядки вилізе свіжий овоч!'],
   G: ['Мангал', 'Холодний і порожній — його нічим не взяти. Нагодуйте його 10 овочами: з кожним новим шампуром жар сильнішає. Коли мангал повний і димить — один удар, і він вибухне!'],
   K: ['Кошик з овочами', 'Повнісінький кошик. Від кожного удару з нього вистрибують овочі — і кліпають на вас оченятами. Щоб пройти рівень, приберіть зі столу всі овочі!'],
   u: ['Картонна стіна', 'Легенька перегородка — розлетиться від першого ж удару. Але хтозна, що за нею…'],
@@ -4525,9 +4643,9 @@ function introTile(ch) {
   const tile = document.createElement('div');
   tile.className = 'introTile';
   let g;
-  if (ch === 'v') tile.appendChild(makeLeafEl());
-  if (ch === 'x' || ch === 'p' || ch === 'v') {
-    g = createGem(0, 0, ch === 'v' ? 2 : 0);
+  if (ch === 'v' || ch === 'B') tile.appendChild(makeLeafEl(ch));
+  if (ch === 'x' || ch === 'p' || ch === 'v' || ch === 'B') {
+    g = createGem(0, 0, ch === 'v' ? 2 : ch === 'B' ? 1 : 0);
     if (ch === 'x') addWeb(g);
   } else {
     g = createBox(0, 0, COVER_TYPES[ch] ?? BOX_CHARS[ch]);
@@ -4548,7 +4666,7 @@ function showIntro(def) {
   def.map.forEach((row, r) => [...row].forEach((ch, c) => {
     if (COVER_TYPES[def.cover?.[r][c]] && ch !== 'o') found.add(def.cover[r][c]);
     else if (INTRO[ch]) found.add(ch);
-    if (def.leaves?.[r][c] === 'v' && ch !== 'a') found.add('v');
+    if ((def.leaves?.[r][c] === 'v' || def.leaves?.[r][c] === 'B') && ch !== 'a') found.add(def.leaves[r][c]);
   }));
   introPending = Object.keys(INTRO).filter(ch => found.has(ch) && !seen[ch]);
   if (!introPending.length) { $('intro').classList.remove('show'); return; }
@@ -4592,7 +4710,7 @@ function tryLevelsData(d, note) {
 function loadLevelsJs() {
   return new Promise(res => {
     const sc = document.createElement('script');
-    sc.src = 'levels.js?' + Date.now();
+    sc.src = LEVELS_JS_FILE + '?' + Date.now();
     sc.onload = () => res(window.LEVELS_DATA || null);
     sc.onerror = () => res(null);
     document.head.appendChild(sc);
@@ -4602,9 +4720,9 @@ function loadLevelsJs() {
   if (TEST_MODE) return;                     // рівні надішле редактор
   let data = null, from = '';
   if (location.protocol !== 'file:') {
-    try { const r = await fetch('levels.json', { cache: 'no-store' }); if (r.ok) { data = await r.json(); from = 'levels.json'; } } catch (e) {}
+    try { const r = await fetch(LEVELS_JSON_FILE, { cache: 'no-store' }); if (r.ok) { data = await r.json(); from = LEVELS_JSON_FILE; } } catch (e) {}
   }
-  if (!data) { data = await loadLevelsJs(); from = 'levels.js'; }
+  if (!data) { data = await loadLevelsJs(); from = LEVELS_JS_FILE; }
   if (data && !busy && moves === LEVELS[level]?.moves && turn === 0) tryLevelsData(data, `📂 Рівні завантажено з ${from}`);
 })();
 

@@ -130,6 +130,10 @@
   }
   .k-v .ico { display: none; }
   .cell .lf { position: absolute; }
+  .k-B .t, .cell .lf.bed { inset: 2px; border-radius: 6px; background: repeating-linear-gradient(0deg, #6b3f1c 0 6px, #4a2c12 6px 8px); }
+  .k-B .ico { display: none; }
+  .cell.obs .lf.bed { background: none; border-color: #6b3f1c; }
+  .cell.obs .lf.bed::after { content: '🌱'; }
   .cell.obs .lf { inset: 0; z-index: 3; background: none; border: 3px solid #e8742a; border-radius: 6px; pointer-events: none; }
   .cell.obs .lf::after { content: '🍂'; position: absolute; right: -3px; bottom: -5px; font-size: 13px; }
   .k-l .t, .cell .sw {
@@ -280,7 +284,7 @@
     <p class="hint">
       Клік або протягування — малювати вибраним інструментом.<br>
       Права кнопка миші — стерти (поставити звичайну фішку).<br>
-      Клавіші 0–9, E, O, J, K, Q, M, B, Z, Y, F, A, L, U, D, V, H, I, Shift+K, Shift+G — швидкий вибір інструмента, Ctrl+Z / Ctrl+Y — скасувати / повторити.
+      Клавіші 0–9, E, O, J, K, Q, M, B, Z, Y, F, A, L, U, D, V, H, I, Shift+K, Shift+G, Shift+B — швидкий вибір інструмента, Ctrl+Z / Ctrl+Y — скасувати / повторити.
     </p>
     <div class="drops" id="drops">
       <h2>🤡 Що може випасти зі шкатулки з клоуном</h2>
@@ -332,12 +336,13 @@ const TOOLS = [
   { ch: 'K', name: 'Кошик з овочами', ico: '🧺' },
   { ch: 'G', name: 'Мангал', ico: '🔥' },
   { ch: 'v', name: 'Осіннє листя (під фішками)', ico: '🍂' },
+  { ch: 'B', name: 'Грядка (під фішками)', ico: '🌱' },
 ];
 const CHARS = TOOLS.map(t => t.ch).join('');
-const MINI = { '.': '', G: '#3d444c', K: '#c8954a', u: '#d9a868', i: '#4a26b4', h: '#e8c25a', l: '#a39a8e', d: '#5f8a5a', v: '#d9822b', f: '#6c717b', a: '#2a2f36', z: '#9fd2f0', y: '#e9e4d8', b: '#b8c0c8', m: '#f2a33a', k: '#8a8f98', q: '#b8bdc5', j: '#ffcc33', o: '#2a2f35', e: '#7cc8ff', c: '#c99357', n: '#5b8fd6', w: '#8d5a27', t: '#d23a2a', r: '#9aa5b1', s: '#5fc93a', g: '#3e454e', x: '#e8e8ff', p: '#c0303a' };
+const MINI = { '.': '', B: '#6b3f1c', G: '#3d444c', K: '#c8954a', u: '#d9a868', i: '#4a26b4', h: '#e8c25a', l: '#a39a8e', d: '#5f8a5a', v: '#d9822b', f: '#6c717b', a: '#2a2f36', z: '#9fd2f0', y: '#e9e4d8', b: '#b8c0c8', m: '#f2a33a', k: '#8a8f98', q: '#b8bdc5', j: '#ffcc33', o: '#2a2f35', e: '#7cc8ff', c: '#c99357', n: '#5b8fd6', w: '#8d5a27', t: '#d23a2a', r: '#9aa5b1', s: '#5fc93a', g: '#3e454e', x: '#e8e8ff', p: '#c0303a' };
 const LEGEND = {
   '.': 'фішка', c: 'картонна коробка', n: 'синя коробка з цвяхозабивачем', w: "дерев'яний ящик", t: 'ящик TNT',
-  r: 'армований ящик', s: 'слиз', g: 'слизогенератор', x: 'фішка в павутині', p: 'павук на фішці', e: 'електрогенератор', o: 'металеве ядро', j: 'шкатулка з клоуном', k: 'камінь', q: 'камінь з кіркою', m: 'бетономішалка', b: 'робот', z: 'армоване дзеркало', y: 'армоване дзеркало 2 (з простирадлом)', f: 'кам\'яна жаба', a: 'броньована стіна', l: 'кам\'яна стіна', u: 'картонна стіна', d: 'сміттєбак з листям', h: 'мітла', i: 'магічний кристал', K: 'кошик з овочами', G: 'мангал', v: 'осіннє листя',
+  r: 'армований ящик', s: 'слиз', g: 'слизогенератор', x: 'фішка в павутині', p: 'павук на фішці', e: 'електрогенератор', o: 'металеве ядро', j: 'шкатулка з клоуном', k: 'камінь', q: 'камінь з кіркою', m: 'бетономішалка', b: 'робот', z: 'армоване дзеркало', y: 'армоване дзеркало 2 (з простирадлом)', f: 'кам\'яна жаба', a: 'броньована стіна', l: 'кам\'яна стіна', u: 'картонна стіна', d: 'сміттєбак з листям', h: 'мітла', i: 'магічний кристал', K: 'кошик з овочами', G: 'мангал', v: 'осіннє листя', B: 'грядка',
 };
 
 // Стартовий набір — ті самі рівні, що вбудовані в гру
@@ -383,15 +388,19 @@ const coverType = (lv, r, c) => { const ch = lv.cover?.[r]?.[c]; return ch && CO
 const coverAt = (lv, r, c) => !!coverType(lv, r, c);
 const coverCount = lv => lv.cover ? lv.cover.join('').split('').filter(ch => COVERS.includes(ch)).length : 0;
 const obstacles = lv => leafCount(lv) + lv.map.join('').replace(/\./g, '').length + lv.map.join('').split('').filter((ch, i) => ch === '.' && coverAt(lv, Math.floor(i / N), i % N)).length;
-const leafAt = (lv, r, c) => lv.leaves?.[r]?.[c] === 'v';
-const leafCount = lv => lv.leaves ? lv.leaves.join('').split('v').length - 1 : 0;
+// шар під фішками: v — листя, B — грядка
+const LAYERS = 'vB';
+const leafType = (lv, r, c) => { const ch = lv.leaves?.[r]?.[c]; return ch && LAYERS.includes(ch) ? ch : ''; };
+const leafAt = (lv, r, c) => !!leafType(lv, r, c);
+const leafCount = lv => lv.leaves ? lv.leaves.join('').split('').filter(ch => LAYERS.includes(ch)).length : 0;
 function setLeaf(r, c, on) {
   const lv = levels[cur];
-  if (leafAt(lv, r, c) === on) return false;
+  const want = on === true ? 'v' : on || '';
+  if (leafType(lv, r, c) === want) return false;
   if (on && lv.map[r][c] === 'a') return false;           // під броньованою стіною листя не прибрати
   if (!lv.leaves) lv.leaves = Array(N).fill('.'.repeat(N));
   const row = lv.leaves[r];
-  lv.leaves[r] = row.slice(0, c) + (on ? 'v' : '.') + row.slice(c + 1);
+  lv.leaves[r] = row.slice(0, c) + (want || '.') + row.slice(c + 1);
   if (!leafCount(lv)) delete lv.leaves;
   return true;
 }
@@ -489,8 +498,8 @@ function parseLevels(data) {
       if (/[lu]/.test(cover.join(''))) out.cover = cover;
     }
     if (Array.isArray(lv.leaves) && lv.leaves.length === N) {
-      const lf = lv.leaves.map((row, r) => [...String(row).padEnd(N, '.').slice(0, N)].map((ch, c) => ch === 'v' && map[r][c] !== 'a' ? 'v' : '.').join(''));
-      if (lf.join('').includes('v')) out.leaves = lf;
+      const lf = lv.leaves.map((row, r) => [...String(row).padEnd(N, '.').slice(0, N)].map((ch, c) => LAYERS.includes(ch) && map[r][c] !== 'a' ? ch : '.').join(''));
+      if (/[vB]/.test(lf.join(''))) out.leaves = lf;
     }
     return out;
   });
@@ -501,7 +510,8 @@ function warningsFor(lv) {
   if (!cnt) w.push('немає перешкод — рівень буде пройдено одразу');
   if (lv.moves < 5) w.push('дуже мало ходів');
   const grills = lv.map.join('').split('G').length - 1, baskets = lv.map.join('').split('K').length - 1;
-  if (grills && baskets * 10 < grills * 10) w.push(`мангалів: ${grills}, а кошиків: ${baskets} — овочів (по 10 у кошику) не вистачить, щоб наповнити всі мангали`);
+  const beds = (lv.leaves || []).join('').split('B').length - 1;
+  if (grills && baskets * 10 + beds < grills * 10) w.push(`мангалам потрібно ${grills * 10} овочів, а є лише ${baskets * 10 + beds} (по 10 у кошику й по 1 з грядки)`);
   const free = lv.map.join('').split('').filter((ch, i) => ch === '.' && !coverAt(lv, Math.floor(i / N), i % N)).length;
   if (free < 12) w.push('замало вільних фішок — гравцю буде важко ходити');
   // ядро має мати змогу впасти до дна: під ним лише звичайні фішки або інші ядра
@@ -524,7 +534,7 @@ function cellHTML(ch, size) {
 function renderList() {
   $('list').innerHTML = levels.map((lv, i) => {
     const w = warningsFor(lv);
-    const mini = lv.map.join('').split('').map((ch, i) => { const cv = coverType(lv, Math.floor(i / N), i % N); const col = cv ? MINI[cv] : MINI[ch] || (leafAt(lv, Math.floor(i / N), i % N) ? MINI.v : ''); return `<i${col ? ` style="background:${col}"` : ''}></i>`; }).join('');
+    const mini = lv.map.join('').split('').map((ch, i) => { const cv = coverType(lv, Math.floor(i / N), i % N); const col = cv ? MINI[cv] : MINI[ch] || (MINI[leafType(lv, Math.floor(i / N), i % N)] || ''); return `<i${col ? ` style="background:${col}"` : ''}></i>`; }).join('');
     return `<div class="item${i === cur ? ' sel' : ''}" data-i="${i}">
       <span class="num">${i + 1}</span><div class="mini">${mini}</div>
       <div class="info"><div class="nm">${lv.name || 'Без назви'}</div>
@@ -542,13 +552,14 @@ function renderBoard() {
     const cov = coverType(lv, r, c);
     let h = cellHTML(ch).replace('<div class="cell', `<div data-r="${r}" data-c="${c}" title="${cov ? LEGEND[cov] + (ch !== '.' ? ', під нею: ' + LEGEND[ch] : '') : LEGEND[ch]}" class="cell${cov ? ' obs' : ''}`);
     if (cov) h = h.replace(/<\/div>$/, `<div class="${cov === 'u' ? 'sw cw' : 'sw'}"></div></div>`);
-    if (leafAt(lv, r, c)) h = h.replace(/^(<div [^>]*>)/, '$1<div class="lf"></div>').replace('title="', 'title="листя · ');
+    const lt = leafType(lv, r, c);
+    if (lt) h = h.replace(/^(<div [^>]*>)/, `$1<div class="lf${lt === 'B' ? ' bed' : ''}"></div>`).replace('title="', `title="${LEGEND[lt]} · `);
     return h;
   }).join('')).join('');
   const counts = {};
   lv.map.join('').split('').forEach(ch => { if (ch !== '.') counts[ch] = (counts[ch] || 0) + 1; });
   lv.cover?.join('').split('').forEach(ch => { if (COVERS.includes(ch)) counts[ch] = (counts[ch] || 0) + 1; });
-  if (leafCount(lv)) counts.v = leafCount(lv);
+  lv.leaves?.join('').split('').forEach(ch => { if (LAYERS.includes(ch)) counts[ch] = (counts[ch] || 0) + 1; });
   $('stats').textContent = Object.keys(counts).length
     ? 'На полі: ' + Object.entries(counts).map(([ch, n]) => `${LEGEND[ch]} × ${n}`).join(', ')
     : 'Поле порожнє — оберіть інструмент і клікніть по клітинках';
@@ -581,7 +592,7 @@ $('board').addEventListener('pointerdown', e => {
   const r = +el.dataset.r, c = +el.dataset.c;
   if (e.button !== 2 && levels[cur].map[r][c] === tool && tool !== '.') painting = '.';
   if (e.button !== 2 && COVERS.includes(tool)) painting = coverType(levels[cur], r, c) === tool ? 'L-' : 'L+' + tool;   // повторний клік по такій самій стіні — знімає її
-  if (e.button !== 2 && tool === 'v') painting = leafAt(levels[cur], r, c) ? 'V-' : 'V+';   // так само з листям
+  if (e.button !== 2 && LAYERS.includes(tool)) painting = leafType(levels[cur], r, c) === tool ? 'V-' : 'V+' + tool;   // так само з листям і грядкою
   pushUndo();
   if (!paintAt(r, c)) undoStack.pop();
 });
@@ -593,7 +604,7 @@ $('board').addEventListener('pointermove', e => {
 window.addEventListener('pointerup', () => { painting = null; });
 function paintAt(r, c) {
   const ok = painting.startsWith('L+') ? setCover(r, c, painting.slice(2)) : painting === 'L-' ? setCover(r, c, false)
-    : painting === 'V+' ? setLeaf(r, c, true) : painting === 'V-' ? setLeaf(r, c, false) : setCell(r, c, painting);
+    : painting.startsWith('V+') ? setLeaf(r, c, painting.slice(2)) : painting === 'V-' ? setLeaf(r, c, false) : setCell(r, c, painting);
   if (!ok) return false;
   markDirty();
   renderList(); renderBoard(); renderJSON();
@@ -654,6 +665,7 @@ document.addEventListener('keydown', e => {
   else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') { e.preventDefault(); redo(); }
   else if (e.key === 'K' || e.key === 'Л') { tool = 'K'; renderPalette(); }
   else if (e.key === 'G' || e.key === 'П') { tool = 'G'; renderPalette(); }
+  else if (e.key === 'B' || e.key === 'И') { tool = 'B'; renderPalette(); }
   else if (/^[0-9]$/.test(e.key) && TOOLS[+e.key]) { tool = TOOLS[+e.key].ch; renderPalette(); }
   else if (e.key.toLowerCase() === 'e' || e.key.toLowerCase() === 'у') { tool = 'e'; renderPalette(); }
   else if (e.key.toLowerCase() === 'o' || e.key.toLowerCase() === 'щ') { tool = 'o'; renderPalette(); }
