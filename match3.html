@@ -644,6 +644,26 @@
   .leaf.gone svg { animation: leafGone .45s ease-in forwards; }
   @keyframes leafGone { to { transform: translate(8px, -16px) rotate(70deg) scale(1.3); opacity: 0; } }
 
+  /* ===== Кольорова коробка ===== */
+  .cbox .crate { background: none; box-shadow: none; inset: 1px; }
+  .cbox .cbBody {
+    inset: 22% 6% 4%; border-radius: 4px 4px 8px 8px; border: 2px solid #6b4318;
+    background: linear-gradient(90deg, rgba(0,0,0,.12) 0 2px, transparent 2px 100%) 50% 0 / 25% 100%, linear-gradient(#d9a868, #b37d42);
+    box-shadow: inset 0 6px 0 rgba(0,0,0,.25), 0 3px 4px rgba(0,0,0,.45);
+  }
+  .cbox .cbGem { left: 24%; top: 0; width: 52%; height: 52%; }
+  .cbox .cbGem .face { animation: cbBob 1.4s ease-in-out infinite alternate; }
+  @keyframes cbBob { to { translate: 0 -8%; } }
+  .cbox .cbBar { left: 14%; right: 14%; bottom: 12%; height: 9%; border-radius: 4px; background: rgba(0,0,0,.35); overflow: hidden; }
+  .cbox .cbBar i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: linear-gradient(90deg, #7cffb0, #2fbf6a); transition: width .3s; }
+  .cbox .cbCount {
+    left: 0; right: 0; top: 46%; text-align: center; font-style: normal; font-weight: 900;
+    font-size: calc(var(--cell) * .3); color: #fff; text-shadow: 0 1px 0 #3d2a08, 0 0 4px #3d2a08;
+  }
+  .box.cbox.gulp .crate { animation: grillGulp .3s; }
+  .box.cbox.tink .crate { animation: tink .22s; }
+  .cbFly { position: fixed; z-index: 100; pointer-events: none; padding: 6px; transition: transform .55s cubic-bezier(.4,-0.2,.6,1); }
+
   /* ===== Ланцюги, замок, ключ ===== */
   .chain .crate { background: none; box-shadow: none; inset: -2px; z-index: 3; }
   .chain .chn { position: absolute; inset: 0; width: 100%; height: 100%; filter: drop-shadow(0 2px 2px rgba(0,0,0,.6)); }
@@ -1113,6 +1133,7 @@
     🍂 осіннє листя — лежить під фішками; знищте фішку чи перешкоду на клітинці, і листя розлетиться. Для перемоги треба прибрати все листя<br>
     💎 магічний кристал — 8 ударів; з кожним змінює колір від темно-синього до багряно-червоного, останні удари — з тріщинами й дрижанням. Розбитий, лишає випадкову суперкомбінацію (червону жабу, фіолетову блискавку або велику бомбу), яка одразу спрацьовує. Кірка вважає його каменем. Кожна блискавка, що влучила в кристал, породжує ще одну — зелену, поперек; зелена блискавка інших кристалів не зачіпає. У зоні 3×3 довкола кристала не з'являються слиз і павутина, а павук, що туди заліз, гине. Якщо кристал з'являється посеред гри (з-під кам'яної стіни чи від клоуна), він одразу знищує павутину, слиз і павуків у своїй зоні<br>
     🧹 мітла — від 1 удару злітає і летить по прямій, вичищаючи листя, слиз і павутину (фішки лишаються). Напрямок обирає за пріоритетом: найбільше листя, потім слизу, потім павутини, потім інших мітел, потім довший шлях. Інші мітли пролітає наскрізь, зачіпаючи їх (вони теж злітають). Наткнувшись на іншу перешкоду, розвертається; долетівши до стінки (краю поля чи броньованої стіни) — з хрустом ламається<br>
+    🎨 кольорова коробка — невразлива; кожна прибрана фішка її кольору (комбінацією, бонусом, вибухом) залітає в неї. Коли зібрано потрібну кількість, коробка зникає й лишає на своєму місці бонус (жабку, бомбу, блискавку чи кулю)<br>
     ⛓️ ланцюги — лежать поверх клітинки; їх не можна пошкодити, а те, що під ними, не можна ні зрушити, ні пошкодити<br>
     🔒 навісний замок — стоїть поруч із ланцюгами, невразливий; відчиняється ключем і зникає; група ланцюгів, що його торкається, розбивається, коли відчинено всі замки, які її тримають<br>
     🔑 ключ — рухається як фішка, але не збирається в комбінації; коли отримує шкоду (комбінація поруч, бонус, вибух, молоток, дротик), летить до найближчого замка й відмикає його. Якщо замок є, а ключа на полі нема, один ключ випадає разом із новими фішками<br>
@@ -1297,6 +1318,7 @@ const sfx = {
     tone(f * 1.72, { dur: 0.45, vol: 0.025, type: 'sawtooth', slide: 0.44, delay: 0.17 });
   },
   dig: () => { noise(0.18, 0.08, 700); tone(150, { dur: 0.12, vol: 0.08, type: 'triangle', slide: 1.6, delay: 0.05 }); },
+  cbPlop: n => { tone(500 + Math.min(n, 30) * 25, { dur: 0.09, vol: 0.06, type: 'triangle', slide: 1.3 }); },
   keyWhoosh: () => { tone(900, { dur: 0.3, vol: 0.04, type: 'triangle', slide: 1.8 }); },
   unlock: () => { tone(1200, { dur: 0.06, vol: 0.08, type: 'square' }); tone(800, { dur: 0.08, vol: 0.07, type: 'square', delay: 0.07 }); tone(1600, { dur: 0.25, vol: 0.05, type: 'triangle', delay: 0.15 }); },
   chainSnap: () => { tone(500 + Math.random() * 300, { dur: 0.08, vol: 0.05, type: 'square', slide: 0.6 }); noise(0.1, 0.06, 3000); },
@@ -1353,14 +1375,14 @@ const sfx = {
 // ===== Гра =====
 const N = 8, TYPES = 6;
 const RAINBOW = 6, BOMB = 7, LIGHTNING = 8, FROG = 9;
-const CARDBOARD = 10, WOOD = 11, REINFORCED = 12, SLIME = 13, GENERATOR = 14, NAILGUN = 15, TNT = 16, TESLA = 17, CORE = 18, JACK = 19, STONE = 20, STONEPICK = 21, MIXER = 22, ROBOT = 23, MIRROR = 24, MIRROR2 = 25, STONEFROG = 26, WALL = 27, STONEWALL = 28, BIN = 29, BROOM = 30, CRYSTAL = 31, CARDWALL = 32, BASKET = 33, GRILL = 34, CHAIN = 35, PADLOCK = 36;
+const CARDBOARD = 10, WOOD = 11, REINFORCED = 12, SLIME = 13, GENERATOR = 14, NAILGUN = 15, TNT = 16, TESLA = 17, CORE = 18, JACK = 19, STONE = 20, STONEPICK = 21, MIXER = 22, ROBOT = 23, MIRROR = 24, MIRROR2 = 25, STONEFROG = 26, WALL = 27, STONEWALL = 28, BIN = 29, BROOM = 30, CRYSTAL = 31, CARDWALL = 32, BASKET = 33, GRILL = 34, CHAIN = 35, PADLOCK = 36, COLORBOX = 37;
 const KEYT = -2;   // ключ — фішка без кольору: рухається й падає, але не збирається в комбінації
 // стіни-покриття (шар cover): l — кам'яна, u — картонна; під ними може ховатися перешкода
 const COVER_TYPES = { l: STONEWALL, u: CARDWALL };
 const isCoverWall = t => t === STONEWALL || t === CARDWALL;
 const isMirror = t => t === MIRROR || t === MIRROR2;
 // перешкода, якій зараз можна завдати шкоди
-const damageable = g => isObstacle(g) && g.type !== CORE && g.type !== WALL && g.type !== CHAIN && g.type !== PADLOCK && !(g.type === GRILL && !g.full) && !(g.type === STONEFROG && !g.armed) && !g.mixing && !g.final && !(isMirror(g.type) && !g.glass);
+const damageable = g => isObstacle(g) && g.type !== CORE && g.type !== WALL && g.type !== CHAIN && g.type !== PADLOCK && g.type !== COLORBOX && !(g.type === GRILL && !g.full) && !(g.type === STONEFROG && !g.armed) && !g.mixing && !g.final && !(isMirror(g.type) && !g.glass);
 const isNormal = t => t >= 0 && t < TYPES;   // -1 — фішку вже «затягнула» бетономішалка
 const isSpecial = t => t >= RAINBOW && t <= FROG;
 const isBox = t => t >= CARDBOARD;
@@ -1445,7 +1467,7 @@ function createGem(r, c, type, fromRow = r) {
   return gem;
 }
 
-const BOX_CHARS = { c: CARDBOARD, n: CARDBOARD, w: WOOD, r: REINFORCED, s: SLIME, g: GENERATOR, t: TNT, e: TESLA, o: CORE, j: JACK, k: STONE, q: STONEPICK, m: MIXER, b: ROBOT, z: MIRROR, y: MIRROR2, f: STONEFROG, a: WALL, d: BIN, h: BROOM, i: CRYSTAL, K: BASKET, G: GRILL, P: PADLOCK };
+const BOX_CHARS = { c: CARDBOARD, n: CARDBOARD, w: WOOD, r: REINFORCED, s: SLIME, g: GENERATOR, t: TNT, e: TESLA, o: CORE, j: JACK, k: STONE, q: STONEPICK, m: MIXER, b: ROBOT, z: MIRROR, y: MIRROR2, f: STONEFROG, a: WALL, d: BIN, h: BROOM, i: CRYSTAL, K: BASKET, G: GRILL, P: PADLOCK, X: COLORBOX };
 function startLevel(i) {
   level = i;
   const def = LEVELS[i] || randomLevel();
@@ -1492,6 +1514,7 @@ function startLevel(i) {
       if (ch in BOX_CHARS) {
         grid[r][c] = createBox(r, c, BOX_CHARS[ch]);
         if (ch === 'n') { grid[r][c].nailgun = true; grid[r][c].el.classList.add('ng-box'); }   // синя коробка з цвяхозабивачем
+        if (ch === 'X') setupCBox(grid[r][c], def.cboxes?.find(b => b.r === r && b.c === c));
         continue;
       }
       let t;
@@ -1734,6 +1757,7 @@ const BOX_INFO = {
   [MIRROR]:     { cls: 'mirror',     hp: 1, pts: 120, shards: ['#e6f6ff', '#9fd2f0', '#ffffff', '#6aa8d8'] },
   [MIRROR2]:    { cls: 'mirror',     hp: 1, pts: 160, shards: ['#e6f6ff', '#9fd2f0', '#ffffff', '#6aa8d8'] },
   [STONEFROG]:  { cls: 'stonefrog',  hp: 1, pts: 300, shards: ['#9a9fa8', '#6c717b', '#4a4e56', '#ff9a3a'] },
+  [COLORBOX]:   { cls: 'cbox',       hp: 1, pts: 300, shards: ['#c99357', '#94632e', '#ffe66d', '#ff6bb5'] },
   [CHAIN]:      { cls: 'chain',      hp: 1, pts: 50,  shards: ['#b8c0c8', '#6b747e', '#3d444c'] },
   [PADLOCK]:    { cls: 'padlock',    hp: 1, pts: 300, shards: ['#ffd23a', '#c99a1a', '#8a6420', '#b8c0c8'] },
   [GRILL]:      { cls: 'grill',      hp: 1, pts: 500, shards: ['#2b2b2b', '#5d6772', '#ff7a1a', '#ffcc33'] },
@@ -1878,6 +1902,11 @@ function makeVeg(g) {
 function removeGemEl(g) {
   const el = g.el;
   if (g.key) { g.key = false; keyFly(g); return; }
+  if (isNormal(g.type) && !g.veg && !el.classList.contains('eaten')) {
+    const rect = el.getBoundingClientRect();
+    const cb = cboxTarget(g.type, rect);
+    if (cb) { cboxFly(g, cb, rect); return; }
+  }
   if (!g.veg || g.type < 0 || el.classList.contains('eaten')) { el.remove(); return; }
   const rect = el.getBoundingClientRect();
   const fly = el.cloneNode(true);
@@ -1907,6 +1936,77 @@ function vegLaunch(fly, rect) {
   fly.style.transform = `translate(${dx}px, ${dy}px) rotate(${side * (540 + Math.random() * 360)}deg) scale(1.3)`;
   setTimeout(() => fly.remove(), 1300);
 }
+// ===================== Кольорова коробка =====================
+// Збирає фішки свого кольору: прибрана фішка цього кольору не зникає, а залітає в коробку.
+// Коли зібрано потрібну кількість — коробка зникає, а на її місці лишається бонус
+const CB_REWARDS = { frog: FROG, bomb: BOMB, lightning: LIGHTNING, rainbow: RAINBOW };
+function setupCBox(box, cfg) {
+  box.color = cfg?.color ?? rand();
+  box.need = cfg?.count ?? 10;
+  box.reward = cfg?.reward ?? 'random';
+  box.have = 0; box.reserved = 0;
+  box.el.querySelector('.cbGem').className = 'cbGem t' + box.color;
+  updateCBox(box);
+}
+function updateCBox(box) {
+  const left = Math.max(0, box.need - box.have);
+  box.el.querySelector('.cbCount').textContent = left;
+  box.el.querySelector('.cbBar i').style.width = (box.have / box.need * 100) + '%';
+}
+// коробка, якій ще потрібні фішки кольору t (найближча)
+function cboxTarget(t, rect) {
+  let best = null, bd = Infinity;
+  for (const g of grid.flat()) {
+    if (!g || g.type !== COLORBOX || g.broken || g.color !== t || g.have + g.reserved >= g.need) continue;
+    const r = g.el.getBoundingClientRect();
+    const d = Math.hypot(r.left - rect.left, r.top - rect.top);
+    if (d < bd) { bd = d; best = g; }
+  }
+  return best;
+}
+function cboxFly(g, box, rect) {
+  box.reserved++;
+  const fly = document.createElement('div');
+  fly.className = 'cbFly t' + g.type;
+  fly.innerHTML = '<div class="face"></div>';
+  Object.assign(fly.style, { left: rect.left + 'px', top: rect.top + 'px', width: rect.width + 'px', height: rect.height + 'px' });
+  document.body.appendChild(fly);
+  g.el.remove();
+  const tr = box.el.getBoundingClientRect();
+  fly.getBoundingClientRect();
+  fly.style.transform = `translate(${tr.left - rect.left}px, ${tr.top - rect.top}px) scale(.35)`;
+  inFlight++;
+  setTimeout(() => {
+    fly.remove(); inFlight--;
+    box.reserved--;
+    if (box.broken) return;
+    box.have++;
+    updateCBox(box);
+    box.el.classList.remove('gulp'); box.el.getBoundingClientRect(); box.el.classList.add('gulp');
+    sfx.cbPlop(box.have);
+    if (box.have >= box.need) cboxDone(box);
+  }, 550);
+}
+// коробку заповнено — на її місці з'являється бонус
+function cboxDone(box) {
+  const pos = findGem(box);
+  if (!pos) return;
+  const [r, c] = pos;
+  const types = Object.values(CB_REWARDS);
+  const t = CB_REWARDS[box.reward] ?? types[Math.floor(Math.random() * types.length)];
+  box.broken = true;
+  box.el.classList.add('breaking');
+  shatter(r, c, BOX_INFO[COLORBOX].shards, 10);
+  setTimeout(() => box.el.remove(), 400);
+  const g = createGem(r, c, t);
+  g.el.classList.add('appear');
+  grid[r][c] = g;
+  sfx.special();
+  score += BOX_INFO[COLORBOX].pts;
+  floatText({ [FROG]: '🐸 Жабка!', [BOMB]: '💣 Бомба!', [LIGHTNING]: '⚡ Блискавка!', [RAINBOW]: '🌈 Куля!' }[t], r, c, '#ffe66d');
+  updateHud();
+}
+
 // ===================== Ланцюги, навісний замок і ключ =====================
 const CHAIN_SVG = '<svg class="chn" viewBox="0 0 100 100"><g fill="none" stroke-linecap="round">' +
   [[-1, 'M8,8 L92,92'], [1, 'M92,8 L8,92']].map(([k, d]) => `<path d="${d}" stroke="#2d3340" stroke-width="13" opacity=".55"/>`).join('') +
@@ -2526,6 +2626,7 @@ function createBox(r, c, type) {
   if (type === STONEWALL) inner = SWALL_SVG;
   if (type === BASKET) inner = BASKET_SVG;
   if (type === CHAIN) inner = CHAIN_SVG;
+  if (type === COLORBOX) inner = '<i class="cbBody"></i><div class="cbGem"><div class="face"></div></div><i class="cbBar"><i></i></i><i class="cbCount"></i>';
   if (type === PADLOCK) inner = LOCK_SVG;
   if (type === GRILL) inner = GRILL_SVG + '<i class="gsmoke"><i></i><i></i><i></i></i>';
   if (type === CARDWALL) inner = '<i class="cwall"></i><i class="tape"></i><i class="tape t2"></i>';
@@ -2635,7 +2736,7 @@ function hitBox(r, c) {
     }
   }
   if (box.type === ROBOT && box.final) return;      // уже біжить на вибух     // уже затягує фішки
-  if (box.type === WALL || box.type === CHAIN || box.type === PADLOCK || (box.type === STONEFROG && !box.armed && !box.broken) || (box.type === GRILL && !box.full && !box.broken)) {
+  if (box.type === WALL || box.type === CHAIN || box.type === PADLOCK || box.type === COLORBOX || (box.type === STONEFROG && !box.armed && !box.broken) || (box.type === GRILL && !box.full && !box.broken)) {
     // броньована стіна і «спляча» кам'яна жаба — невразливі
     box.el.classList.remove('tink'); box.el.getBoundingClientRect(); box.el.classList.add('tink');
     const now = performance.now();
@@ -2810,7 +2911,7 @@ function neighborBoxes(r, c) {
   [[1,0],[-1,0],[0,1],[0,-1]].forEach(([dr, dc]) => {
     const rr = r + dr, cc = c + dc;
     if (rr < 0 || rr >= N || cc < 0 || cc >= N) return;
-    if (isObstacle(grid[rr][cc]) && ![WALL, CHAIN, PADLOCK].includes(grid[rr][cc].type)) out.push([rr, cc]);
+    if (isObstacle(grid[rr][cc]) && ![WALL, CHAIN, PADLOCK, COLORBOX].includes(grid[rr][cc].type)) out.push([rr, cc]);
   });
   return out;
 }
@@ -3397,10 +3498,13 @@ function tntExplode(r, c, rad = 1) {
 
 // Ставить у клітинку перешкоду за символом карти (для кам'яної стіни)
 // Об'єкт клітинки за символом карти, не кладучи його в сітку (для того, що лежить під ланцюгами)
+// налаштування кольорової коробки з поточного рівня (потрібні й тоді, коли коробка з'являється з-під стіни чи ланцюгів)
+const cbConfAt = (r, c) => LEVELS[level]?.cboxes?.find(b => b.r === r && b.c === c);
 function makeCellObj(r, c, ch) {
   if (ch in BOX_CHARS) {
     const b = createBox(r, c, BOX_CHARS[ch]);
     if (ch === 'n') { b.nailgun = true; b.el.classList.add('ng-box'); }
+    if (ch === 'X') setupCBox(b, cbConfAt(r, c));
     return b;
   }
   const g = createGem(r, c, rand());
@@ -3412,6 +3516,7 @@ function spawnCell(r, c, ch) {
   if (ch in BOX_CHARS) {
     grid[r][c] = createBox(r, c, BOX_CHARS[ch]);
     if (ch === 'n') { grid[r][c].nailgun = true; grid[r][c].el.classList.add('ng-box'); }
+    if (ch === 'X') setupCBox(grid[r][c], cbConfAt(r, c));   // коробка з-під стіни — зі своїми налаштуваннями
   } else {
     grid[r][c] = createGem(r, c, rand());
     if (ch === 'x') addWeb(grid[r][c]);
@@ -4657,7 +4762,7 @@ $('soundBtn').onclick = () => {
 
 // ===================== Рівні з JSON =====================
 // Формат: { "levels": [ { "name": "...", "moves": 20, "map": ["........", ... 8 рядків по 8 символів] } ] }
-const MAP_CHARS = '.cnwtrsgxpeojkqmbzyfadhiKGPQ';
+const MAP_CHARS = '.cnwtrsgxpeojkqmbzyfadhiKGPQX';
 function parseLevels(data) {
   const list = Array.isArray(data) ? data : data?.levels;
   if (!Array.isArray(list) || !list.length) throw new Error('у файлі немає списку "levels"');
@@ -4674,6 +4779,11 @@ function parseLevels(data) {
     // cover — другий шар: l — кам'яна стіна поверх клітинки
     if (Array.isArray(lv.cover) && lv.cover.length === N)
       out.cover = lv.cover.map(row => [...String(row).padEnd(N, '.').slice(0, N)].map(ch => COVER_TYPES[ch] || ch === 'C' ? ch : '.').join(''));
+    // cboxes — налаштування кольорових коробок: [{ r, c, color, count, reward }]
+    if (Array.isArray(lv.cboxes)) out.cboxes = lv.cboxes.filter(b => map[b?.r]?.[b?.c] === 'X').map(b => ({
+      r: b.r, c: b.c, color: Math.max(0, Math.min(TYPES - 1, Math.round(+b.color) || 0)),
+      count: Math.max(1, Math.min(99, Math.round(+b.count) || 10)),
+      reward: ['frog', 'bomb', 'lightning', 'rainbow'].includes(b.reward) ? b.reward : 'random' }));
     // leaves — шар осіннього листя: v — клітинка вкрита листям
     if (Array.isArray(lv.leaves) && lv.leaves.length === N)
       out.leaves = lv.leaves.map(row => [...String(row).padEnd(N, '.').slice(0, N)].map(ch => ch === 'v' || ch === 'B' ? ch : '.').join(''));
@@ -4796,6 +4906,7 @@ const INTRO = {
   l: ["Кам'яна стіна", "Руйнується після трьох ударів. Хтозна, що може ховатися за нею…"],
   i: ['Магічний кристал', "Таємничий кристал, що від кожного удару міняє барву — від нічної сині до багрянцю. Розбийте його — і вивільніть суперсилу. Блискавки він подвоює, а слиз, павутиння й павуків довкола себе не терпить — щойно з'явиться, одразу їх знищує"],
   h: ["Мітла", "Змете зі шляху опале листя, павутиння та надокучливий слиз"],
+  X: ['Кольорова коробка', 'Збирає фішки свого кольору: прибрані фішки цього кольору залітають у неї. Наповніть її — і отримаєте бонус!'],
   C: ['Ланцюги', 'Сковують усе, що під ними: його не зрушити й не пошкодити. Самі ланцюги теж не розбити — потрібен ключ до замка.'],
   P: ['Навісний замок', 'Тримає ланцюги поруч. Його не зламати — лише відімкнути ключем. Коли відчинено всі замки, що тримають групу ланцюгів, вона розлітається.'],
   Q: ['Ключ', 'Звичайна фішка без кольору: його можна рухати, але не зібрати в комбінацію. Зберіть комбінацію поруч або вдарте по ключу (бонусом, вибухом, молотком) — і він полетить відмикати замок. Поки на полі є замок, а ключа нема, новий ключ випаде разом із фішками.'],
@@ -4817,6 +4928,7 @@ function introTile(ch) {
     if (ch === 'x') addWeb(g);
   } else {
     if (ch === 'Q') { g = createGem(0, 0, 0); makeKey(g); }
+    else if (ch === 'X') { g = createBox(0, 0, COLORBOX); setupCBox(g, { color: 3, count: 10 }); }
     else g = createBox(0, 0, ch === 'C' ? CHAIN : COVER_TYPES[ch] ?? BOX_CHARS[ch]);
     if (ch === 'n') g.el.classList.add('ng-box');
   }

@@ -29,6 +29,7 @@ window.LEVELS_DATA = {
     "C": "ланцюги",
     "P": "навісний замок",
     "Q": "ключ",
+    "X": "кольорова коробка",
     "d": "сміттєбак з листям",
     "h": "мітла",
     "i": "магічний кристал",
@@ -4116,6 +4117,231 @@ window.LEVELS_DATA = {
         "........",
         "........",
         "........"
+      ]
+    },
+    {
+      "name": "Кольорові коробочки",
+      "moves": 22,
+      "map": [
+        "........",
+        ".X....X.",
+        "........",
+        "........",
+        "........",
+        "........",
+        ".X....X.",
+        "........"
+      ],
+      "cboxes": [
+        {
+          "r": 6,
+          "c": 1,
+          "color": 3,
+          "count": 20,
+          "reward": "random"
+        },
+        {
+          "r": 6,
+          "c": 6,
+          "color": 2,
+          "count": 20,
+          "reward": "random"
+        },
+        {
+          "r": 1,
+          "c": 1,
+          "color": 0,
+          "count": 20,
+          "reward": "random"
+        },
+        {
+          "r": 1,
+          "c": 6,
+          "color": 5,
+          "count": 20,
+          "reward": "random"
+        }
+      ]
+    },
+    {
+      "name": "Картонна палітра",
+      "moves": 25,
+      "map": [
+        "........",
+        ".X....X.",
+        "..X.....",
+        "........",
+        "........",
+        ".....X..",
+        ".X....X.",
+        "........"
+      ],
+      "cover": [
+        "uuuuuuuu",
+        "uuu..uuu",
+        "uuu..uuu",
+        "u......u",
+        "u......u",
+        "uuu..uuu",
+        "uuu..uuu",
+        "uuuuuuuu"
+      ],
+      "cboxes": [
+        {
+          "r": 1,
+          "c": 1,
+          "color": 0,
+          "count": 10,
+          "reward": "random"
+        },
+        {
+          "r": 1,
+          "c": 6,
+          "color": 1,
+          "count": 10,
+          "reward": "random"
+        },
+        {
+          "r": 6,
+          "c": 6,
+          "color": 2,
+          "count": 10,
+          "reward": "random"
+        },
+        {
+          "r": 6,
+          "c": 1,
+          "color": 3,
+          "count": 10,
+          "reward": "random"
+        },
+        {
+          "r": 2,
+          "c": 2,
+          "color": 5,
+          "count": 10,
+          "reward": "random"
+        },
+        {
+          "r": 5,
+          "c": 5,
+          "color": 4,
+          "count": 10,
+          "reward": "random"
+        }
+      ]
+    },
+    {
+      "name": "Зрівняти і замалювати",
+      "moves": 29,
+      "map": [
+        "cwwwwwcc",
+        "wXwwwwXw",
+        "cwcttcwc",
+        "cccccccc",
+        "P......P",
+        "........",
+        "........",
+        "...QQ..."
+      ],
+      "cover": [
+        "CCCCCCCC",
+        "CCCCCCCC",
+        "CCCCCCCC",
+        "CCCCCCCC",
+        "........",
+        "........",
+        "..uuuu..",
+        "..uuuu.."
+      ],
+      "cboxes": [
+        {
+          "r": 1,
+          "c": 6,
+          "color": 2,
+          "count": 25,
+          "reward": "bomb"
+        },
+        {
+          "r": 1,
+          "c": 1,
+          "color": 3,
+          "count": 25,
+          "reward": "bomb"
+        }
+      ]
+    },
+    {
+      "name": "Помаранчевий вантаж",
+      "moves": 30,
+      "map": [
+        "twt.....",
+        "wXw.....",
+        "twt.....",
+        "........",
+        ".....d..",
+        "........",
+        "........",
+        "........"
+      ],
+      "cover": [
+        "lll.....",
+        "l.l.....",
+        "lll.....",
+        "........",
+        "........",
+        "........",
+        "........",
+        "........"
+      ],
+      "leaves": [
+        "....vvvv",
+        "....vvvv",
+        "........",
+        "........",
+        "vv.vvvvv",
+        "vv.vvvvv",
+        "vv.vvvvv",
+        "vv.vvvvv"
+      ],
+      "cboxes": [
+        {
+          "r": 1,
+          "c": 1,
+          "color": 5,
+          "count": 60,
+          "reward": "bomb"
+        }
+      ]
+    },
+    {
+      "name": "Вибухова задачка",
+      "moves": 29,
+      "map": [
+        "aa.a.att",
+        "aaXaXaaa",
+        "aaaaaaaa",
+        "......aa",
+        "......aa",
+        "......aa",
+        "......aa",
+        "......aa"
+      ],
+      "cboxes": [
+        {
+          "r": 1,
+          "c": 4,
+          "color": 0,
+          "count": 20,
+          "reward": "lightning"
+        },
+        {
+          "r": 1,
+          "c": 2,
+          "color": 3,
+          "count": 20,
+          "reward": "lightning"
+        }
       ]
     }
   ]

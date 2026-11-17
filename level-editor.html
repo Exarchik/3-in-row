@@ -148,6 +148,19 @@
     box-shadow: inset 0 0 0 2px #4a443d;
   }
   .cell .sw { position: absolute; opacity: .72; z-index: 2; pointer-events: none; }
+  .k-X .t { inset: 22% 8% 6%; border-radius: 3px 3px 6px 6px; background: linear-gradient(#d9a868, #b37d42); border: 2px solid #6b4318; }
+  .k-X .ico { display: none; }
+  .cell .cbx { position: absolute; left: 22%; top: 4%; width: 56%; height: 44%; border-radius: 50%; z-index: 2; box-shadow: 0 0 0 2px rgba(0,0,0,.35); pointer-events: none; }
+  .cell .cbn { position: absolute; left: 0; right: 0; bottom: 10%; text-align: center; font-weight: 900; font-size: 13px; color: #fff; text-shadow: 0 1px 2px #000; z-index: 2; pointer-events: none; }
+  .cell.cbsel { outline: 3px solid #ffe66d; outline-offset: -3px; }
+  .cbcfg { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 8px; padding: 10px; border-radius: 12px; background: rgba(255,255,255,.07); font-size: 13px; }
+  .cbcfg[hidden] { display: none; }
+  .cbcfg #cbTitle { flex: 1 1 100%; }   /* заголовок — окремим рядком, налаштування під ним */
+  .cbcfg { box-sizing: border-box; width: 0; min-width: 100%; }   /* не розширює колонку редактора, а займає її ширину */
+  .cbcolors { display: flex; gap: 6px; }
+  .cbcolors button { width: 26px; height: 26px; padding: 0; border-radius: 50%; box-shadow: inset 0 0 0 2px rgba(0,0,0,.3); }
+  .cbcolors button.sel { box-shadow: 0 0 0 3px #ffe66d; }
+  .cbcfg input { width: 60px; }
   .k-C .t, .cell .sw.chn {
     inset: 0; border-radius: 4px; box-shadow: none; opacity: 1;
     background:
@@ -279,6 +292,14 @@
     <div class="board" id="board"></div>
     <div class="stats" id="stats"></div>
     <div class="warnings" id="warnings"></div>
+    <div class="cbcfg" id="cbcfg" hidden>
+      <b id="cbTitle">🎨 Кольорова коробка</b>
+      <div class="cbcolors" id="cbColors"></div>
+      <label>Скільки зібрати <input type="number" id="cbCount" min="1" max="99"></label>
+      <label>Бонус <select id="cbReward">
+        <option value="random">🎲 випадковий</option><option value="frog">🐸 жабка</option><option value="bomb">💣 бомба</option>
+        <option value="lightning">⚡ блискавка</option><option value="rainbow">🌈 куля</option></select></label>
+    </div>
     <div class="row">
       <button class="ghost" id="undoBtn">↶ Скасувати</button>
       <button class="ghost" id="redoBtn">↷ Повторити</button>
@@ -294,7 +315,7 @@
       Клік або протягування — малювати вибраним інструментом.<br>
       Права кнопка миші — стерти (поставити звичайну фішку).<br>
       Клавіші 0–9, E, O, J, K, Q, M, B, Z, Y, F, A, L, U, D, V, H, I,<br>
-      Shift+K, Shift+G, Shift+B, Shift+C, Shift+P, Shift+Q — швидкий вибір інструмента, Ctrl+Z / Ctrl+Y — скасувати / повторити.
+      Shift+K, Shift+G, Shift+B, Shift+C, Shift+P, Shift+Q, Shift+X — швидкий вибір інструмента, Ctrl+Z / Ctrl+Y — скасувати / повторити.
     </p>
     <div class="drops" id="drops">
       <h2>🤡 Що може випасти зі шкатулки з клоуном</h2>
@@ -343,6 +364,7 @@ const TOOLS = [
   { ch: 'C', name: 'Ланцюги (поверх)', ico: '⛓️' },
   { ch: 'P', name: 'Навісний замок', ico: '🔒' },
   { ch: 'Q', name: 'Ключ', ico: '🔑' },
+  { ch: 'X', name: 'Кольорова коробка', ico: '🎨' },
   { ch: 'd', name: 'Сміттєбак з листям', ico: '🗑️' },
   { ch: 'h', name: 'Мітла', ico: '🧹' },
   { ch: 'i', name: 'Магічний кристал', ico: '' },
@@ -352,10 +374,10 @@ const TOOLS = [
   { ch: 'B', name: 'Грядка (під фішками)', ico: '🌱' },
 ];
 const CHARS = TOOLS.map(t => t.ch).join('');
-const MINI = { '.': '', C: '#8b96a3', P: '#e8b828', Q: '#ffe066', B: '#6b3f1c', G: '#3d444c', K: '#c8954a', u: '#d9a868', i: '#4a26b4', h: '#e8c25a', l: '#a39a8e', d: '#5f8a5a', v: '#d9822b', f: '#6c717b', a: '#2a2f36', z: '#9fd2f0', y: '#e9e4d8', b: '#b8c0c8', m: '#f2a33a', k: '#8a8f98', q: '#b8bdc5', j: '#ffcc33', o: '#2a2f35', e: '#7cc8ff', c: '#c99357', n: '#5b8fd6', w: '#8d5a27', t: '#d23a2a', r: '#9aa5b1', s: '#5fc93a', g: '#3e454e', x: '#e8e8ff', p: '#c0303a' };
+const MINI = { '.': '', X: '#d9a868', C: '#8b96a3', P: '#e8b828', Q: '#ffe066', B: '#6b3f1c', G: '#3d444c', K: '#c8954a', u: '#d9a868', i: '#4a26b4', h: '#e8c25a', l: '#a39a8e', d: '#5f8a5a', v: '#d9822b', f: '#6c717b', a: '#2a2f36', z: '#9fd2f0', y: '#e9e4d8', b: '#b8c0c8', m: '#f2a33a', k: '#8a8f98', q: '#b8bdc5', j: '#ffcc33', o: '#2a2f35', e: '#7cc8ff', c: '#c99357', n: '#5b8fd6', w: '#8d5a27', t: '#d23a2a', r: '#9aa5b1', s: '#5fc93a', g: '#3e454e', x: '#e8e8ff', p: '#c0303a' };
 const LEGEND = {
   '.': 'фішка', c: 'картонна коробка', n: 'синя коробка з цвяхозабивачем', w: "дерев'яний ящик", t: 'ящик TNT',
-  r: 'армований ящик', s: 'слиз', g: 'слизогенератор', x: 'фішка в павутині', p: 'павук на фішці', e: 'електрогенератор', o: 'металеве ядро', j: 'шкатулка з клоуном', k: 'камінь', q: 'камінь з кіркою', m: 'бетономішалка', b: 'робот', z: 'армоване дзеркало', y: 'армоване дзеркало 2 (з простирадлом)', f: 'кам\'яна жаба', a: 'броньована стіна', l: 'кам\'яна стіна', u: 'картонна стіна', C: 'ланцюги', P: 'навісний замок', Q: 'ключ', d: 'сміттєбак з листям', h: 'мітла', i: 'магічний кристал', K: 'кошик з овочами', G: 'мангал', v: 'осіннє листя', B: 'грядка',
+  r: 'армований ящик', s: 'слиз', g: 'слизогенератор', x: 'фішка в павутині', p: 'павук на фішці', e: 'електрогенератор', o: 'металеве ядро', j: 'шкатулка з клоуном', k: 'камінь', q: 'камінь з кіркою', m: 'бетономішалка', b: 'робот', z: 'армоване дзеркало', y: 'армоване дзеркало 2 (з простирадлом)', f: 'кам\'яна жаба', a: 'броньована стіна', l: 'кам\'яна стіна', u: 'картонна стіна', C: 'ланцюги', P: 'навісний замок', Q: 'ключ', X: 'кольорова коробка', d: 'сміттєбак з листям', h: 'мітла', i: 'магічний кристал', K: 'кошик з овочами', G: 'мангал', v: 'осіннє листя', B: 'грядка',
 };
 
 // Стартовий набір — ті самі рівні, що вбудовані в гру
@@ -444,6 +466,41 @@ function setCell(r, c, ch) {
   levels[cur].map[r] = row.slice(0, c) + ch + row.slice(c + 1);
   return true;
 }
+// ---------- кольорові коробки: налаштування ----------
+const CB_COLORS = ['#e74c3c', '#f1c40f', '#2ecc71', '#3498db', '#9b59b6', '#e67e22'];
+const CB_NAMES = ['червоні', 'жовті', 'зелені', 'блакитні', 'фіолетові', 'помаранчеві'];
+let cbSel = null;   // [r, c] вибраної коробки
+function cbCfg(lv, r, c, create = false) {
+  let b = lv.cboxes?.find(x => x.r === r && x.c === c);
+  if (!b && create) { lv.cboxes = lv.cboxes || []; b = { r, c, color: 3, count: 10, reward: 'random' }; lv.cboxes.push(b); }
+  return b;
+}
+function cbClean(lv) {   // прибираємо налаштування коробок, яких уже нема на карті
+  if (!lv.cboxes) return;
+  lv.cboxes = lv.cboxes.filter(b => lv.map[b.r]?.[b.c] === 'X');
+  if (!lv.cboxes.length) delete lv.cboxes;
+}
+function renderCBCfg() {
+  const lv = levels[cur];
+  const b = cbSel && lv.map[cbSel[0]]?.[cbSel[1]] === 'X' ? cbCfg(lv, cbSel[0], cbSel[1], true) : null;
+  $('cbcfg').hidden = !b;
+  if (!b) { cbSel = null; return; }
+  $('cbTitle').textContent = `🎨 Кольорова коробка (рядок ${b.r + 1}, стовпчик ${b.c + 1}) — збирає ${CB_NAMES[b.color]} фішки`;
+  $('cbColors').innerHTML = CB_COLORS.map((col, i) => `<button class="${i === b.color ? 'sel' : ''}" data-i="${i}" style="background:${col}" title="${CB_NAMES[i]}"></button>`).join('');
+  $('cbColors').querySelectorAll('button').forEach(btn => btn.onclick = () => { pushUndo(); b.color = +btn.dataset.i; markDirty(); renderBoard(); renderJSON(); });
+  if (document.activeElement !== $('cbCount')) $('cbCount').value = b.count;
+  $('cbReward').value = b.reward;
+}
+$('cbCount').addEventListener('change', () => {
+  const b = cbSel && cbCfg(levels[cur], cbSel[0], cbSel[1]);
+  if (!b) return;
+  pushUndo(); b.count = Math.max(1, Math.min(99, Math.round(+$('cbCount').value) || 10)); markDirty(); renderBoard(); renderJSON();
+});
+$('cbReward').addEventListener('change', () => {
+  const b = cbSel && cbCfg(levels[cur], cbSel[0], cbSel[1]);
+  if (!b) return;
+  pushUndo(); b.reward = $('cbReward').value; markDirty(); renderJSON();
+});
 function toJSON() {
   const out = { version: 1, legend: LEGEND };
   if (jackDrops) out.jackDrops = jackDrops;
@@ -451,6 +508,8 @@ function toJSON() {
     const o = { name: l.name, moves: l.moves, map: l.map };
     if (l.cover && coverCount(l)) o.cover = l.cover;
     if (l.leaves && leafCount(l)) o.leaves = l.leaves;
+    cbClean(l);
+    if (l.cboxes?.length) o.cboxes = l.cboxes.map(b => ({ r: b.r, c: b.c, color: b.color, count: b.count, reward: b.reward }));
     return o;
   });
   return JSON.stringify(out, null, 2);
@@ -519,6 +578,12 @@ function parseLevels(data) {
     if (Array.isArray(lv.leaves) && lv.leaves.length === N) {
       const lf = lv.leaves.map((row, r) => [...String(row).padEnd(N, '.').slice(0, N)].map((ch, c) => LAYERS.includes(ch) && map[r][c] !== 'a' ? ch : '.').join(''));
       if (/[vB]/.test(lf.join(''))) out.leaves = lf;
+    }
+    if (Array.isArray(lv.cboxes)) {
+      const cb = lv.cboxes.filter(b => map[b?.r]?.[b?.c] === 'X').map(b => ({ r: +b.r, c: +b.c,
+        color: Math.max(0, Math.min(5, Math.round(+b.color) || 0)), count: Math.max(1, Math.min(99, Math.round(+b.count) || 10)),
+        reward: ['frog', 'bomb', 'lightning', 'rainbow'].includes(b.reward) ? b.reward : 'random' }));
+      if (cb.length) out.cboxes = cb;
     }
     return out;
   });
@@ -603,6 +668,11 @@ function renderBoard() {
     const cov = coverType(lv, r, c);
     let h = cellHTML(ch).replace('<div class="cell', `<div data-r="${r}" data-c="${c}" title="${cov ? LEGEND[cov] + (ch !== '.' ? ', під нею: ' + LEGEND[ch] : '') : LEGEND[ch]}" class="cell${cov ? ' obs' : ''}`);
     if (cov) h = h.replace(/<\/div>$/, `<div class="${cov === 'u' ? 'sw cw' : cov === 'C' ? 'sw chn' : 'sw'}"></div></div>`);
+    if (ch === 'X') {
+      const b = cbCfg(lv, r, c) || { color: 3, count: 10 };
+      h = h.replace(/<\/div>$/, `<div class="cbx" style="background:${CB_COLORS[b.color]}"></div><div class="cbn">${b.count}</div></div>`);
+      if (cbSel && cbSel[0] === r && cbSel[1] === c) h = h.replace('class="cell', 'class="cell cbsel');
+    }
     const lt = leafType(lv, r, c);
     if (lt) h = h.replace(/^(<div [^>]*>)/, `$1<div class="lf${lt === 'B' ? ' bed' : ''}"></div>`).replace('title="', `title="${LEGEND[lt]} · `);
     return h;
@@ -611,6 +681,7 @@ function renderBoard() {
   lv.map.join('').split('').forEach(ch => { if (ch !== '.') counts[ch] = (counts[ch] || 0) + 1; });
   lv.cover?.join('').split('').forEach(ch => { if (COVERS.includes(ch)) counts[ch] = (counts[ch] || 0) + 1; });
   lv.leaves?.join('').split('').forEach(ch => { if (LAYERS.includes(ch)) counts[ch] = (counts[ch] || 0) + 1; });
+  renderCBCfg();
   $('stats').textContent = Object.keys(counts).length
     ? 'На полі: ' + Object.entries(counts).map(([ch, n]) => `${LEGEND[ch]} × ${n}`).join(', ')
     : 'Поле порожнє — оберіть інструмент і клікніть по клітинках';
@@ -641,6 +712,7 @@ $('board').addEventListener('pointerdown', e => {
   painting = e.button === 2 ? '.' : tool;
   // повторний клік тим самим інструментом по такій самій клітинці — стирає
   const r = +el.dataset.r, c = +el.dataset.c;
+  if (e.button !== 2 && tool === 'X' && levels[cur].map[r][c] === 'X') { cbSel = [r, c]; renderBoard(); painting = null; return; }
   if (e.button !== 2 && levels[cur].map[r][c] === tool && tool !== '.') painting = '.';
   if (e.button !== 2 && COVERS.includes(tool)) painting = coverType(levels[cur], r, c) === tool ? 'L-' : 'L+' + tool;   // повторний клік по такій самій стіні — знімає її
   if (e.button !== 2 && LAYERS.includes(tool)) painting = leafType(levels[cur], r, c) === tool ? 'V-' : 'V+' + tool;   // так само з листям і грядкою
@@ -657,6 +729,8 @@ function paintAt(r, c) {
   const ok = painting.startsWith('L+') ? setCover(r, c, painting.slice(2)) : painting === 'L-' ? setCover(r, c, false)
     : painting.startsWith('V+') ? setLeaf(r, c, painting.slice(2)) : painting === 'V-' ? setLeaf(r, c, false) : setCell(r, c, painting);
   if (!ok) return false;
+  if (painting === 'X') { cbSel = [r, c]; cbCfg(levels[cur], r, c, true); }
+  cbClean(levels[cur]);
   markDirty();
   renderList(); renderBoard(); renderJSON();
   $('undoBtn').disabled = false;
@@ -720,6 +794,7 @@ document.addEventListener('keydown', e => {
   else if (e.key === 'C' || e.key === 'С') { tool = 'C'; renderPalette(); }
   else if (e.key === 'P' || e.key === 'З') { tool = 'P'; renderPalette(); }
   else if (e.key === 'Q' || e.key === 'Й') { tool = 'Q'; renderPalette(); }
+  else if (e.key === 'X' || e.key === 'Ч') { tool = 'X'; renderPalette(); }
   else if (/^[0-9]$/.test(e.key) && TOOLS[+e.key]) { tool = TOOLS[+e.key].ch; renderPalette(); }
   else if (e.key.toLowerCase() === 'e' || e.key.toLowerCase() === 'у') { tool = 'e'; renderPalette(); }
   else if (e.key.toLowerCase() === 'o' || e.key.toLowerCase() === 'щ') { tool = 'o'; renderPalette(); }
