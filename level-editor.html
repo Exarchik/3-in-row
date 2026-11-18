@@ -435,7 +435,7 @@ function setLeaf(r, c, on) {
   const lv = levels[cur];
   const want = on === true ? 'v' : on || '';
   if (leafType(lv, r, c) === want) return false;
-  if (on && lv.map[r][c] === 'a') return false;           // під броньованою стіною листя не прибрати
+  if (on && 'aA'.includes(lv.map[r][c])) return false;   // під броньованою стіною й бурштином листя не прибрати
   if (!lv.leaves) lv.leaves = Array(N).fill('.'.repeat(N));
   const row = lv.leaves[r];
   lv.leaves[r] = row.slice(0, c) + (want || '.') + row.slice(c + 1);
@@ -464,7 +464,7 @@ function setCell(r, c, ch) {
     return false;
   }
   if (ch === 'o' || ch === '.') changed = setCover(r, c, false);   // гумка й ядро знімають стіну
-  if (ch === 'a' || ch === '.') changed = setLeaf(r, c, false) || changed;   // гумка й броньована стіна знімають листя
+  if (ch === 'a' || ch === 'A' || ch === '.') changed = setLeaf(r, c, false) || changed;   // гумка, броньована стіна й бурштин знімають листя
   if (row[c] === ch) return changed;
   levels[cur].map[r] = row.slice(0, c) + ch + row.slice(c + 1);
   return true;
@@ -591,7 +591,7 @@ function parseLevels(data) {
       if (/[luC]/.test(cover.join(''))) out.cover = cover;
     }
     if (Array.isArray(lv.leaves) && lv.leaves.length === N) {
-      const lf = lv.leaves.map((row, r) => [...String(row).padEnd(N, '.').slice(0, N)].map((ch, c) => LAYERS.includes(ch) && map[r][c] !== 'a' ? ch : '.').join(''));
+      const lf = lv.leaves.map((row, r) => [...String(row).padEnd(N, '.').slice(0, N)].map((ch, c) => LAYERS.includes(ch) && !'aA'.includes(map[r][c]) ? ch : '.').join(''));
       if (/[vB]/.test(lf.join(''))) out.leaves = lf;
     }
     if (Array.isArray(lv.cboxes)) {

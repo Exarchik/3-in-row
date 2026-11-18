@@ -1618,7 +1618,7 @@ function startLevel(i) {
   // є замок, а ключа нема — один ключ з'являється на полі
   if (needKey()) { const free = []; for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) if (isFree(r, c)) free.push(grid[r][c]); if (free.length) makeKey(free[Math.floor(Math.random() * free.length)]); }
   // шар листя
-  def.leaves?.forEach((row, r) => [...row].forEach((ch, c) => { if ((ch === 'v' || ch === 'B') && grid[r][c]?.type !== WALL) addLeaf(r, c, null, ch); }));
+  def.leaves?.forEach((row, r) => [...row].forEach((ch, c) => { if ((ch === 'v' || ch === 'B') && !noLayer(r, c)) addLeaf(r, c, null, ch); }));
   $('overlay').classList.remove('show');
   updateHud();
   if (!findMove()) shuffle();
@@ -2771,8 +2771,10 @@ function bedPop(r, c) {
   pendingVeg.push({ r, c, n: 1, t, el: f });
 }
 // Кладе листя на клітинку (from — звідки летить, для розсипання зі сміттєбака)
+// клітинки, з яких листя чи грядку ніколи не прибрати: броньована стіна й бурштин
+const noLayer = (r, c) => grid[r]?.[c] && (grid[r][c].type === WALL || grid[r][c].type === AMBER);
 function addLeaf(r, c, from = null, kind = 'v') {
-  if (leaves[r][c]) return false;
+  if (leaves[r][c] || noLayer(r, c)) return false;
   const el = makeLeafEl(kind);
   if (from) el.style.transform = `translate(${from[1] * 100}%, ${from[0] * 100}%) scale(.3) rotate(-90deg)`;
   else el.style.transform = `translate(${c * 100}%, ${r * 100}%)`;
@@ -2800,7 +2802,7 @@ async function spillLeaves([r, c]) {
   floatText('🍂', r, c, '#f2b33a');
   for (let rr = r - 2; rr <= r + 2; rr++) for (let cc = c - 2; cc <= c + 2; cc++) {
     if (rr < 0 || rr >= N || cc < 0 || cc >= N) continue;
-    if (grid[rr][cc]?.type === WALL) continue;           // на броньовану стіну листя не лягає
+    if (noLayer(rr, cc)) continue;                       // на броньовану стіну й бурштин листя не лягає
     const d = Math.hypot(rr - r, cc - c) * 60;
     setTimeout(() => { if (addLeaf(rr, cc, [r, c])) updateHud(); }, d);
   }
