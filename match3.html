@@ -450,6 +450,53 @@
   .dart.stuck { animation: dartFade .5s .25s forwards; }
   @keyframes dartFade { to { opacity: 0; } }
 
+  /* ===== Результати рівня ===== */
+  .resBox {
+    position: relative; width: min(92vw, 400px); padding: 20px 18px 18px; border-radius: 20px; overflow: hidden;
+    background: linear-gradient(160deg, #3b2a6b, #1d1640); box-shadow: 0 12px 40px rgba(0,0,0,.6);
+    border: 1px solid rgba(255,255,255,.12); animation: ticketIn .45s cubic-bezier(.3,1.5,.5,1); text-align: center;
+  }
+  .resBox h2 { margin: 0 0 14px; font-size: 22px; }
+  .resRows { display: flex; flex-direction: column; gap: 8px; }
+  .resRow {
+    display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 14px; border-radius: 12px;
+    background: rgba(255,255,255,.07); font-size: 15px;
+  }
+  .resRow b { font-size: 20px; font-variant-numeric: tabular-nums; }
+  .resRow i { font-style: normal; font-weight: 800; color: #ffe66d; }
+  .resRow.total { background: linear-gradient(90deg, rgba(255,107,181,.35), rgba(142,68,173,.35)); }
+  .resRow.total b { font-size: 26px; color: #ffe66d; }
+  .resRow.best b { color: #c7c1e8; }
+  .resRow.pulse b { animation: resPulse .18s; }
+  @keyframes resPulse { 50% { transform: scale(1.18); } }
+  .resRow[hidden] { display: none; }
+  .resStars { display: flex; justify-content: center; gap: 10px; margin: 14px 0 2px; }
+  .resStars i { font-style: normal; font-size: 46px; line-height: 1; color: rgba(255,255,255,.14); text-shadow: 0 2px 0 rgba(0,0,0,.3); transition: color .2s; }
+  .resStars i:nth-child(2) { font-size: 56px; margin-top: -10px; }
+  .resStars i.on { color: #ffd23a; text-shadow: 0 0 14px rgba(255,200,60,.85), 0 3px 0 #a06a00; animation: starPop .5s cubic-bezier(.2,1.8,.4,1); }
+  @keyframes starPop { 0% { transform: scale(2.6) rotate(-40deg); opacity: 0; } 100% { transform: scale(1) rotate(0); opacity: 1; } }
+  .resStarHint { font-size: 12px; opacity: .7; min-height: 15px; }
+  .lvbtn .stars { font-size: 11px; letter-spacing: 1px; color: #ffd23a; text-shadow: 0 1px 0 rgba(0,0,0,.4); }
+  .lvbtn .stars .off { color: rgba(255,255,255,.22); }
+  .lvgroup summary .scnt { font-size: 12px; font-weight: 700; color: #ffd23a; }
+  .resStamp { min-height: 0; margin-top: 12px; font-size: 15px; opacity: .85; }
+  .resStamp.record {
+    font-size: 26px; font-weight: 900; opacity: 1; color: #ffe66d; text-shadow: 0 0 12px rgba(255,200,60,.8), 0 2px 0 #8a5a00;
+    animation: stampIn .7s cubic-bezier(.2,1.8,.4,1) both;
+  }
+  @keyframes stampIn { 0% { transform: scale(3) rotate(-14deg); opacity: 0; } 60% { opacity: 1; } 100% { transform: scale(1) rotate(-4deg); } }
+  .resStamp.soft { animation: fade .4s; }
+  .resSkip { margin-top: 8px; font-size: 11px; opacity: .45; }
+  .resBtns { display: flex; justify-content: center; gap: 10px; margin-top: 16px; opacity: 0; transform: translateY(8px); pointer-events: none; transition: opacity .35s, transform .35s; }
+  .resBtns.show { opacity: 1; transform: none; pointer-events: auto; }
+  .resBtns button { padding: 10px 18px; font-size: 15px; }
+  .resConfetti { position: absolute; inset: 0; pointer-events: none; }
+  .resConfetti i {
+    position: absolute; top: -12px; width: 8px; height: 13px; border-radius: 2px;
+    animation: confetti 1.8s cubic-bezier(.3,.6,.6,1) forwards;
+  }
+  @keyframes confetti { to { transform: translate(var(--dx), 460px) rotate(var(--rot)); opacity: .2; } }
+
   /* ===== Знайомство з новою перешкодою ===== */
   .introBox {
     width: min(92vw, 440px); max-height: 88vh; display: flex; flex-direction: column; padding: 18px 16px 16px;
@@ -1174,6 +1221,7 @@
     Бонуси гравця (не витрачають хід): 🔨 молоток — 1 удар у вибрану клітинку · 🧤 рукавичка — поміняти місцями будь-які дві фішки ·
     🎯 дротики — 3 дротики у випадкові перешкоди.<br>
     Після рівня — лотерея: зітріть 4 клітинки, дві однакові дають приз.<br>
+    ⭐ Зірки за рівень — за ощадливість: ⭐ — рівень пройдено, ⭐⭐ — лишилось щонайменше 10% ходів, ⭐⭐⭐ — щонайменше 25% ходів. Зберігається найкращий результат.<br>
     4 в ряд → ⚡ блискавка (зсув по горизонталі → б'є стовпчик, по вертикалі → рядок)<br>
     Г / Т → 💣 бомба (вибух 5×5) · 5 в ряд → 🌈 куля (усі фішки одного кольору)<br>
     Квадрат 2×2 → 🐸 жабка (з'їдає 3 випадкові фішки; один язик завжди підкидає овоч, якщо він є)<br>
@@ -1182,6 +1230,27 @@
     Суперкомбінації: 🌈+🌈 — знищує все поле (перешкодам 1 удар) · 💣+💣 — велика бомба 7×7 ·
     ⚡+⚡ — фіолетова блискавка в 4 напрямках · 🐸+🐸 — червона жабка з'їдає 10 фішок (2 язики завжди підкидають овочі, якщо вони є)
   </details>
+
+  <div class="modal" id="result">
+    <div class="resBox" id="resBox">
+      <div class="resConfetti" id="resConfetti"></div>
+      <h2 id="resTitle"></h2>
+      <div class="resRows">
+        <div class="resRow"><span>⭐ Очки за рівень</span><b id="resBase">0</b></div>
+        <div class="resRow" id="resMovesRow"><span>👣 Невикористані ходи: <i id="resMoves">0</i> × 50</span><b id="resBonus">+0</b></div>
+        <div class="resRow total"><span>Разом</span><b id="resTotal">0</b></div>
+        <div class="resRow best" id="resBestRow" hidden><span>🏅 Минулий результат</span><b id="resBest">0</b></div>
+      </div>
+      <div class="resStars" id="resStars"><i>★</i><i>★</i><i>★</i></div>
+      <div class="resStarHint" id="resStarHint"></div>
+      <div class="resStamp" id="resStamp"></div>
+      <div class="resSkip" id="resSkip">клацніть, щоб пропустити</div>
+      <div class="resBtns" id="resBtns">
+        <button class="ghost" id="resRetry">↻ Перепройти</button>
+        <button id="resNext">Наступний рівень →</button>
+      </div>
+    </div>
+  </div>
 
   <div class="modal" id="intro">
     <div class="introBox">
@@ -1381,6 +1450,9 @@ const sfx = {
   spiderMove: () => [0, 1, 2, 3].forEach(i => tone(2200 + i * 150, { dur: 0.03, vol: 0.025, type: 'triangle', delay: i * 0.07 })),
   spiderDie: () => { tone(700, { dur: 0.25, vol: 0.12, type: 'triangle', slide: 0.3 }); noise(0.08, 0.08, 1200); },
   loot: () => [0, 2, 4, 7].forEach((n, i) => tone(PENTA[n], { dur: 0.25, vol: 0.1, delay: i * 0.07 })),
+  star: i => { tone([784, 988, 1319][i] || 1319, { dur: 0.35, vol: 0.1, type: 'triangle' }); tone(([784, 988, 1319][i] || 1319) * 2, { dur: 0.2, vol: 0.04, delay: 0.05 }); },
+  tally: i => { tone(600 + Math.min(i, 40) * 18, { dur: 0.05, vol: 0.05, type: 'square' }); },
+  record: () => { [0, 4, 7, 12, 7, 12].forEach((n, i) => tone(523 * Math.pow(2, n / 12), { dur: i === 5 ? 0.7 : 0.16, vol: 0.12, type: 'triangle', delay: i * 0.11 })); },
   win: () => [0, 2, 4, 5, 7, 8].forEach((n, i) => tone(PENTA[n], { dur: i === 5 ? 1 : 0.3, vol: 0.14, delay: i * 0.1 })),
   frogBye:() => { tone(330, { dur: 0.12, vol: 0.12, type: 'triangle', slide: 1.3 }); tone(392, { dur: 0.3, vol: 0.12, type: 'triangle', slide: 2, delay: 0.12 }); },
 };
@@ -1569,6 +1641,97 @@ function showOverlay(title, text, btn, action) {
   $('overlay').classList.add('show');
 }
 
+// ===================== Вікно результатів рівня =====================
+// Невикористані ходи по одному перетворюються на очки, потім — порівняння з минулим результатом,
+// і лише тоді — кнопки «Перепройти» / «Наступний рівень». Клік по вікну прискорює анімацію
+let resSkip = false;
+$('result').addEventListener('pointerdown', e => { if (!e.target.closest('button')) resSkip = true; });
+const rwait = ms => resSkip ? Promise.resolve() : wait(ms);
+function pulse(id) { const row = $(id).closest('.resRow'); row.classList.remove('pulse'); row.getBoundingClientRect(); row.classList.add('pulse'); }
+function confettiBurst(n = 60) {
+  const box = $('resConfetti');
+  const cols = ['#ffe66d', '#ff6bb5', '#7cffb0', '#6bc5ff', '#d58bff', '#ffb36b'];
+  for (let i = 0; i < n; i++) {
+    const c = document.createElement('i');
+    c.style.left = Math.random() * 100 + '%';
+    c.style.background = cols[i % cols.length];
+    c.style.setProperty('--dx', (Math.random() * 160 - 80) + 'px');
+    c.style.setProperty('--rot', (Math.random() * 900 - 450) + 'deg');
+    c.style.animationDelay = Math.random() * .4 + 's';
+    box.appendChild(c);
+    setTimeout(() => c.remove(), 2400);
+  }
+}
+async function showResult({ title, base, movesLeft, prevBest, replay, stars = 1, prevStars = 0, totalMoves = 0 }) {
+  resSkip = false;
+  const total = base + movesLeft * 50;
+  $('resTitle').textContent = title;
+  $('resBase').textContent = base;
+  $('resMoves').textContent = movesLeft;
+  $('resBonus').textContent = '+0';
+  $('resTotal').textContent = base;
+  $('resMovesRow').hidden = movesLeft === 0;
+  $('resBestRow').hidden = true;
+  $('resStamp').className = 'resStamp'; $('resStamp').textContent = '';
+  $('resStars').querySelectorAll('i').forEach(i => i.classList.remove('on'));
+  $('resStarHint').textContent = '';
+  $('resSkip').hidden = false;
+  $('resBtns').classList.remove('show');
+  $('resRetry').hidden = level >= LEVELS.length;   // випадкові рівні після останнього не переграємо
+  $('resNext').textContent = replay || level >= LEVELS.length ? 'Наступний рівень →' : 'Далі 🎟️';
+  $('result').classList.add('show');
+  await rwait(600);
+  // ходи → очки
+  const step = Math.max(35, Math.min(120, 1800 / Math.max(1, movesLeft)));
+  for (let i = 1; i <= movesLeft; i++) {
+    $('resMoves').textContent = movesLeft - i;
+    $('resBonus').textContent = '+' + i * 50;
+    $('resTotal').textContent = base + i * 50;
+    moves = movesLeft - i; $('moves').textContent = moves;
+    if (!resSkip) { pulse('resTotal'); sfx.tally(i); }
+    await rwait(step);
+  }
+  moves = 0;
+  updateHud();
+  await rwait(300);
+  // зірки — по одній
+  const starEls = $('resStars').querySelectorAll('i');
+  for (let k = 0; k < stars; k++) { starEls[k].classList.add('on'); sfx.star(k); await rwait(380); }
+  const need = starNeed(totalMoves);
+  $('resStarHint').textContent = stars < 3
+    ? `Для ${'★'.repeat(stars + 1)} лиште щонайменше ${need[stars]} ${need[stars] === 1 ? 'хід' : need[stars] < 5 ? 'ходи' : 'ходів'}`
+    : (prevStars && prevStars < 3 ? '' : '');
+  if (prevStars && stars > prevStars) { $('resStarHint').textContent = `✨ Нова зірка! Було ${'★'.repeat(prevStars)}`; }
+  await rwait(300);
+  // порівняння з минулим результатом
+  if (prevBest != null) {
+    $('resBest').textContent = prevBest;
+    $('resBestRow').hidden = false;
+    await rwait(500);
+    if (total > prevBest) {
+      $('resStamp').className = 'resStamp record';
+      $('resStamp').textContent = `🏆 Новий рекорд! +${total - prevBest}`;
+      confettiBurst(); sfx.record();
+    } else {
+      $('resStamp').className = 'resStamp soft';
+      $('resStamp').textContent = total === prevBest ? 'Рівно як минулого разу 🤝' : `Рекорд лишається: ${prevBest}. До нього бракувало ${prevBest - total}`;
+    }
+  } else if (level < LEVELS.length) {
+    $('resStamp').className = 'resStamp soft';
+    $('resStamp').textContent = '⭐ Ваш перший результат на цьому рівні';
+    confettiBurst(30);
+  }
+  $('resSkip').hidden = true;
+  $('resBtns').classList.add('show');
+  // вибір гравця
+  $('resRetry').onclick = () => { $('result').classList.remove('show'); sfx.start(); startLevel(level); };
+  $('resNext').onclick = () => {
+    $('result').classList.remove('show');
+    // лотерея — лише за перше проходження рівня
+    if (replay || level >= LEVELS.length) startLevel(level + 1); else showLottery(() => startLevel(level + 1));
+  };
+}
+
 // Перевірка кінця рівня після ходу
 function firstSpecial() {
   for (let r = 0; r < N; r++) for (let c = 0; c < N; c++)
@@ -1593,21 +1756,19 @@ async function finale() {
 async function checkEnd() {
   if (boxesLeft() === 0) {
     await finale();
-    const bonus = moves * 50;
+    const base = score, movesLeft = moves, bonus = moves * 50;
     score += bonus;
-    updateHud();
     const replay = level < LEVELS.length && isPassed(level);   // рівень уже проходили раніше
     const prevBest = level < LEVELS.length ? progress[levelKey(level)] : undefined;
-    if (level < LEVELS.length) markPassed(level, score);
-    const newRecord = prevBest == null || score > prevBest;
-    updateHud();
+    const totalMoves = LEVELS[level]?.moves ?? movesLeft;
+    const stars = starsFor(movesLeft, totalMoves);
+    const prevStars = level < LEVELS.length && isPassed(level) ? levelStars(level) : 0;
+    if (level < LEVELS.length) { markPassed(level, score); markStars(level, stars); }
     sfx.win();
-    showOverlay(`${LEVELS[level]?.name ? '«' + LEVELS[level].name + '»' : 'Рівень ' + (level + 1)} пройдено! 🎉`, `Бонус за ${moves} невикористаних ходів: +${bonus} · Очки за рівень: ${score}` +
-      (level < LEVELS.length ? (newRecord ? (prevBest == null ? ' · 🏆 перший рекорд!' : ` · 🏆 новий рекорд (було ${prevBest})!`) : ` · рекорд рівня: ${prevBest}`) : '') +
-      ` · Загальний рахунок: ${totalScore()}`,
-      replay ? 'Наступний рівень →' : 'Далі 🎟️',
-      // лотерея — лише за перше проходження рівня
-      replay ? () => startLevel(level + 1) : () => showLottery(() => startLevel(level + 1)));
+    await showResult({
+      title: `${LEVELS[level]?.name ? '«' + LEVELS[level].name + '»' : 'Рівень ' + (level + 1)} пройдено! 🎉`,
+      base, movesLeft, prevBest, replay, stars, prevStars, totalMoves,
+    });
   } else if (moves <= 0) {
     sfx.end();
     showOverlay('Ходи закінчились', `Залишилось перешкод: ${boxesLeft()}. Спробуйте ще раз!`,
@@ -4516,7 +4677,7 @@ function cancelBooster() {
   setTip('');
   updateBoosters();
 }
-function boardLocked() { return busy || $('overlay').classList.contains('show') || $('lottery').classList.contains('show') || $('levelMenu').classList.contains('show') || $('intro').classList.contains('show'); }
+function boardLocked() { return busy || $('overlay').classList.contains('show') || $('lottery').classList.contains('show') || $('levelMenu').classList.contains('show') || $('intro').classList.contains('show') || $('result').classList.contains('show'); }
 
 function pickBooster(k) {
   if (boardLocked() || inv[k] <= 0) return;
@@ -4910,6 +5071,26 @@ function totalScore() {
 }
 // Тестовий режим (гру відкрив редактор: match3.html?test): свої рівні не підвантажуємо, прогрес не зберігаємо
 const TEST_MODE = new URLSearchParams(location.search).has('test');
+// ⭐ Зірки — за ощадливість ходів: ⭐ — пройдено; ⭐⭐ — лишилось ≥10% ходів (щонайменше 1);
+// ⭐⭐⭐ — лишилось ≥25% ходів (щонайменше 2). Пороги рахуються від кількості ходів рівня
+const starNeed = total => [0, Math.max(1, Math.ceil(total * 0.10)), Math.max(2, Math.ceil(total * 0.25))];
+function starsFor(movesLeft, total) {
+  const [, two, three] = starNeed(total);
+  return movesLeft >= three ? 3 : movesLeft >= two ? 2 : 1;
+}
+const STARS_KEY = 'match3-stars';
+let starsBest = {};
+try { starsBest = JSON.parse(localStorage.getItem(STARS_KEY)) || {}; } catch (e) { starsBest = {}; }
+// найкраща кількість зірок на рівні (пройдений до появи зірок — щонайменше 1)
+const levelStars = i => starsBest[levelKey(i)] || (isPassed(i) ? 1 : 0);
+function markStars(i, n) {
+  if (TEST_MODE) return;
+  const k = levelKey(i);
+  starsBest[k] = Math.max(starsBest[k] || 0, n);
+  try { localStorage.setItem(STARS_KEY, JSON.stringify(starsBest)); } catch (e) {}
+}
+const starsHTML = n => '<span class="stars">' + [1, 2, 3].map(k => k <= n ? '★' : '<span class="off">★</span>').join('') + '</span>';
+
 function markPassed(i, pts) {
   if (TEST_MODE) return;
   const k = levelKey(i);
@@ -4927,11 +5108,11 @@ function showLevelMenu() {
   if (busy || $('lottery').classList.contains('show')) return;
   const cur = firstUnpassed();
   const GROUP = 20;   // рівні — групами по 20
-  $('lvTotal').textContent = `🏆 Загальний рахунок: ${totalScore()} · пройдено ${LEVELS.filter((_, i) => isPassed(i)).length} з ${LEVELS.length}`;
+  $('lvTotal').textContent = `🏆 Загальний рахунок: ${totalScore()} · ★ ${LEVELS.reduce((a, _, i) => a + levelStars(i), 0)}/${LEVELS.length * 3} · пройдено ${LEVELS.filter((_, i) => isPassed(i)).length} з ${LEVELS.length}`;
   const btn = (lv, i) => {
     const done = isPassed(i), open = canPick(i);
     const cls = done ? 'done' : open ? 'current' : 'locked';
-    const best = done ? `<span class="best">★ ${progress[levelKey(i)]}</span>` : open ? '<span class="best" style="color:#ffe66d">▶ далі</span>' : '<span>🔒</span>';
+    const best = done ? `${starsHTML(levelStars(i))}<span class="best">${progress[levelKey(i)]}</span>` : open ? '<span class="best" style="color:#ffe66d">▶ далі</span>' : '<span>🔒</span>';
     return `<button class="lvbtn ${cls}${i === level ? ' playing' : ''}" data-i="${i}" ${open ? '' : 'disabled'} title="${(lv.name || 'Рівень ' + (i + 1)).replace(/"/g, '&quot;')}">
       ${i + 1}<small>${lv.name || '&nbsp;'}</small>${best}</button>`;
   };
@@ -4939,12 +5120,13 @@ function showLevelMenu() {
   for (let g = 0; g < LEVELS.length; g += GROUP) {
     const idx = [...Array(Math.min(GROUP, LEVELS.length - g))].map((_, k) => g + k);
     const done = idx.filter(isPassed).length;
+    const stars = idx.reduce((a, i) => a + levelStars(i), 0);
     const anyOpen = idx.some(canPick);
     // розгорнута лише група з рівнем, який зараз грається (або з поточним «далі»)
     const expand = idx.includes(level) || (!idx.includes(level) && idx.includes(cur) && !(level >= 0 && level < LEVELS.length));
     html += `<details class="lvgroup${anyOpen ? '' : ' locked'}"${expand ? ' open' : ''}>
       <summary>${anyOpen ? '' : '🔒 '}Рівні ${g + 1}–${idx[idx.length - 1] + 1}
-        <span class="cnt">${done}/${idx.length}</span><span class="bar"><i style="width:${done / idx.length * 100}%"></i></span></summary>
+        <span class="scnt">★ ${stars}/${idx.length * 3}</span><span class="cnt">${done}/${idx.length}</span><span class="bar"><i style="width:${done / idx.length * 100}%"></i></span></summary>
       <div class="lvcells">${idx.map(i => btn(LEVELS[i], i)).join('')}</div></details>`;
   }
   $('lvgrid').innerHTML = html;
@@ -4968,6 +5150,8 @@ $('lvResetNo').onclick = () => $('lvConfirm').classList.remove('show');
 $('lvResetYes').onclick = () => {
   progress = {};
   try { localStorage.removeItem(PROGRESS_KEY); } catch (e) {}
+  starsBest = {};
+  try { localStorage.removeItem(STARS_KEY); } catch (e) {}
   seen = {};
   try { localStorage.removeItem(SEEN_KEY); } catch (e) {}
   Object.assign(inv, INV_START);   // бонуси — до стартового запасу
