@@ -644,6 +644,17 @@
   .leaf.gone svg { animation: leafGone .45s ease-in forwards; }
   @keyframes leafGone { to { transform: translate(8px, -16px) rotate(70deg) scale(1.3); opacity: 0; } }
 
+  /* ===== Бурштин ===== */
+  .gem.box.amber::before { display: none; }
+  .amber .crate { background: none; box-shadow: none; inset: 2px; }
+  .amber .amb { position: absolute; inset: 0; width: 100%; height: 100%; filter: drop-shadow(0 0 6px var(--am1)) drop-shadow(0 3px 3px rgba(0,0,0,.45)); }
+  .amber .ab1 { fill: var(--am2); opacity: .62; }
+  .amber .ab2 { fill: var(--am1); opacity: .55; }
+  .amber .ab3 { fill: var(--am2); opacity: .45; }
+  .box.amber.tink .crate { animation: tink .22s; }
+  .box.amber.glow .amb { animation: amberGlow .6s; }
+  @keyframes amberGlow { 40% { filter: drop-shadow(0 0 16px var(--am1)) brightness(1.5); transform: scale(1.12); } }
+
   /* ===== Кольорова коробка ===== */
   .cbox .crate { background: none; box-shadow: none; inset: 1px; }
   .cbox .cbBody {
@@ -1133,6 +1144,7 @@
     🍂 осіннє листя — лежить під фішками; знищте фішку чи перешкоду на клітинці, і листя розлетиться. Для перемоги треба прибрати все листя<br>
     💎 магічний кристал — 8 ударів; з кожним змінює колір від темно-синього до багряно-червоного, останні удари — з тріщинами й дрижанням. Розбитий, лишає випадкову суперкомбінацію (червону жабу, фіолетову блискавку або велику бомбу), яка одразу спрацьовує. Кірка вважає його каменем. Кожна блискавка, що влучила в кристал, породжує ще одну — зелену, поперек; зелена блискавка інших кристалів не зачіпає. У зоні 3×3 довкола кристала не з'являються слиз і павутина, а павук, що туди заліз, гине. Якщо кристал з'являється посеред гри (з-під кам'яної стіни чи від клоуна), він одразу знищує павутину, слиз і павуків у своїй зоні<br>
     🧹 мітла — від 1 удару злітає і летить по прямій, вичищаючи листя, слиз і павутину (фішки лишаються). Напрямок обирає за пріоритетом: найбільше листя, потім слизу, потім павутини, потім інших мітел, потім довший шлях. Інші мітли пролітає наскрізь, зачіпаючи їх (вони теж злітають). Наткнувшись на іншу перешкоду, розвертається; долетівши до стінки (краю поля чи броньованої стіни) — з хрустом ламається<br>
+    🟠 бурштин — невразливий і не рахується перешкодою. Комбінація поруч із ним перефарбовує в колір бурштину стільки випадкових фішок на полі, скільки фішок у комбінації (3, 4, 5…): овоч стає овочем цього кольору, слиз зникає й лишає фішку кольору бурштину, павутина рветься, а фішка під нею перефарбовується<br>
     🎨 кольорова коробка — невразлива; кожна прибрана фішка її кольору (комбінацією, бонусом, вибухом) залітає в неї. Коли зібрано потрібну кількість, коробка зникає й лишає на своєму місці бонус (жабку, бомбу, блискавку чи кулю)<br>
     ⛓️ ланцюги — лежать поверх клітинки; їх не можна пошкодити, а те, що під ними, не можна ні зрушити, ні пошкодити<br>
     🔒 навісний замок — стоїть поруч із ланцюгами, невразливий; відчиняється ключем і зникає; група ланцюгів, що його торкається, розбивається, коли відчинено всі замки, які її тримають<br>
@@ -1318,6 +1330,7 @@ const sfx = {
     tone(f * 1.72, { dur: 0.45, vol: 0.025, type: 'sawtooth', slide: 0.44, delay: 0.17 });
   },
   dig: () => { noise(0.18, 0.08, 700); tone(150, { dur: 0.12, vol: 0.08, type: 'triangle', slide: 1.6, delay: 0.05 }); },
+  amber: () => { [0, 1, 2].forEach(i => tone(880 + i * 220, { dur: 0.25, vol: 0.035, type: 'sine', delay: i * 0.06 })); },
   cbPlop: n => { tone(500 + Math.min(n, 30) * 25, { dur: 0.09, vol: 0.06, type: 'triangle', slide: 1.3 }); },
   keyWhoosh: () => { tone(900, { dur: 0.3, vol: 0.04, type: 'triangle', slide: 1.8 }); },
   unlock: () => { tone(1200, { dur: 0.06, vol: 0.08, type: 'square' }); tone(800, { dur: 0.08, vol: 0.07, type: 'square', delay: 0.07 }); tone(1600, { dur: 0.25, vol: 0.05, type: 'triangle', delay: 0.15 }); },
@@ -1375,14 +1388,14 @@ const sfx = {
 // ===== Гра =====
 const N = 8, TYPES = 6;
 const RAINBOW = 6, BOMB = 7, LIGHTNING = 8, FROG = 9;
-const CARDBOARD = 10, WOOD = 11, REINFORCED = 12, SLIME = 13, GENERATOR = 14, NAILGUN = 15, TNT = 16, TESLA = 17, CORE = 18, JACK = 19, STONE = 20, STONEPICK = 21, MIXER = 22, ROBOT = 23, MIRROR = 24, MIRROR2 = 25, STONEFROG = 26, WALL = 27, STONEWALL = 28, BIN = 29, BROOM = 30, CRYSTAL = 31, CARDWALL = 32, BASKET = 33, GRILL = 34, CHAIN = 35, PADLOCK = 36, COLORBOX = 37;
+const CARDBOARD = 10, WOOD = 11, REINFORCED = 12, SLIME = 13, GENERATOR = 14, NAILGUN = 15, TNT = 16, TESLA = 17, CORE = 18, JACK = 19, STONE = 20, STONEPICK = 21, MIXER = 22, ROBOT = 23, MIRROR = 24, MIRROR2 = 25, STONEFROG = 26, WALL = 27, STONEWALL = 28, BIN = 29, BROOM = 30, CRYSTAL = 31, CARDWALL = 32, BASKET = 33, GRILL = 34, CHAIN = 35, PADLOCK = 36, COLORBOX = 37, AMBER = 38;
 const KEYT = -2;   // ключ — фішка без кольору: рухається й падає, але не збирається в комбінації
 // стіни-покриття (шар cover): l — кам'яна, u — картонна; під ними може ховатися перешкода
 const COVER_TYPES = { l: STONEWALL, u: CARDWALL };
 const isCoverWall = t => t === STONEWALL || t === CARDWALL;
 const isMirror = t => t === MIRROR || t === MIRROR2;
 // перешкода, якій зараз можна завдати шкоди
-const damageable = g => isObstacle(g) && g.type !== CORE && g.type !== WALL && g.type !== CHAIN && g.type !== PADLOCK && g.type !== COLORBOX && !(g.type === GRILL && !g.full) && !(g.type === STONEFROG && !g.armed) && !g.mixing && !g.final && !(isMirror(g.type) && !g.glass);
+const damageable = g => isObstacle(g) && g.type !== CORE && g.type !== WALL && g.type !== CHAIN && g.type !== PADLOCK && g.type !== COLORBOX && g.type !== AMBER && !(g.type === GRILL && !g.full) && !(g.type === STONEFROG && !g.armed) && !g.mixing && !g.final && !(isMirror(g.type) && !g.glass);
 const isNormal = t => t >= 0 && t < TYPES;   // -1 — фішку вже «затягнула» бетономішалка
 const isSpecial = t => t >= RAINBOW && t <= FROG;
 const isBox = t => t >= CARDBOARD;
@@ -1467,7 +1480,7 @@ function createGem(r, c, type, fromRow = r) {
   return gem;
 }
 
-const BOX_CHARS = { c: CARDBOARD, n: CARDBOARD, w: WOOD, r: REINFORCED, s: SLIME, g: GENERATOR, t: TNT, e: TESLA, o: CORE, j: JACK, k: STONE, q: STONEPICK, m: MIXER, b: ROBOT, z: MIRROR, y: MIRROR2, f: STONEFROG, a: WALL, d: BIN, h: BROOM, i: CRYSTAL, K: BASKET, G: GRILL, P: PADLOCK, X: COLORBOX };
+const BOX_CHARS = { c: CARDBOARD, n: CARDBOARD, w: WOOD, r: REINFORCED, s: SLIME, g: GENERATOR, t: TNT, e: TESLA, o: CORE, j: JACK, k: STONE, q: STONEPICK, m: MIXER, b: ROBOT, z: MIRROR, y: MIRROR2, f: STONEFROG, a: WALL, d: BIN, h: BROOM, i: CRYSTAL, K: BASKET, G: GRILL, P: PADLOCK, X: COLORBOX, A: AMBER };
 function startLevel(i) {
   level = i;
   const def = LEVELS[i] || randomLevel();
@@ -1515,6 +1528,7 @@ function startLevel(i) {
         grid[r][c] = createBox(r, c, BOX_CHARS[ch]);
         if (ch === 'n') { grid[r][c].nailgun = true; grid[r][c].el.classList.add('ng-box'); }   // синя коробка з цвяхозабивачем
         if (ch === 'X') setupCBox(grid[r][c], def.cboxes?.find(b => b.r === r && b.c === c));
+        if (ch === 'A') setupAmber(grid[r][c], def.ambers?.find(b => b.r === r && b.c === c));
         continue;
       }
       let t;
@@ -1757,6 +1771,7 @@ const BOX_INFO = {
   [MIRROR]:     { cls: 'mirror',     hp: 1, pts: 120, shards: ['#e6f6ff', '#9fd2f0', '#ffffff', '#6aa8d8'] },
   [MIRROR2]:    { cls: 'mirror',     hp: 1, pts: 160, shards: ['#e6f6ff', '#9fd2f0', '#ffffff', '#6aa8d8'] },
   [STONEFROG]:  { cls: 'stonefrog',  hp: 1, pts: 300, shards: ['#9a9fa8', '#6c717b', '#4a4e56', '#ff9a3a'] },
+  [AMBER]:      { cls: 'amber',      hp: 1, pts: 0,   shards: ['#ffb43a'] },
   [COLORBOX]:   { cls: 'cbox',       hp: 1, pts: 300, shards: ['#c99357', '#94632e', '#ffe66d', '#ff6bb5'] },
   [CHAIN]:      { cls: 'chain',      hp: 1, pts: 50,  shards: ['#b8c0c8', '#6b747e', '#3d444c'] },
   [PADLOCK]:    { cls: 'padlock',    hp: 1, pts: 300, shards: ['#ffd23a', '#c99a1a', '#8a6420', '#b8c0c8'] },
@@ -1936,6 +1951,89 @@ function vegLaunch(fly, rect) {
   fly.style.transform = `translate(${dx}px, ${dy}px) rotate(${side * (540 + Math.random() * 360)}deg) scale(1.3)`;
   setTimeout(() => fly.remove(), 1300);
 }
+// ===================== Бурштин =====================
+// Невразливий напівпрозорий камінь (не рахується перешкодою). Комбінація поруч із ним перефарбовує
+// стільки випадкових фішок на полі, скільки фішок у комбінації, у колір бурштину. Овоч стає овочем цього кольору,
+// слиз зникає (на його місці — фішка кольору бурштину), павутина рветься, а фішка під нею перефарбовується
+const AMBER_TINT = [['#ff8a7a', '#c0392b'], ['#ffe66d', '#e09a10'], ['#7dffa8', '#27ae60'], ['#8fd4ff', '#2471a3'], ['#e2a8ff', '#8e44ad'], ['#ffc08a', '#d35400']];
+const AMBER_SVG = '<svg class="amb" viewBox="0 0 100 100">' +
+  '<path class="ab1" d="M50,6 L82,24 L92,58 L70,90 L32,92 L8,62 L16,24 Z"/>' +
+  '<path class="ab2" d="M50,6 L82,24 L60,44 L36,40 L16,24 Z"/>' +
+  '<path class="ab3" d="M60,44 L92,58 L70,90 L50,70 Z"/>' +
+  '<path d="M50,6 L82,24 L92,58 L70,90 L32,92 L8,62 L16,24 Z" fill="none" stroke="rgba(255,255,255,.65)" stroke-width="2.5" stroke-linejoin="round"/>' +
+  '<path d="M26,30 Q34,22 44,22" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".75"/>' +
+  '<circle cx="40" cy="64" r="4" fill="rgba(0,0,0,.25)"/><circle cx="62" cy="56" r="2.5" fill="rgba(0,0,0,.2)"/></svg>';
+function setupAmber(box, cfg) {
+  box.color = cfg?.color ?? 1;
+  const [a, b] = AMBER_TINT[box.color];
+  box.el.style.setProperty('--am1', a); box.el.style.setProperty('--am2', b);
+}
+// бурштини, що торкаються комбінацій: [{ box, r, c, n }] — n = кількість фішок у комбінації
+function amberTriggers(runs, squares) {
+  // зливаємо ряди, що перетинаються (Г, Т), в одну комбінацію
+  const groups = [...runs.map(r => r.cells), ...squares].map(cells => new Set(cells.map(([r, c]) => key(r, c))));
+  for (let i = 0; i < groups.length; i++) for (let j = i + 1; j < groups.length; j++) {
+    if ([...groups[j]].some(k => groups[i].has(k))) { groups[j].forEach(k => groups[i].add(k)); groups.splice(j, 1); j = i; }
+  }
+  const jobs = [];
+  groups.forEach(g => {
+    const seen = new Set();
+    g.forEach(k => {
+      const r = Math.floor(k / N), c = k % N;
+      [[1,0],[-1,0],[0,1],[0,-1]].forEach(([dr, dc]) => {
+        const b = grid[r + dr]?.[c + dc];
+        if (b && b.type === AMBER && !seen.has(b)) { seen.add(b); jobs.push({ box: b, r: r + dr, c: c + dc, n: g.size }); }
+      });
+    });
+  });
+  return jobs;
+}
+async function amberApply(jobs) {
+  const used = new Set();
+  let maxD = 0;
+  for (const { box, r, c, n } of jobs) {
+    const t = box.color;
+    const opts = [];
+    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+      const g = grid[y][x];
+      if (!g || used.has(key(y, x)) || g.spider || g.eggs) continue;
+      const ok = (g.type === SLIME && !g.broken) || (isNormal(g.type) && g.type !== t);
+      if (ok) opts.push([y, x]);
+    }
+    opts.sort(() => Math.random() - .5);
+    box.el.classList.remove('glow'); box.el.getBoundingClientRect(); box.el.classList.add('glow');
+    sfx.amber();
+    opts.slice(0, n).forEach(([y, x], i) => {
+      used.add(key(y, x));
+      const d = 120 + i * 70;
+      maxD = Math.max(maxD, d);
+      setTimeout(() => beam(r, c, y, x), d - 100);
+      setTimeout(() => amberPaint(y, x, t), d);
+    });
+  }
+  if (maxD) await wait(maxD + 300);
+}
+function amberPaint(y, x, t) {
+  let g = grid[y][x];
+  if (!g) return;
+  if (g.type === SLIME && !g.broken) {
+    // слиз зникає — на його місці фішка кольору бурштину
+    g.el.classList.add('breaking');
+    const old = g.el; setTimeout(() => old.remove(), 400);
+    sfx.slimeBreak(); score += BOX_INFO[SLIME].pts;
+    clearLeaf(y, x);
+    g = createGem(y, x, t);
+    grid[y][x] = g;
+  } else if (isNormal(g.type)) {
+    if (g.web) tearWeb(g, y, x);
+    g.type = t;
+    if (g.veg) { g.el.className = 'gem t' + t; makeVeg(g); }
+    else g.el.className = 'gem t' + t;
+  } else return;
+  g.el.classList.add('appear');
+  updateHud();
+}
+
 // ===================== Кольорова коробка =====================
 // Збирає фішки свого кольору: прибрана фішка цього кольору не зникає, а залітає в коробку.
 // Коли зібрано потрібну кількість — коробка зникає, а на її місці лишається бонус
@@ -2626,6 +2724,7 @@ function createBox(r, c, type) {
   if (type === STONEWALL) inner = SWALL_SVG;
   if (type === BASKET) inner = BASKET_SVG;
   if (type === CHAIN) inner = CHAIN_SVG;
+  if (type === AMBER) inner = AMBER_SVG;
   if (type === COLORBOX) inner = '<i class="cbBody"></i><div class="cbGem"><div class="face"></div></div><i class="cbBar"><i></i></i><i class="cbCount"></i>';
   if (type === PADLOCK) inner = LOCK_SVG;
   if (type === GRILL) inner = GRILL_SVG + '<i class="gsmoke"><i></i><i></i><i></i></i>';
@@ -2687,7 +2786,7 @@ const isFree = (r, c) => isNormal(grid[r][c].type) && !locked(grid[r][c]) && !gr
 // те саме, але овочі теж підходять (на них може лягти слиз чи павутина)
 const isFreeV = (r, c) => isNormal(grid[r][c].type) && !locked(grid[r][c]);
 
-const boxesLeft = () => grid.flat().filter(g => isObstacle(g) && g.type !== WALL).length + leaves.flat().filter(Boolean).length +
+const boxesLeft = () => grid.flat().filter(g => isObstacle(g) && g.type !== WALL && g.type !== AMBER).length + leaves.flat().filter(Boolean).length +
   grid.flat().filter(g => g && g.veg).length;
 
 function flyOff(part) {
@@ -2736,7 +2835,7 @@ function hitBox(r, c) {
     }
   }
   if (box.type === ROBOT && box.final) return;      // уже біжить на вибух     // уже затягує фішки
-  if (box.type === WALL || box.type === CHAIN || box.type === PADLOCK || box.type === COLORBOX || (box.type === STONEFROG && !box.armed && !box.broken) || (box.type === GRILL && !box.full && !box.broken)) {
+  if (box.type === WALL || box.type === CHAIN || box.type === PADLOCK || box.type === COLORBOX || box.type === AMBER || (box.type === STONEFROG && !box.armed && !box.broken) || (box.type === GRILL && !box.full && !box.broken)) {
     // броньована стіна і «спляча» кам'яна жаба — невразливі
     box.el.classList.remove('tink'); box.el.getBoundingClientRect(); box.el.classList.add('tink');
     const now = performance.now();
@@ -2911,7 +3010,7 @@ function neighborBoxes(r, c) {
   [[1,0],[-1,0],[0,1],[0,-1]].forEach(([dr, dc]) => {
     const rr = r + dr, cc = c + dc;
     if (rr < 0 || rr >= N || cc < 0 || cc >= N) return;
-    if (isObstacle(grid[rr][cc]) && ![WALL, CHAIN, PADLOCK, COLORBOX].includes(grid[rr][cc].type)) out.push([rr, cc]);
+    if (isObstacle(grid[rr][cc]) && ![WALL, CHAIN, PADLOCK, COLORBOX, AMBER].includes(grid[rr][cc].type)) out.push([rr, cc]);
   });
   return out;
 }
@@ -3500,11 +3599,13 @@ function tntExplode(r, c, rad = 1) {
 // Об'єкт клітинки за символом карти, не кладучи його в сітку (для того, що лежить під ланцюгами)
 // налаштування кольорової коробки з поточного рівня (потрібні й тоді, коли коробка з'являється з-під стіни чи ланцюгів)
 const cbConfAt = (r, c) => LEVELS[level]?.cboxes?.find(b => b.r === r && b.c === c);
+const amberConfAt = (r, c) => LEVELS[level]?.ambers?.find(b => b.r === r && b.c === c);
 function makeCellObj(r, c, ch) {
   if (ch in BOX_CHARS) {
     const b = createBox(r, c, BOX_CHARS[ch]);
     if (ch === 'n') { b.nailgun = true; b.el.classList.add('ng-box'); }
     if (ch === 'X') setupCBox(b, cbConfAt(r, c));
+    if (ch === 'A') setupAmber(b, amberConfAt(r, c));
     return b;
   }
   const g = createGem(r, c, rand());
@@ -3517,6 +3618,7 @@ function spawnCell(r, c, ch) {
     grid[r][c] = createBox(r, c, BOX_CHARS[ch]);
     if (ch === 'n') { grid[r][c].nailgun = true; grid[r][c].el.classList.add('ng-box'); }
     if (ch === 'X') setupCBox(grid[r][c], cbConfAt(r, c));   // коробка з-під стіни — зі своїми налаштуваннями
+    if (ch === 'A') setupAmber(grid[r][c], amberConfAt(r, c));
   } else {
     grid[r][c] = createGem(r, c, rand());
     if (ch === 'x') addWeb(grid[r][c]);
@@ -4267,6 +4369,7 @@ async function resolve(swap = null) {
     const [mr, mc] = matches[Math.floor(matches.length / 2)];
     floatText('+' + pts, mr, mc, combo > 1 ? '#ffe66d' : '#fff');
 
+    const amberJobs = amberTriggers(runs, squares);   // бурштини поруч із комбінаціями
     // фішки в павутині не зникають — рветься павутина
     const webbed = matches.filter(([r, c]) => locked(grid[r][c]));
     const clear = matches.filter(([r, c]) => !locked(grid[r][c]));
@@ -4289,6 +4392,7 @@ async function resolve(swap = null) {
       sfx.special();
       await wait(450);
     }
+    if (amberJobs.length) await amberApply(amberJobs);
 
     collapse();
     setTimeout(sfx.land, 250);
@@ -4762,7 +4866,7 @@ $('soundBtn').onclick = () => {
 
 // ===================== Рівні з JSON =====================
 // Формат: { "levels": [ { "name": "...", "moves": 20, "map": ["........", ... 8 рядків по 8 символів] } ] }
-const MAP_CHARS = '.cnwtrsgxpeojkqmbzyfadhiKGPQX';
+const MAP_CHARS = '.cnwtrsgxpeojkqmbzyfadhiKGPQXA';
 function parseLevels(data) {
   const list = Array.isArray(data) ? data : data?.levels;
   if (!Array.isArray(list) || !list.length) throw new Error('у файлі немає списку "levels"');
@@ -4784,6 +4888,8 @@ function parseLevels(data) {
       r: b.r, c: b.c, color: Math.max(0, Math.min(TYPES - 1, Math.round(+b.color) || 0)),
       count: Math.max(1, Math.min(99, Math.round(+b.count) || 10)),
       reward: ['frog', 'bomb', 'lightning', 'rainbow'].includes(b.reward) ? b.reward : 'random' }));
+    // ambers — колір кожного бурштину: [{ r, c, color }]
+    if (Array.isArray(lv.ambers)) out.ambers = lv.ambers.filter(b => map[b?.r]?.[b?.c] === 'A').map(b => ({ r: b.r, c: b.c, color: Math.max(0, Math.min(TYPES - 1, Math.round(+b.color) || 0)) }));
     // leaves — шар осіннього листя: v — клітинка вкрита листям
     if (Array.isArray(lv.leaves) && lv.leaves.length === N)
       out.leaves = lv.leaves.map(row => [...String(row).padEnd(N, '.').slice(0, N)].map(ch => ch === 'v' || ch === 'B' ? ch : '.').join(''));
@@ -4906,6 +5012,7 @@ const INTRO = {
   l: ["Кам'яна стіна", "Руйнується після трьох ударів. Хтозна, що може ховатися за нею…"],
   i: ['Магічний кристал', "Таємничий кристал, що від кожного удару міняє барву — від нічної сині до багрянцю. Розбийте його — і вивільніть суперсилу. Блискавки він подвоює, а слиз, павутиння й павуків довкола себе не терпить — щойно з'явиться, одразу їх знищує"],
   h: ["Мітла", "Змете зі шляху опале листя, павутиння та надокучливий слиз"],
+  A: ['Бурштин', 'Напівпрозорий камінь, його не зруйнувати — і не треба. Зберіть комбінацію поруч: скільки фішок у ній, стільки випадкових фішок на полі набудуть кольору бурштину. Слиз і павутину він при цьому знищує.'],
   X: ['Кольорова коробка', 'Збирає фішки свого кольору: прибрані фішки цього кольору залітають у неї. Наповніть її — і отримаєте бонус!'],
   C: ['Ланцюги', 'Сковують усе, що під ними: його не зрушити й не пошкодити. Самі ланцюги теж не розбити — потрібен ключ до замка.'],
   P: ['Навісний замок', 'Тримає ланцюги поруч. Його не зламати — лише відімкнути ключем. Коли відчинено всі замки, що тримають групу ланцюгів, вона розлітається.'],
@@ -4929,6 +5036,7 @@ function introTile(ch) {
   } else {
     if (ch === 'Q') { g = createGem(0, 0, 0); makeKey(g); }
     else if (ch === 'X') { g = createBox(0, 0, COLORBOX); setupCBox(g, { color: 3, count: 10 }); }
+    else if (ch === 'A') { g = createBox(0, 0, AMBER); setupAmber(g, { color: 1 }); }
     else g = createBox(0, 0, ch === 'C' ? CHAIN : COVER_TYPES[ch] ?? BOX_CHARS[ch]);
     if (ch === 'n') g.el.classList.add('ng-box');
   }
