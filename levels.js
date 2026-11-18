@@ -4272,6 +4272,36 @@ window.LEVELS_DATA = {
       ]
     },
     {
+      "name": "Вибухова задачка",
+      "moves": 29,
+      "map": [
+        "aa.a.att",
+        "aaXaXaaa",
+        "aaaaaaaa",
+        "......aa",
+        "......aa",
+        "......aa",
+        "......aa",
+        "......aa"
+      ],
+      "cboxes": [
+        {
+          "r": 1,
+          "c": 4,
+          "color": 0,
+          "count": 20,
+          "reward": "lightning"
+        },
+        {
+          "r": 1,
+          "c": 2,
+          "color": 3,
+          "count": 20,
+          "reward": "lightning"
+        }
+      ]
+    },
+    {
       "name": "Помаранчевий вантаж",
       "moves": 30,
       "map": [
@@ -4315,32 +4345,304 @@ window.LEVELS_DATA = {
       ]
     },
     {
-      "name": "Вибухова задачка",
-      "moves": 29,
+      "name": "Жонглери",
+      "moves": 35,
       "map": [
-        "aa.a.att",
-        "aaXaXaaa",
-        "aaaaaaaa",
-        "......aa",
-        "......aa",
-        "......aa",
-        "......aa",
-        "......aa"
+        "XXX..XXX",
+        ".jj..jj.",
+        "........",
+        "........",
+        "........",
+        "........",
+        "........",
+        "........"
+      ],
+      "cboxes": [
+        {
+          "r": 0,
+          "c": 5,
+          "color": 3,
+          "count": 10,
+          "reward": "random"
+        },
+        {
+          "r": 0,
+          "c": 6,
+          "color": 4,
+          "count": 10,
+          "reward": "random"
+        },
+        {
+          "r": 0,
+          "c": 2,
+          "color": 2,
+          "count": 10,
+          "reward": "random"
+        },
+        {
+          "r": 0,
+          "c": 1,
+          "color": 1,
+          "count": 10,
+          "reward": "random"
+        },
+        {
+          "r": 0,
+          "c": 0,
+          "color": 0,
+          "count": 10,
+          "reward": "random"
+        },
+        {
+          "r": 0,
+          "c": 7,
+          "color": 5,
+          "count": 10,
+          "reward": "random"
+        }
+      ]
+    },
+    {
+      "name": "Павучі Ходи",
+      "moves": 35,
+      "map": [
+        ".p.PP.p.",
+        "pXp..pXp",
+        ".p....p.",
+        "........",
+        "........",
+        "w.w..w.w",
+        "tQ.cc.Qt",
+        "wtwwwwtw"
+      ],
+      "cover": [
+        "CCC..CCC",
+        "CCC..CCC",
+        "CC....CC",
+        "........",
+        "........",
+        ".l....l.",
+        "..l..l..",
+        "........"
       ],
       "cboxes": [
         {
           "r": 1,
-          "c": 4,
-          "color": 0,
-          "count": 20,
-          "reward": "lightning"
+          "c": 6,
+          "color": 3,
+          "count": 10,
+          "reward": "random"
         },
         {
           "r": 1,
-          "c": 2,
-          "color": 3,
-          "count": 20,
+          "c": 1,
+          "color": 1,
+          "count": 10,
+          "reward": "random"
+        }
+      ]
+    },
+    {
+      "name": "Недосяжне ядро",
+      "moves": 25,
+      "map": [
+        "X.a....a",
+        "X.a....a",
+        "X.a....a",
+        "X.a....a",
+        "X.a....a",
+        "X.a....a",
+        "X.a....o",
+        "aiaaaaar"
+      ],
+      "cover": [
+        "........",
+        "........",
+        "........",
+        "........",
+        "........",
+        "........",
+        "........",
+        ".......l"
+      ],
+      "cboxes": [
+        {
+          "r": 1,
+          "c": 0,
+          "color": 1,
+          "count": 10,
           "reward": "lightning"
+        },
+        {
+          "r": 2,
+          "c": 0,
+          "color": 2,
+          "count": 10,
+          "reward": "lightning"
+        },
+        {
+          "r": 3,
+          "c": 0,
+          "color": 4,
+          "count": 10,
+          "reward": "lightning"
+        },
+        {
+          "r": 4,
+          "c": 0,
+          "color": 5,
+          "count": 10,
+          "reward": "lightning"
+        },
+        {
+          "r": 5,
+          "c": 0,
+          "color": 3,
+          "count": 10,
+          "reward": "lightning"
+        },
+        {
+          "r": 6,
+          "c": 0,
+          "color": 0,
+          "count": 10,
+          "reward": "lightning"
+        },
+        {
+          "r": 0,
+          "c": 0,
+          "color": 0,
+          "count": 10,
+          "reward": "lightning"
+        }
+      ]
+    },
+    {
+      "name": "Кольори Скайнету",
+      "moves": 25,
+      "map": [
+        "......Xb",
+        "XbP....P",
+        "........",
+        "........",
+        "......bP",
+        "...P..X.",
+        "P..bX...",
+        "bX......"
+      ],
+      "cover": [
+        "......CC",
+        "CC......",
+        "........",
+        "........",
+        "......C.",
+        "......C.",
+        "...CC...",
+        "CC......"
+      ],
+      "cboxes": [
+        {
+          "r": 0,
+          "c": 6,
+          "color": 3,
+          "count": 10,
+          "reward": "random"
+        },
+        {
+          "r": 5,
+          "c": 6,
+          "color": 0,
+          "count": 10,
+          "reward": "random"
+        },
+        {
+          "r": 1,
+          "c": 0,
+          "color": 1,
+          "count": 10,
+          "reward": "random"
+        },
+        {
+          "r": 6,
+          "c": 4,
+          "color": 2,
+          "count": 10,
+          "reward": "random"
+        },
+        {
+          "r": 7,
+          "c": 1,
+          "color": 5,
+          "count": 10,
+          "reward": "random"
+        }
+      ]
+    },
+    {
+      "name": "Загадковий рецепт",
+      "moves": 26,
+      "map": [
+        "........",
+        "........",
+        "........",
+        "........",
+        "........",
+        "........",
+        ".XXXXXX.",
+        "........"
+      ],
+      "leaves": [
+        "........",
+        ".BBBBBB.",
+        ".BBBBBB.",
+        ".BBBBBB.",
+        ".BBBBBB.",
+        ".BBBBBB.",
+        "........",
+        "........"
+      ],
+      "cboxes": [
+        {
+          "r": 6,
+          "c": 6,
+          "color": 5,
+          "count": 10,
+          "reward": "frog"
+        },
+        {
+          "r": 6,
+          "c": 5,
+          "color": 4,
+          "count": 10,
+          "reward": "frog"
+        },
+        {
+          "r": 6,
+          "c": 4,
+          "color": 3,
+          "count": 10,
+          "reward": "frog"
+        },
+        {
+          "r": 6,
+          "c": 3,
+          "color": 2,
+          "count": 10,
+          "reward": "frog"
+        },
+        {
+          "r": 6,
+          "c": 2,
+          "color": 1,
+          "count": 10,
+          "reward": "frog"
+        },
+        {
+          "r": 6,
+          "c": 1,
+          "color": 0,
+          "count": 10,
+          "reward": "frog"
         }
       ]
     }
