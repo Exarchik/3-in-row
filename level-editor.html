@@ -264,7 +264,7 @@
   <button id="saveBtn">💾 Зберегти levels.json</button>
   <button class="ghost" id="copyBtn">📋 Копіювати JSON</button>
   <button class="ghost" id="testBtn" title="Відкриває match3.html і запускає цей рівень">▶ Тест у грі</button>
-  <input type="file" id="fileInput" accept=".json,application/json" hidden>
+  <input type="file" id="fileInput" accept=".json,.js,application/json,text/javascript" hidden>
 </header>
 
 <main>
@@ -853,25 +853,61 @@ $('fileInput').onchange = async e => {
   e.target.value = '';
   if (!f) return;
   try {
-    const data = JSON.parse(await f.text());
+    const data = await readLevelsText(await f.text());   // levels.json або levels.js (закодований чи старий)
     const list = parseLevels(data);
     pushUndo();
     levels = list; jackDrops = parseDrops(data); cur = 0; fileName = f.name; renderAll(); markSaved();
     toast(`📂 Відкрито ${f.name}: рівнів ${list.length}`);
   } catch (err) { toast('⚠️ Не вдалося відкрити: ' + err.message); }
 };
-$('saveBtn').onclick = () => {
+// ===== Кодування levels.js: стиснення (gzip) + шифрування ключем + base64 =====
+// Формат рядка: «g1:…» — стиснуто й зашифровано, «x1:…» — лише зашифровано (якщо браузер не вміє стискати)
+const PACK_KEY = 'm3·рівні·2026';
+function packXor(bytes) {
+  const k = new TextEncoder().encode(PACK_KEY);
+  for (let i = 0; i < bytes.length; i++) bytes[i] ^= k[i % k.length] ^ ((i * 31) & 255);
+  return bytes;
+}
+async function packLevels(json) {
+  let bytes = new TextEncoder().encode(json), tag = 'x1';
+  if (window.CompressionStream) {
+    bytes = new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(new CompressionStream('gzip'))).arrayBuffer());
+    tag = 'g1';
+  }
+  packXor(bytes);
+  let bin = '';
+  for (let i = 0; i < bytes.length; i += 8192) bin += String.fromCharCode(...bytes.subarray(i, i + 8192));
+  return tag + ':' + btoa(bin);
+}
+async function unpackLevels(str) {
+  const tag = str.slice(0, 2), bin = atob(str.slice(3));
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  packXor(bytes);
+  const text = tag === 'g1'
+    ? await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'))).text()
+    : new TextDecoder().decode(bytes);
+  return JSON.parse(text);
+}
+async function readLevelsText(t) {
+  const m = t.match(/LEVELS_PACKED\s*=\s*"([^"]+)"/);
+  if (m) return unpackLevels(m[1]);
+  const j = t.indexOf('window.LEVELS_DATA');
+  if (j >= 0) t = t.slice(t.indexOf('=', j) + 1).trim().replace(/;\s*$/, '');
+  return JSON.parse(t);
+}
+$('saveBtn').onclick = async () => {
   const blob = new Blob([toJSON()], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = fileName.endsWith('.json') ? fileName : 'levels.json';
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 2000);
-  // копія для запуску гри просто з диска: браузер не читає сусідній .json, а .js підключає
+  // копія для гри (і з диска, і на сайті) — закодована: стиснута й зашифрована
+  const packed = await packLevels(toJSON());
   setTimeout(() => {
-    const js = new Blob(['// Згенеровано редактором рівнів — копія levels.json для запуску гри з диска.\n' +
-      '// Не редагуйте вручну: змінюйте рівні в редакторі й зберігайте знову.\n' +
-      'window.LEVELS_DATA = ' + toJSON() + ';\n'], { type: 'text/javascript' });
+    const js = new Blob(['// Рівні гри «3 в ряд» (закодовано). Не редагуйте вручну — зберігайте рівні з редактора.\n' +
+      'window.LEVELS_PACKED = "' + packed + '";\n'], { type: 'text/javascript' });
     const b = document.createElement('a');
     b.href = URL.createObjectURL(js);
     b.download = 'levels.js';
@@ -923,7 +959,7 @@ $('fileInfo').textContent = fileName + ' · стандартні рівні';
   if (!data) data = await new Promise(res => {
     const sc = document.createElement('script');
     sc.src = 'levels.js?' + Date.now();
-    sc.onload = () => { from = 'levels.js'; res(window.LEVELS_DATA || null); };
+    sc.onload = () => { from = 'levels.js'; window.LEVELS_PACKED ? unpackLevels(window.LEVELS_PACKED).then(res, () => res(null)) : res(window.LEVELS_DATA || null); };
     sc.onerror = () => res(null);
     document.head.appendChild(sc);
   });

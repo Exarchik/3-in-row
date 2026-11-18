@@ -5100,11 +5100,41 @@ function tryLevelsData(d, note) {
   try { const list = parseLevels(d); JACK_DROPS = parseDrops(d); useLevels(list, null, note); return true; }
   catch (err) { setTip('⚠️ Помилка у файлі рівнів: ' + err.message); return false; }
 }
+// ===== Кодування levels.js: стиснення (gzip) + шифрування ключем + base64 =====
+// Формат рядка: «g1:…» — стиснуто й зашифровано, «x1:…» — лише зашифровано (якщо браузер не вміє стискати)
+const PACK_KEY = 'm3·рівні·2026';
+function packXor(bytes) {
+  const k = new TextEncoder().encode(PACK_KEY);
+  for (let i = 0; i < bytes.length; i++) bytes[i] ^= k[i % k.length] ^ ((i * 31) & 255);
+  return bytes;
+}
+async function packLevels(json) {
+  let bytes = new TextEncoder().encode(json), tag = 'x1';
+  if (window.CompressionStream) {
+    bytes = new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(new CompressionStream('gzip'))).arrayBuffer());
+    tag = 'g1';
+  }
+  packXor(bytes);
+  let bin = '';
+  for (let i = 0; i < bytes.length; i += 8192) bin += String.fromCharCode(...bytes.subarray(i, i + 8192));
+  return tag + ':' + btoa(bin);
+}
+async function unpackLevels(str) {
+  const tag = str.slice(0, 2), bin = atob(str.slice(3));
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  packXor(bytes);
+  const text = tag === 'g1'
+    ? await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'))).text()
+    : new TextDecoder().decode(bytes);
+  return JSON.parse(text);
+}
 function loadLevelsJs() {
   return new Promise(res => {
     const sc = document.createElement('script');
     sc.src = LEVELS_JS_FILE + '?' + Date.now();
-    sc.onload = () => res(window.LEVELS_DATA || null);
+    // новий формат — закодований рядок LEVELS_PACKED, старий — відкритий LEVELS_DATA
+    sc.onload = () => window.LEVELS_PACKED ? unpackLevels(window.LEVELS_PACKED).then(res, () => res(null)) : res(window.LEVELS_DATA || null);
     sc.onerror = () => res(null);
     document.head.appendChild(sc);
   });
