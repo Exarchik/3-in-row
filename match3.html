@@ -552,6 +552,8 @@
   .lvbtn.current { background: linear-gradient(135deg, #ff6bb5, #8e44ad); box-shadow: 0 0 0 2px #ffe66d; }
   .lvbtn.locked { background: rgba(255,255,255,.06); color: rgba(255,255,255,.35); cursor: not-allowed; filter: none; }
   .lvbtn.locked:hover { filter: none; }
+  .lvbtn .lvlotto { position: absolute; top: 2px; left: 4px; font-size: 13px; animation: lvLotto 1.6s ease-in-out infinite; }
+  @keyframes lvLotto { 50% { transform: rotate(-12deg) scale(1.15); } }
   .lvbtn.playing::after { content: '●'; position: absolute; top: 4px; right: 7px; font-size: 10px; color: #ffe66d; }
   .lvmenu { position: relative; }
   .lvmenu .row2 { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
@@ -1702,7 +1704,8 @@ async function showResult({ title, base, movesLeft, prevBest, replay, stars = 1,
   $('resSkip').hidden = false;
   $('resBtns').classList.remove('show');
   $('resRetry').hidden = level >= LEVELS.length;   // випадкові рівні після останнього не переграємо
-  $('resNext').textContent = replay || level >= LEVELS.length ? 'Наступний рівень →' : 'Далі 🎟️';
+  const lotto = lottoOwed(level);   // лотерею за цей рівень ще не зіграно
+  $('resNext').textContent = lotto ? 'Далі 🎟️' : 'Наступний рівень →';
   $('result').classList.add('show');
   await rwait(600);
   // ходи → очки
@@ -1748,8 +1751,8 @@ async function showResult({ title, base, movesLeft, prevBest, replay, stars = 1,
   $('resRetry').onclick = () => { $('result').classList.remove('show'); sfx.start(); startLevel(level); };
   $('resNext').onclick = () => {
     $('result').classList.remove('show');
-    // лотерея — лише за перше проходження рівня
-    if (replay || level >= LEVELS.length) startLevel(level + 1); else showLottery(() => startLevel(level + 1));
+    // лотерея — доки її за цей рівень не зіграно
+    if (lotto) showLottery(() => startLevel(level + 1)); else startLevel(level + 1);
   };
 }
 
@@ -1774,8 +1777,30 @@ async function finale() {
   }
 }
 
+// Рівень пройдено — кожен бурштин розсипається (+50) і стає звичайною фішкою свого кольору
+async function amberMelt() {
+  const list = [];
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) if (grid[r][c]?.type === AMBER) list.push([r, c]);
+  if (!list.length) return;
+  for (const [r, c] of list) {
+    const box = grid[r][c], pts = BOX_INFO[AMBER].pts;
+    box.el.classList.add('breaking');
+    const [a, b] = AMBER_TINT[box.color];
+    shatter(r, c, [a, b, '#fff3c4'], 10);
+    sfx.crystalBreak();
+    score += pts; floatText('+' + pts, r, c, '#ffd27a');
+    const old = box.el; setTimeout(() => old.remove(), 400);
+    grid[r][c] = createGem(r, c, box.color);
+    grid[r][c].el.classList.add('appear');
+    updateHud();
+    await wait(Math.max(90, 260 - list.length * 15));
+  }
+  await wait(350);
+}
+
 async function checkEnd() {
   if (boxesLeft() === 0) {
+    await amberMelt();
     await finale();
     const base = score, movesLeft = moves, bonus = moves * 50;
     score += bonus;
@@ -1954,7 +1979,7 @@ const BOX_INFO = {
   [MIRROR2]:    { cls: 'mirror',     hp: 1, pts: 160, shards: ['#e6f6ff', '#9fd2f0', '#ffffff', '#6aa8d8'] },
   [STONEFROG]:  { cls: 'stonefrog',  hp: 1, pts: 300, shards: ['#9a9fa8', '#6c717b', '#4a4e56', '#ff9a3a'] },
   [MOLE]:       { cls: 'mole',       hp: 1, pts: 250, shards: ['#6b4318', '#8a5a2e', '#3d2a14', '#ff9ab0'] },
-  [AMBER]:      { cls: 'amber',      hp: 1, pts: 0,   shards: ['#ffb43a'] },
+  [AMBER]:      { cls: 'amber',      hp: 1, pts: 50,   shards: ['#ffb43a'] },
   [COLORBOX]:   { cls: 'cbox',       hp: 1, pts: 300, shards: ['#c99357', '#94632e', '#ffe66d', '#ff6bb5'] },
   [CHAIN]:      { cls: 'chain',      hp: 1, pts: 50,  shards: ['#b8c0c8', '#6b747e', '#3d444c'] },
   [PADLOCK]:    { cls: 'padlock',    hp: 1, pts: 300, shards: ['#ffd23a', '#c99a1a', '#8a6420', '#b8c0c8'] },
@@ -4283,7 +4308,7 @@ async function fire(t, idx, destroyed, next) {
       if (!hitSet.has(key(rr, cc))) { hitSet.add(key(rr, cc)); hitBox(rr, cc); }
     });
     await wait(120);
-    const count = t.count ?? 3, speed = t.fast ? .45 : 1;
+    const count = t.count ?? 3, speed = t.fast ? .45 : .5;
     // жабки люблять павуків: один із язиків обов'язково хапає павука
     const spiders = [];
     for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) if (grid[r][c]?.spider) spiders.push([r, c]);
@@ -5133,7 +5158,7 @@ function showLottery(done) {
     cd.revealed = true;
     cd.el.classList.add('revealed');
     sfx.reveal(revealedN++);
-    if (revealedN === 4) setTimeout(finish, 450);
+    if (revealedN === 4) { markLotto(level); setTimeout(finish, 450); }
   }
 
   function finish() {
@@ -5226,6 +5251,23 @@ let progress = {};
 try { progress = JSON.parse(localStorage.getItem(PROGRESS_KEY)) || {}; } catch (e) { progress = {}; }
 const levelKey = i => LEVELS[i]?.name ? 'n:' + LEVELS[i].name : 'i:' + i;
 const isPassed = i => progress[levelKey(i)] != null;
+// рівні, за які лотерею вже зіграно. Поки її не зіграно — «Далі» після проходження завжди веде до лотереї,
+// а в списку рівнів такий рівень позначено білетом 🎟️
+const LOTTO_KEY = 'match3-lottery';
+let lottoDone = null;
+try { lottoDone = JSON.parse(localStorage.getItem(LOTTO_KEY)); } catch (e) {}
+if (!lottoDone) {
+  // перший запуск з цією функцією: рівні, пройдені раніше, вважаємо вже «розіграними»
+  lottoDone = {};
+  Object.keys(progress).forEach(k => { lottoDone[k] = 1; });
+  try { localStorage.setItem(LOTTO_KEY, JSON.stringify(lottoDone)); } catch (e) {}
+}
+const lottoOwed = i => i < LEVELS.length && !lottoDone[levelKey(i)];
+function markLotto(i) {
+  if (TEST_MODE || i >= LEVELS.length) return;
+  lottoDone[levelKey(i)] = 1;
+  try { localStorage.setItem(LOTTO_KEY, JSON.stringify(lottoDone)); } catch (e) {}
+}
 function totalScore() {
   let t = 0;
   for (let i = 0; i < LEVELS.length; i++) t += progress[levelKey(i)] || 0;
@@ -5239,7 +5281,7 @@ const TEST_MODE = new URLSearchParams(location.search).has('test');
 function levelBase(def) {
   let b = 0;
   def.map.forEach((row, r) => [...row].forEach((ch, c) => {
-    if (ch in BOX_CHARS) { const t = BOX_CHARS[ch]; if (t !== WALL && t !== AMBER) b += BOX_INFO[t].pts; if (ch === 'n') b += BOX_INFO[NAILGUN].pts; }
+    if (ch in BOX_CHARS) { const t = BOX_CHARS[ch]; if (t !== WALL) b += BOX_INFO[t].pts; if (ch === 'n') b += BOX_INFO[NAILGUN].pts; }
     if (ch === 'x') b += 30;
     if (ch === 'p') b += 80;
     const cv = def.cover?.[r]?.[c];
@@ -5294,7 +5336,7 @@ function showLevelMenu() {
   const btn = (lv, i) => {
     const done = isPassed(i), open = canPick(i);
     const cls = done ? 'done' : open ? 'current' : 'locked';
-    const best = done ? `${starsHTML(levelStars(i))}<span class="best">${progress[levelKey(i)]}</span>` : open ? '<span class="best" style="color:#ffe66d">▶ далі</span>' : '<span>🔒</span>';
+    const best = done ? `${lottoOwed(i) ? '<span class="lvlotto" title="Лотерею за цей рівень ще не зіграно">🎟️</span>' : ''}${starsHTML(levelStars(i))}<span class="best">${progress[levelKey(i)]}</span>` : open ? '<span class="best" style="color:#ffe66d">▶ далі</span>' : '<span>🔒</span>';
     return `<button class="lvbtn ${cls}${i === level ? ' playing' : ''}" data-i="${i}" ${open ? '' : 'disabled'} title="${(lv.name || 'Рівень ' + (i + 1)).replace(/"/g, '&quot;')}">
       ${i + 1}<small>${lv.name || '&nbsp;'}</small>${best}</button>`;
   };
@@ -5460,9 +5502,8 @@ function useLevels(list, startAt = null, note = '') {
 }
 
 // 1) Рівні за замовчуванням — з файлів поруч із грою:
-//    • levels.json — коли гра відкрита з сервера/хостингу (браузер дозволяє його прочитати);
-//    • levels.js   — копія levels.json для запуску просто з диска (file://), бо там браузер
-//                    не дає читати сусідні .json, а підключити .js — дозволяє.
+//    • levels.js   — головний (закодований) файл рівнів, працює і з диска (file://), і з сервера;
+//    • levels.json — запасний, якщо levels.js нема і гру відкрито з сервера/хостингу.
 //    Якщо жодного файлу нема — вбудовані рівні.
 function tryLevelsData(d, note) {
   try { const list = parseLevels(d); JACK_DROPS = parseDrops(d); useLevels(list, null, note); return true; }
@@ -5510,10 +5551,12 @@ function loadLevelsJs() {
 (async () => {
   if (TEST_MODE) return;                     // рівні надішле редактор
   let data = null, from = '';
-  if (location.protocol !== 'file:') {
+  // головний файл рівнів гри — levels.js (його генерує редактор); levels.json — лише запасний варіант,
+  // якщо levels.js поруч нема і гру відкрито з сервера
+  data = await loadLevelsJs(); from = LEVELS_JS_FILE;
+  if (!data && location.protocol !== 'file:') {
     try { const r = await fetch(LEVELS_JSON_FILE, { cache: 'no-store' }); if (r.ok) { data = await r.json(); from = LEVELS_JSON_FILE; } } catch (e) {}
   }
-  if (!data) { data = await loadLevelsJs(); from = LEVELS_JS_FILE; }
   if (data && !busy && moves === LEVELS[level]?.moves && turn === 0) tryLevelsData(data, `📂 Рівні завантажено з ${from}`);
 })();
 
