@@ -472,7 +472,10 @@
   .resRow[hidden] { display: none; }
   .resStars { display: flex; justify-content: center; gap: 10px; margin: 14px 0 2px; }
   .resStars i { font-style: normal; font-size: 46px; line-height: 1; color: rgba(255,255,255,.14); text-shadow: 0 2px 0 rgba(0,0,0,.3); transition: color .2s; }
-  .resStars i:nth-child(2) { font-size: 56px; margin-top: -10px; }
+  .resStars .st { display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 64px; }
+  .resStars .st:nth-child(2) i { font-size: 56px; margin-top: -10px; }
+  .resStars small { font-size: 12px; font-weight: 700; color: rgba(255,255,255,.55); font-variant-numeric: tabular-nums; }
+  .resStars .st.on small { color: #ffd23a; }
   .resStars i.on { color: #ffd23a; text-shadow: 0 0 14px rgba(255,200,60,.85), 0 3px 0 #a06a00; animation: starPop .5s cubic-bezier(.2,1.8,.4,1); }
   @keyframes starPop { 0% { transform: scale(2.6) rotate(-40deg); opacity: 0; } 100% { transform: scale(1) rotate(0); opacity: 1; } }
   .resStarHint { font-size: 12px; opacity: .7; min-height: 15px; }
@@ -1236,7 +1239,7 @@
     Бонуси гравця (не витрачають хід): 🔨 молоток — 1 удар у вибрану клітинку · 🧤 рукавичка — поміняти місцями будь-які дві фішки ·
     🎯 дротики — 3 дротики у випадкові перешкоди.<br>
     Після рівня — лотерея: зітріть 4 клітинки, дві однакові дають приз.<br>
-    ⭐ Зірки за рівень — за ощадливість: ⭐ — рівень пройдено, ⭐⭐ — лишилось щонайменше 10% ходів, ⭐⭐⭐ — щонайменше 25% ходів. Зберігається найкращий результат.<br>
+    ⭐ За кожен рівень — до трьох зірок: що краще зіграєте, то більше зірок. Зберігається найкращий результат.<br>
     4 в ряд → ⚡ блискавка (зсув по горизонталі → б'є стовпчик, по вертикалі → рядок)<br>
     Г / Т → 💣 бомба (вибух 5×5) · 5 в ряд → 🌈 куля (усі фішки одного кольору)<br>
     Квадрат 2×2 → 🐸 жабка (з'їдає 3 випадкові фішки; один язик завжди підкидає овоч, якщо він є)<br>
@@ -1256,7 +1259,7 @@
         <div class="resRow total"><span>Разом</span><b id="resTotal">0</b></div>
         <div class="resRow best" id="resBestRow" hidden><span>🏅 Минулий результат</span><b id="resBest">0</b></div>
       </div>
-      <div class="resStars" id="resStars"><i>★</i><i>★</i><i>★</i></div>
+      <div class="resStars" id="resStars"><span class="st"><i>★</i><small></small></span><span class="st"><i>★</i><small></small></span><span class="st"><i>★</i><small></small></span></div>
       <div class="resStarHint" id="resStarHint"></div>
       <div class="resStamp" id="resStamp"></div>
       <div class="resSkip" id="resSkip">клацніть, щоб пропустити</div>
@@ -1681,18 +1684,20 @@ function confettiBurst(n = 60) {
     setTimeout(() => c.remove(), 2400);
   }
 }
-async function showResult({ title, base, movesLeft, prevBest, replay, stars = 1, prevStars = 0, totalMoves = 0 }) {
+async function showResult({ title, base, movesLeft, prevBest, replay, stars = 1, prevStars = 0, totalMoves = 0, starCosts = null }) {
   resSkip = false;
   const total = base + movesLeft * 50;
   $('resTitle').textContent = title;
   $('resBase').textContent = base;
-  $('resMoves').textContent = movesLeft;
+  $('resMoves').textContent = 0;
   $('resBonus').textContent = '+0';
   $('resTotal').textContent = base;
   $('resMovesRow').hidden = movesLeft === 0;
   $('resBestRow').hidden = true;
   $('resStamp').className = 'resStamp'; $('resStamp').textContent = '';
   $('resStars').querySelectorAll('i').forEach(i => i.classList.remove('on'));
+  // під кожною зіркою — скільки очок вона коштує
+  $('resStars').querySelectorAll('.st').forEach((st, k) => { st.classList.remove('on'); st.querySelector('small').textContent = starCosts ? starCosts[k] : ''; });
   $('resStarHint').textContent = '';
   $('resSkip').hidden = false;
   $('resBtns').classList.remove('show');
@@ -1703,7 +1708,7 @@ async function showResult({ title, base, movesLeft, prevBest, replay, stars = 1,
   // ходи → очки
   const step = Math.max(35, Math.min(120, 1800 / Math.max(1, movesLeft)));
   for (let i = 1; i <= movesLeft; i++) {
-    $('resMoves').textContent = movesLeft - i;
+    $('resMoves').textContent = i;   // невикористані ходи рахуються вгору: 0 → N
     $('resBonus').textContent = '+' + i * 50;
     $('resTotal').textContent = base + i * 50;
     moves = movesLeft - i; $('moves').textContent = moves;
@@ -1715,11 +1720,8 @@ async function showResult({ title, base, movesLeft, prevBest, replay, stars = 1,
   await rwait(300);
   // зірки — по одній
   const starEls = $('resStars').querySelectorAll('i');
-  for (let k = 0; k < stars; k++) { starEls[k].classList.add('on'); sfx.star(k); await rwait(380); }
-  const need = starNeed(totalMoves);
-  $('resStarHint').textContent = stars < 3
-    ? `Для ${'★'.repeat(stars + 1)} лиште щонайменше ${need[stars]} ${need[stars] === 1 ? 'хід' : need[stars] < 5 ? 'ходи' : 'ходів'}`
-    : (prevStars && prevStars < 3 ? '' : '');
+  for (let k = 0; k < stars; k++) { starEls[k].classList.add('on'); starEls[k].parentElement.classList.add('on'); sfx.star(k); await rwait(380); }
+  $('resStarHint').textContent = '';
   if (prevStars && stars > prevStars) { $('resStarHint').textContent = `✨ Нова зірка! Було ${'★'.repeat(prevStars)}`; }
   await rwait(300);
   // порівняння з минулим результатом
@@ -1780,13 +1782,13 @@ async function checkEnd() {
     const replay = level < LEVELS.length && isPassed(level);   // рівень уже проходили раніше
     const prevBest = level < LEVELS.length ? progress[levelKey(level)] : undefined;
     const totalMoves = LEVELS[level]?.moves ?? movesLeft;
-    const stars = starsFor(movesLeft, totalMoves);
+    const stars = LEVELS[level] ? starsFor(score, LEVELS[level]) : 1;
     const prevStars = level < LEVELS.length && isPassed(level) ? levelStars(level) : 0;
     if (level < LEVELS.length) { markPassed(level, score); markStars(level, stars); }
     sfx.win();
     await showResult({
       title: `${LEVELS[level]?.name ? '«' + LEVELS[level].name + '»' : 'Рівень ' + (level + 1)} пройдено! 🎉`,
-      base, movesLeft, prevBest, replay, stars, prevStars, totalMoves,
+      base, movesLeft, prevBest, replay, stars, prevStars, totalMoves, starCosts: LEVELS[level] ? starThresholds(LEVELS[level]) : null,
     });
   } else if (moves <= 0) {
     sfx.end();
@@ -5231,18 +5233,38 @@ function totalScore() {
 }
 // Тестовий режим (гру відкрив редактор: match3.html?test): свої рівні не підвантажуємо, прогрес не зберігаємо
 const TEST_MODE = new URLSearchParams(location.search).has('test');
-// ⭐ Зірки — за ощадливість ходів: ⭐ — пройдено; ⭐⭐ — лишилось ≥10% ходів (щонайменше 1);
-// ⭐⭐⭐ — лишилось ≥25% ходів (щонайменше 2). Пороги рахуються від кількості ходів рівня
-const starNeed = total => [0, Math.max(1, Math.ceil(total * 0.10)), Math.max(2, Math.ceil(total * 0.25))];
-function starsFor(movesLeft, total) {
-  const [, two, three] = starNeed(total);
-  return movesLeft >= three ? 3 : movesLeft >= two ? 2 : 1;
+// ⭐ Зірки (правило гравцеві не показується). БАЗА — вартість усього, що стоїть на полі на старті рівня
+// (перешкоди, стіни й ланцюги, павутина, павуки, листя й грядки). Очки за рівень понад БАЗУ:
+//   ⭐ ≥ 500 · ⭐⭐ ≥ 60 × ходи рівня · ⭐⭐⭐ ≥ 150 × ходи рівня
+function levelBase(def) {
+  let b = 0;
+  def.map.forEach((row, r) => [...row].forEach((ch, c) => {
+    if (ch in BOX_CHARS) { const t = BOX_CHARS[ch]; if (t !== WALL && t !== AMBER) b += BOX_INFO[t].pts; if (ch === 'n') b += BOX_INFO[NAILGUN].pts; }
+    if (ch === 'x') b += 30;
+    if (ch === 'p') b += 80;
+    const cv = def.cover?.[r]?.[c];
+    if (cv === 'l') b += BOX_INFO[STONEWALL].pts; else if (cv === 'u') b += BOX_INFO[CARDWALL].pts; else if (cv === 'C') b += BOX_INFO[CHAIN].pts;
+    const lf = def.leaves?.[r]?.[c];
+    if (lf === 'v' || lf === 'B') b += 20;
+  }));
+  return b;
+}
+// очки, потрібні для ⭐ / ⭐⭐ / ⭐⭐⭐ на цьому рівні
+function starThresholds(def) {
+  const base = levelBase(def), m = def.moves;
+  const two = Math.max(500, 50 * m), three = Math.max(two, 120 * m);
+  return [base + 500, base + two, base + three];
+}
+function starsFor(pts, def) {
+  const [one, two, three] = starThresholds(def);
+  return pts >= three ? 3 : pts >= two ? 2 : pts >= one ? 1 : 0;
 }
 const STARS_KEY = 'match3-stars';
 let starsBest = {};
 try { starsBest = JSON.parse(localStorage.getItem(STARS_KEY)) || {}; } catch (e) { starsBest = {}; }
 // найкраща кількість зірок на рівні (пройдений до появи зірок — щонайменше 1)
-const levelStars = i => starsBest[levelKey(i)] || (isPassed(i) ? 1 : 0);
+// зірки рівня — завжди перераховуються з найкращого результату (рекорду очок) за поточною формулою
+const levelStars = i => isPassed(i) && LEVELS[i] ? starsFor(progress[levelKey(i)], LEVELS[i]) : 0;
 function markStars(i, n) {
   if (TEST_MODE) return;
   const k = levelKey(i);
