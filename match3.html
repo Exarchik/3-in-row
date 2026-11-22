@@ -709,6 +709,55 @@
   .box.mole.dig .crate { animation: moleDig .45s cubic-bezier(.3,1.6,.5,1); }
   @keyframes moleDig { from { transform: scale(.2) translateY(30%); opacity: 0; } }
   .box.mole.tink .crate { animation: tink .22s; }
+  /* ===== Скляний шар (куля пророцтв) ===== */
+  .gem.box.orb::before { display: none; }
+  .orb .crate { background: none; box-shadow: none; inset: 0; }
+  .orb .ostand { position: absolute; left: 0; top: 0; width: 100%; height: 100%; z-index: 1; }
+  .orb .oball {
+    position: absolute; left: 13%; top: 3%; width: 74%; height: 74%; border-radius: 50%; overflow: hidden; z-index: 2;
+    background: radial-gradient(circle at 50% 55%, rgba(120,90,230,.55), rgba(40,20,110,.9) 72%, rgba(20,8,60,.95));
+    box-shadow: inset 0 0 0 2px rgba(210,225,255,.55), inset 0 -6px 12px rgba(0,0,0,.45), 0 0 10px rgba(140,120,255,.55);
+  }
+  .orb .omist {
+    position: absolute; inset: -30%; opacity: .85; filter: blur(3px);
+    background: conic-gradient(from 0deg, transparent 0 10%, rgba(150,210,255,.75) 18%, transparent 30%, rgba(220,140,255,.7) 45%, transparent 58%, rgba(120,255,230,.55) 72%, transparent 85%);
+    animation: orbSwirl 5s linear infinite;
+  }
+  @keyframes orbSwirl { to { transform: rotate(360deg); } }
+  .orb .oglint { position: absolute; left: 18%; top: 12%; width: 32%; height: 22%; border-radius: 50%; background: radial-gradient(ellipse, rgba(255,255,255,.85), transparent 70%); transform: rotate(-30deg); }
+  .orb .ov {
+    position: absolute; inset: 0; display: grid; place-items: center; font-style: normal; font-weight: 900; color: #fff;
+    font-size: calc(var(--cell) * .24); text-shadow: 0 0 6px #b9a6ff, 0 0 12px #7f5cff; animation: orbNum 1.6s ease-in-out infinite alternate;
+  }
+  @keyframes orbNum { from { opacity: .55; transform: scale(.92); } to { opacity: 1; transform: scale(1.05); } }
+  .orb .ocrack { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none; }
+  .orb .ocrack path { fill: none; stroke: rgba(235,245,255,.95); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; opacity: 0; filter: drop-shadow(0 0 1.5px #fff); }
+  .box.orb.crack1 .ocrack .c1, .box.orb.crack2 .ocrack path { opacity: 1; }
+  .box.orb.crack1 .omist { animation-duration: 2.6s; }
+  .box.orb.crack2 .omist { animation-duration: 1.2s; opacity: 1; }
+  .box.orb.crack2 .oball { box-shadow: inset 0 0 0 2px rgba(210,225,255,.55), inset 0 -6px 12px rgba(0,0,0,.45), 0 0 16px 3px rgba(170,140,255,.9); }
+  .box.orb.hit .oball { animation: orbWobble .3s; }
+  @keyframes orbWobble { 30% { transform: scale(1.08); filter: brightness(1.6); } 60% { transform: scale(.96); } }
+  .orbRing {
+    position: absolute; z-index: 15; pointer-events: none; width: var(--cell); height: var(--cell); border-radius: 50%;
+    border: 3px solid #d9ccff; box-shadow: 0 0 16px 6px rgba(160,130,255,.85), inset 0 0 14px rgba(255,255,255,.8);
+    animation: orbRing .6s ease-out forwards;
+  }
+  @keyframes orbRing { from { transform: scale(.4); opacity: 1; } to { transform: scale(3.2); opacity: 0; } }
+  .orbStar { position: absolute; z-index: 15; pointer-events: none; width: calc(var(--cell) * .2); height: calc(var(--cell) * .2); margin: calc(var(--cell) * .4);
+    background: #fff; clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); filter: drop-shadow(0 0 4px #b9a6ff);
+    animation: orbStar .8s ease-out forwards; }
+  @keyframes orbStar { to { transform: translate(var(--dx), var(--dy)) rotate(180deg) scale(.2); opacity: 0; } }
+  .movesFly {
+    position: fixed; z-index: 60; pointer-events: none; margin: -24px 0 0 -40px; width: 80px; text-align: center;
+    font: 900 34px/48px system-ui; color: #e9e2ff; text-shadow: 0 0 10px #a78bff, 0 0 22px #7f5cff, 0 2px 0 #3a2a80;
+    animation: movesPop .5s cubic-bezier(.2,1.8,.4,1) both;
+    transition: transform .8s cubic-bezier(.5,-0.35,.6,1), opacity .2s .7s;
+  }
+  .movesFly small { font-size: 20px; margin-left: 2px; }
+  @keyframes movesPop { from { scale: 0; } }
+  .stat.movesGain { animation: movesGain .7s; }
+  @keyframes movesGain { 30% { transform: scale(1.18); box-shadow: 0 0 0 3px #b9a6ff, 0 0 22px #8f6cff; } }
   /* кріт-чародій: нора мерехтить синім */
   .box.mole.wiz .mhill { filter: drop-shadow(0 0 4px rgba(110,160,255,.9)); animation: wizHill 1.4s ease-in-out infinite alternate; }
   @keyframes wizHill { to { filter: drop-shadow(0 0 8px rgba(150,120,255,1)); } }
@@ -1236,6 +1285,7 @@
     💎 магічний кристал — 8 ударів; з кожним змінює колір від темно-синього до багряно-червоного, останні удари — з тріщинами й дрижанням. Розбитий, лишає випадкову суперкомбінацію (червону жабу, фіолетову блискавку або велику бомбу), яка одразу спрацьовує. Кірка вважає його каменем. Кожна блискавка, що влучила в кристал, породжує ще одну — зелену, поперек; зелена блискавка інших кристалів не зачіпає. У зоні 3×3 довкола кристала не з'являються слиз і павутина, а павук, що туди заліз, гине. Якщо кристал з'являється посеред гри (з-під кам'яної стіни чи від клоуна), він одразу знищує павутину, слиз і павуків у своїй зоні<br>
     🧹 мітла — від 1 удару злітає і летить по прямій, вичищаючи листя, слиз і павутину (фішки лишаються). Напрямок обирає за пріоритетом: найбільше листя, потім слизу, потім павутини, потім інших мітел, потім довший шлях. Інші мітли пролітає наскрізь, зачіпаючи їх (вони теж злітають). Наткнувшись на іншу перешкоду, розвертається; долетівши до стінки (краю поля чи броньованої стіни) — з хрустом ламається<br>
     🦫 кріт — спершу риє нору (невразлива; фішка на її місці знищується, овоч зараховується, бонус спрацьовує). Наступного ходу вилазить кріт — 1 удар (комбінація поруч, бонус). Не вдарили за цей хід — ховається й риє нору деінде. У норі 3 кроти: переможеного через хід змінює наступний, а коли переможено всіх трьох — нора зникає. Вилазячи, кріт: з'їдає павуків поруч, знищує слиз довкола, ковтає ключ (той вилетить, коли крота переможуть; доки ключ у кроті, новий не випадає), перевертає сміттєбак, б'є кошик, а на грядці — вириває овоч. Кристал поруч убиває крота<br>
+    🔮 скляний шар — 3 удари (скло тріскається). Розбили — лопається й дає додаткові ходи (число світиться всередині кулі, зазвичай +5)<br>
     🧙 кріт-чародій — як звичайний кріт (нора, 3 кроти), але від кожної шкоди кастує випадкове закляття, яке секунду літає над столом і спрацьовує у випадковому місці: фаєрбол (вибух 3×3), павук, слиз, блискавка, мітла, трансмутація (ящик, камінь, слиз чи павутина стають ящиком TNT) або іскри (б'ють по кількох перешкодах)<br>
     🟠 бурштин — невразливий і не рахується перешкодою. Комбінація поруч із ним перефарбовує в колір бурштину стільки випадкових фішок на полі, скільки фішок у комбінації (3, 4, 5…): овоч стає овочем цього кольору, слиз зникає й лишає фішку кольору бурштину, павутина рветься, а фішка під нею перефарбовується<br>
     🎨 кольорова коробка — невразлива; кожна прибрана фішка її кольору (комбінацією, бонусом, вибухом) залітає в неї. Коли зібрано потрібну кількість, коробка зникає й лишає на своєму місці бонус (жабку, бомбу, блискавку чи кулю)<br>
@@ -1447,6 +1497,9 @@ const sfx = {
   dig: () => { noise(0.18, 0.08, 700); tone(150, { dur: 0.12, vol: 0.08, type: 'triangle', slide: 1.6, delay: 0.05 }); },
   moleUp: () => { tone(320, { dur: 0.12, vol: 0.08, type: 'triangle', slide: 1.8 }); noise(0.15, 0.06, 900); },
   moleDive: () => { tone(500, { dur: 0.15, vol: 0.07, type: 'triangle', slide: 0.4 }); noise(0.12, 0.05, 700); },
+  orbHit: dmg => { tone(1300 + dmg * 300, { dur: 0.3, vol: 0.05, type: 'sine' }); tone(2600 + dmg * 400, { dur: 0.12, vol: 0.03, type: 'triangle', delay: 0.03 }); noise(0.06, 0.04, 6000); },
+  orbPop: () => { [0, 3, 7, 12, 15, 19].forEach((n, i) => tone(784 * Math.pow(2, n / 12), { dur: 0.35, vol: 0.05, type: 'sine', delay: 0.15 + i * 0.06 })); noise(0.35, 0.14, 5500); },
+  movesTick: i => tone(880 + i * 110, { dur: 0.07, vol: 0.06, type: 'triangle' }),
   spellCast: () => { [0, 4, 7, 11, 14].forEach((n, i) => tone(660 * Math.pow(2, n / 12), { dur: 0.18, vol: 0.05, type: 'sine', delay: i * 0.05 })); },
   spellFly: () => { tone(900, { dur: 0.9, vol: 0.03, type: 'sine', slide: 1.6 }); },
   spellLand: () => { tone(1200, { dur: 0.25, vol: 0.06, type: 'triangle', slide: 0.4 }); noise(0.2, 0.06, 3000); },
@@ -1512,7 +1565,7 @@ const sfx = {
 // ===== Гра =====
 const N = 8, TYPES = 6;
 const RAINBOW = 6, BOMB = 7, LIGHTNING = 8, FROG = 9;
-const CARDBOARD = 10, WOOD = 11, REINFORCED = 12, SLIME = 13, GENERATOR = 14, NAILGUN = 15, TNT = 16, TESLA = 17, CORE = 18, JACK = 19, STONE = 20, STONEPICK = 21, MIXER = 22, ROBOT = 23, MIRROR = 24, MIRROR2 = 25, STONEFROG = 26, WALL = 27, STONEWALL = 28, BIN = 29, BROOM = 30, CRYSTAL = 31, CARDWALL = 32, BASKET = 33, GRILL = 34, CHAIN = 35, PADLOCK = 36, COLORBOX = 37, AMBER = 38, MOLE = 39;
+const CARDBOARD = 10, WOOD = 11, REINFORCED = 12, SLIME = 13, GENERATOR = 14, NAILGUN = 15, TNT = 16, TESLA = 17, CORE = 18, JACK = 19, STONE = 20, STONEPICK = 21, MIXER = 22, ROBOT = 23, MIRROR = 24, MIRROR2 = 25, STONEFROG = 26, WALL = 27, STONEWALL = 28, BIN = 29, BROOM = 30, CRYSTAL = 31, CARDWALL = 32, BASKET = 33, GRILL = 34, CHAIN = 35, PADLOCK = 36, COLORBOX = 37, AMBER = 38, MOLE = 39, ORB = 40;
 const KEYT = -2;   // ключ — фішка без кольору: рухається й падає, але не збирається в комбінації
 // стіни-покриття (шар cover): l — кам'яна, u — картонна; під ними може ховатися перешкода
 const COVER_TYPES = { l: STONEWALL, u: CARDWALL };
@@ -1604,11 +1657,12 @@ function createGem(r, c, type, fromRow = r) {
   return gem;
 }
 
-const BOX_CHARS = { c: CARDBOARD, n: CARDBOARD, w: WOOD, r: REINFORCED, s: SLIME, g: GENERATOR, t: TNT, e: TESLA, o: CORE, j: JACK, k: STONE, q: STONEPICK, m: MIXER, b: ROBOT, z: MIRROR, y: MIRROR2, f: STONEFROG, a: WALL, d: BIN, h: BROOM, i: CRYSTAL, K: BASKET, G: GRILL, P: PADLOCK, X: COLORBOX, A: AMBER, M: MOLE, W: MOLE };
+const BOX_CHARS = { c: CARDBOARD, n: CARDBOARD, w: WOOD, r: REINFORCED, s: SLIME, g: GENERATOR, t: TNT, e: TESLA, o: CORE, j: JACK, k: STONE, q: STONEPICK, m: MIXER, b: ROBOT, z: MIRROR, y: MIRROR2, f: STONEFROG, a: WALL, d: BIN, h: BROOM, i: CRYSTAL, K: BASKET, G: GRILL, P: PADLOCK, X: COLORBOX, A: AMBER, M: MOLE, W: MOLE, O: ORB };
 function startLevel(i) {
   level = i;
   const def = LEVELS[i] || randomLevel();
-  board.querySelectorAll('.gem, .beam, .bolt, .shock, .float, .combo, .shard, .tongue, .spiderEl, .nail, .dart, .leaf, .broomFx, .vegToss, .spellFx, .spellTrail').forEach(e => e.remove());
+  board.querySelectorAll('.gem, .beam, .bolt, .shock, .float, .combo, .shard, .tongue, .spiderEl, .nail, .dart, .leaf, .broomFx, .vegToss, .spellFx, .spellTrail, .orbRing, .orbStar').forEach(e => e.remove());
+  document.querySelectorAll('.movesFly').forEach(e => e.remove());
   pendingFill.length = pendingClear.length = pendingDet.length = 0;
   inFlight = 0;
   turn = 0;
@@ -1656,6 +1710,7 @@ function startLevel(i) {
         if (ch === 'W') makeWizard(grid[r][c]);   // кріт-чародій
         if (ch === 'X') setupCBox(grid[r][c], def.cboxes?.find(b => b.r === r && b.c === c));
         if (ch === 'A') setupAmber(grid[r][c], def.ambers?.find(b => b.r === r && b.c === c));
+        if (ch === 'O') setupOrb(grid[r][c], def.orbs?.find(b => b.r === r && b.c === c));
         continue;
       }
       let t;
@@ -2010,6 +2065,7 @@ const BOX_INFO = {
   [MIRROR2]:    { cls: 'mirror',     hp: 1, pts: 160, shards: ['#e6f6ff', '#9fd2f0', '#ffffff', '#6aa8d8'] },
   [STONEFROG]:  { cls: 'stonefrog',  hp: 1, pts: 300, shards: ['#9a9fa8', '#6c717b', '#4a4e56', '#ff9a3a'] },
   [MOLE]:       { cls: 'mole',       hp: 1, pts: 250, shards: ['#6b4318', '#8a5a2e', '#3d2a14', '#ff9ab0'] },
+  [ORB]:        { cls: 'orb',        hp: 3, pts: 100, shards: ['#e6ecff', '#b9a6ff', '#7f5cff', '#ffffff', '#c9b27a'] },
   [AMBER]:      { cls: 'amber',      hp: 1, pts: 50,   shards: ['#ffb43a'] },
   [COLORBOX]:   { cls: 'cbox',       hp: 1, pts: 300, shards: ['#c99357', '#94632e', '#ffe66d', '#ff6bb5'] },
   [CHAIN]:      { cls: 'chain',      hp: 1, pts: 50,  shards: ['#b8c0c8', '#6b747e', '#3d444c'] },
@@ -2346,6 +2402,61 @@ function moleDefeated(m, r, c) {
     keyFly(k);
   }, 300 + i * 200);
   m.keys = 0;
+}
+
+// ===================== Скляний шар =====================
+// Куля пророцтв: 3 удари (тріщини, туман крутиться швидше). Розбили — лопається, і гравець отримує додаткові ходи
+// (скільки — задається в редакторі, за замовчуванням +5): число вилітає з кулі й летить до лічильника ходів
+const ORB_HTML = '<svg class="ostand" viewBox="0 0 100 100">' +
+  '<ellipse cx="50" cy="94" rx="30" ry="5" fill="rgba(0,0,0,.35)"/>' +
+  '<path d="M26,92 L32,74 Q50,82 68,74 L74,92 Z" fill="#a8803a" stroke="#5a3e12" stroke-width="2.5" stroke-linejoin="round"/>' +
+  '<path d="M30,78 Q22,70 26,62 M70,78 Q78,70 74,62" fill="none" stroke="#7a5820" stroke-width="4" stroke-linecap="round"/>' +
+  '<path d="M33,84 Q50,90 67,84" fill="none" stroke="#e6c27a" stroke-width="2"/></svg>' +
+  '<i class="oball"><i class="omist"></i><i class="ov">+5</i><i class="oglint"></i></i>' +
+  '<svg class="ocrack" viewBox="0 0 100 100">' +
+  '<path class="c1" d="M30,18 L38,30 L34,38 L44,46 M38,30 L46,26"/>' +
+  '<path class="c2" d="M72,30 L62,40 L66,50 L56,58 L60,66 M62,40 L70,46 M44,46 L52,52 L48,60"/></svg>';
+function setupOrb(box, cfg) {
+  box.moves = Math.max(1, Math.round(+cfg?.moves) || 5);
+  box.el.querySelector('.ov').textContent = '+' + box.moves;
+}
+function orbBurst(box, r, c) {
+  const n = box.moves || 5;
+  sfx.orbPop();
+  // спалах і зірочки
+  const ring = fx('orbRing', { left: `calc(var(--cell) * ${c})`, top: `calc(var(--cell) * ${r})` });
+  setTimeout(() => ring.remove(), 650);
+  for (let i = 0; i < 10; i++) {
+    const a = i / 10 * Math.PI * 2 + Math.random() * .4, d = 40 + Math.random() * 35;
+    const st = fx('orbStar', { left: `calc(var(--cell) * ${c})`, top: `calc(var(--cell) * ${r})` });
+    st.style.setProperty('--dx', Math.cos(a) * d + 'px'); st.style.setProperty('--dy', Math.sin(a) * d + 'px');
+    setTimeout(() => st.remove(), 850);
+  }
+  // «+N 👣» вилітає з кулі й летить до лічильника ходів
+  const br = board.getBoundingClientRect(), cell = br.width / N;
+  const x = br.left + (c + .5) * cell, y = br.top + (r + .5) * cell;
+  const el = document.createElement('div');
+  el.className = 'movesFly';
+  el.innerHTML = `+${n}<small>👣</small>`;
+  el.style.left = x + 'px'; el.style.top = y + 'px';
+  document.body.appendChild(el);
+  inFlight++;   // поле чекає, поки ходи долетять (щоб кінець рівня врахував нові ходи)
+  setTimeout(() => {
+    const t = $('moves').getBoundingClientRect();
+    el.style.transform = `translate(${t.left + t.width / 2 - x}px, ${t.top + t.height / 2 - y}px) scale(.55)`;
+    el.style.opacity = 0;
+  }, 650);
+  setTimeout(async () => {
+    el.remove();
+    const stat = $('moves').closest('.stat');
+    stat.classList.remove('movesGain'); stat.getBoundingClientRect(); stat.classList.add('movesGain');
+    for (let i = 0; i < n; i++) {   // ходи додаються по одному
+      moves++; $('moves').textContent = moves; sfx.movesTick(i);
+      await wait(Math.max(40, 300 / n));
+    }
+    updateHud();
+    inFlight--;
+  }, 1450);
 }
 
 // ===================== Кріт-чародій =====================
@@ -3294,6 +3405,7 @@ function createBox(r, c, type) {
   if (type === CHAIN) inner = CHAIN_SVG;
   if (type === AMBER) inner = AMBER_SVG;
   if (type === MOLE) inner = MOLE_HILL_SVG + '<i class="mbody">' + MOLE_SVG + '</i>';
+  if (type === ORB) inner = ORB_HTML;
   if (type === COLORBOX) inner = '<i class="cbBody"></i><div class="cbGem"><div class="face"></div></div><i class="cbBar"><i></i></i><i class="cbCount"></i>';
   if (type === PADLOCK) inner = LOCK_SVG;
   if (type === GRILL) inner = GRILL_SVG + '<i class="gsmoke"><i></i><i></i><i></i></i>';
@@ -3316,6 +3428,7 @@ function createBox(r, c, type) {
   const box = { type, el, hp: BOX_INFO[type].hp, broken: false };
   // на старті рівня дзеркало повернуте склом (неармованою стороною)
   if (type === CRYSTAL) setCrystalStage(box);
+  if (type === ORB) box.moves = 5;
   if (type === MOLE) { box.state = 'hole'; box.keys = 0; box.left = MOLE_COUNT; box.fresh = false; }
   if (type === GRILL) { box.count = 0; box.shown = 0; setGrillStage(box); }
   if (isMirror(type)) { box.glass = true; box.sheet = type === MIRROR2; el.classList.add('glass'); }
@@ -3452,7 +3565,7 @@ function hitBox(r, c) {
        [GENERATOR]: () => { sfx.metalBreak(); sfx.slimeBreak(); },
        [NAILGUN]: () => sfx.metalBreak(), [TNT]: () => sfx.woodBreak(),
        [TESLA]: () => { sfx.lightning(); sfx.teslaZap(true); },
-       [JACK]: () => sfx.cardBreak(), [STONE]: () => sfx.stoneBreak(), [STONEPICK]: () => sfx.stoneBreak(), [MIXER]: () => sfx.metalBreak(), [MIRROR]: () => sfx.glassBreak(), [MIRROR2]: () => sfx.glassBreak(), [STONEFROG]: () => sfx.stoneBreak(), [STONEWALL]: () => sfx.stoneBreak(), [CARDWALL]: () => sfx.cardBreak(), [BASKET]: () => sfx.cardBreak(), [GRILL]: () => sfx.metalBreak(), [MOLE]: () => sfx.moleHit(), [BIN]: () => sfx.binTip(), [CRYSTAL]: () => sfx.crystalBreak() })[box.type]?.();
+       [JACK]: () => sfx.cardBreak(), [STONE]: () => sfx.stoneBreak(), [STONEPICK]: () => sfx.stoneBreak(), [MIXER]: () => sfx.metalBreak(), [MIRROR]: () => sfx.glassBreak(), [MIRROR2]: () => sfx.glassBreak(), [STONEFROG]: () => sfx.stoneBreak(), [STONEWALL]: () => sfx.stoneBreak(), [CARDWALL]: () => sfx.cardBreak(), [BASKET]: () => sfx.cardBreak(), [GRILL]: () => sfx.metalBreak(), [MOLE]: () => sfx.moleHit(), [ORB]: () => sfx.glassBreak(), [BIN]: () => sfx.binTip(), [CRYSTAL]: () => sfx.crystalBreak() })[box.type]?.();
     if (box.type !== BROOM) shatter(r, c, box.nailgun ? ['#8fb8ec', '#5b8fd6', '#2c5394', '#f0e1b4'] : info.shards, box.type === REINFORCED || box.type === GENERATOR ? 12 : 8);
     if (box.type === NAILGUN) [[0,1],[0,-1],[1,0],[-1,0]].forEach(d => fireNail(r, c, d));   // цвяхи в усі 4 боки
     if (box.type === TNT) tntExplode(r, c);
@@ -3500,6 +3613,7 @@ function hitBox(r, c) {
     if (box.type === GENERATOR) pendingFill.push([r, c]);   // зона 3×3 заллється слизом
     if (box.type === BIN) pendingSpill.push([r, c]);        // 2: бак перекидається — листя 5×5
     if (box.type === GRILL) grillBlast(box, r, c);          // повний мангал вибухає 3×3
+    if (box.type === ORB) orbBurst(box, r, c);              // скляний шар лопається — додаткові ходи
     if (box.type === MOLE) moleDefeated(box, r, c);         // кріт переможений — проковтнуті ключі вилітають
     if (box.type === BASKET) pendingVeg.push({ r, c, n: 4 });   // 3-й удар: останні 4 овочі, кошик зникає
     if (box.type === BROOM) broomLift(r, c);                // мітла злітає, полетить, коли поле вляжеться
@@ -3535,6 +3649,10 @@ function hitBox(r, c) {
     el.classList.add('less' + (BOX_INFO[BASKET].hp - box.hp));
     sfx.cardHit();
     pendingVeg.push({ r, c, n: 3 });
+  } else if (box.type === ORB) {
+    // 1–2 удари: скло тріскається, туман усередині закручується швидше
+    el.classList.add('crack' + (BOX_INFO[ORB].hp - box.hp));
+    sfx.orbHit(BOX_INFO[ORB].hp - box.hp);
   } else if (box.type === CRYSTAL) {
     setCrystalStage(box);
     sfx.crystalHit(BOX_INFO[CRYSTAL].hp - box.hp);
@@ -4173,6 +4291,7 @@ function tntExplode(r, c, rad = 1) {
 // налаштування кольорової коробки з поточного рівня (потрібні й тоді, коли коробка з'являється з-під стіни чи ланцюгів)
 const cbConfAt = (r, c) => LEVELS[level]?.cboxes?.find(b => b.r === r && b.c === c);
 const amberConfAt = (r, c) => LEVELS[level]?.ambers?.find(b => b.r === r && b.c === c);
+const orbConfAt = (r, c) => LEVELS[level]?.orbs?.find(b => b.r === r && b.c === c);
 function makeCellObj(r, c, ch) {
   if (ch in BOX_CHARS) {
     const b = createBox(r, c, BOX_CHARS[ch]);
@@ -4180,6 +4299,7 @@ function makeCellObj(r, c, ch) {
     if (ch === 'W') makeWizard(b);
     if (ch === 'X') setupCBox(b, cbConfAt(r, c));
     if (ch === 'A') setupAmber(b, amberConfAt(r, c));
+    if (ch === 'O') setupOrb(b, orbConfAt(r, c));
     return b;
   }
   const g = createGem(r, c, rand());
@@ -4194,6 +4314,7 @@ function spawnCell(r, c, ch) {
     if (ch === 'W') makeWizard(grid[r][c]);
     if (ch === 'X') setupCBox(grid[r][c], cbConfAt(r, c));   // коробка з-під стіни — зі своїми налаштуваннями
     if (ch === 'A') setupAmber(grid[r][c], amberConfAt(r, c));
+    if (ch === 'O') setupOrb(grid[r][c], orbConfAt(r, c));
   } else {
     grid[r][c] = createGem(r, c, rand());
     if (ch === 'x') addWeb(grid[r][c]);
@@ -5443,7 +5564,7 @@ $('soundBtn').onclick = () => {
 
 // ===================== Рівні з JSON =====================
 // Формат: { "levels": [ { "name": "...", "moves": 20, "map": ["........", ... 8 рядків по 8 символів] } ] }
-const MAP_CHARS = '.cnwtrsgxpeojkqmbzyfadhiKGPQXAMW';
+const MAP_CHARS = '.cnwtrsgxpeojkqmbzyfadhiKGPQXAMWO';
 function parseLevels(data) {
   const list = Array.isArray(data) ? data : data?.levels;
   if (!Array.isArray(list) || !list.length) throw new Error('у файлі немає списку "levels"');
@@ -5465,6 +5586,8 @@ function parseLevels(data) {
       r: b.r, c: b.c, color: Math.max(0, Math.min(TYPES - 1, Math.round(+b.color) || 0)),
       count: Math.max(1, Math.min(99, Math.round(+b.count) || 10)),
       reward: ['frog', 'bomb', 'lightning', 'rainbow'].includes(b.reward) ? b.reward : 'random' }));
+    // orbs — скільки ходів дає кожен скляний шар: [{ r, c, moves }]
+    if (Array.isArray(lv.orbs)) out.orbs = lv.orbs.filter(b => map[b?.r]?.[b?.c] === 'O').map(b => ({ r: b.r, c: b.c, moves: Math.max(1, Math.min(30, Math.round(+b.moves) || 5)) }));
     // ambers — колір кожного бурштину: [{ r, c, color }]
     if (Array.isArray(lv.ambers)) out.ambers = lv.ambers.filter(b => map[b?.r]?.[b?.c] === 'A').map(b => ({ r: b.r, c: b.c, color: Math.max(0, Math.min(TYPES - 1, Math.round(+b.color) || 0)) }));
     // leaves — шар осіннього листя: v — клітинка вкрита листям
@@ -5650,6 +5773,7 @@ const INTRO = {
   i: ['Магічний кристал', "З кожним ударом змінює колір, аж доки не вивільнить приховану силу. Слиз, павутиння й павуків довкола себе не терпить — щойно з'явиться, одразу їх знищує."],
   h: ["Мітла", "Змете зі шляху опале листя, павутиння та надокучливий слиз"],
   M: ['Кріт', 'Підземні бешкетники риють нори й нищать фішки. Бийте кротів, коли вони визирають назовні.'],
+  O: ['Скляний шар', 'Куля пророцтв уже бачить вашу перемогу — просто їй потрібно трохи більше ходів. Три удари — і пророцтво збудеться.'],
   W: ['Кріт-чародій', 'Поки звичайні кроти їли хробаків і гризли корінці, цей закінчував академію магічних наук — на двієчку, звичайно, але все ж.'],
   A: ['Бурштин', 'Застигла магія з талантом перефарбовувати світ. Також знищує слиз і павутину.'],
   X: ['Кольорова коробка', 'Колекціонує кольори й винагороджує за старанність.'],
@@ -5677,6 +5801,7 @@ function introTile(ch) {
     else if (ch === 'X') { g = createBox(0, 0, COLORBOX); setupCBox(g, { color: 3, count: 10 }); }
     else if (ch === 'A') { g = createBox(0, 0, AMBER); setupAmber(g, { color: 1 }); }
     else if (ch === 'M') { g = createBox(0, 0, MOLE); g.el.classList.add('up'); }
+    else if (ch === 'O') { g = createBox(0, 0, ORB); }
     else if (ch === 'W') { g = makeWizard(createBox(0, 0, MOLE)); g.el.classList.add('up'); }
     else g = createBox(0, 0, ch === 'C' ? CHAIN : COVER_TYPES[ch] ?? BOX_CHARS[ch]);
     if (ch === 'n') g.el.classList.add('ng-box');
