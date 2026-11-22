@@ -709,6 +709,7 @@
   .box.mole.dig .crate { animation: moleDig .45s cubic-bezier(.3,1.6,.5,1); }
   @keyframes moleDig { from { transform: scale(.2) translateY(30%); opacity: 0; } }
   .box.mole.tink .crate { animation: tink .22s; }
+  .mole .mbody.fly { opacity: 1; z-index: 5; }
 
   /* ===== Бурштин ===== */
   .gem.box.amber::before { display: none; }
@@ -1210,7 +1211,7 @@
     🍂 осіннє листя — лежить під фішками; знищте фішку чи перешкоду на клітинці, і листя розлетиться. Для перемоги треба прибрати все листя<br>
     💎 магічний кристал — 8 ударів; з кожним змінює колір від темно-синього до багряно-червоного, останні удари — з тріщинами й дрижанням. Розбитий, лишає випадкову суперкомбінацію (червону жабу, фіолетову блискавку або велику бомбу), яка одразу спрацьовує. Кірка вважає його каменем. Кожна блискавка, що влучила в кристал, породжує ще одну — зелену, поперек; зелена блискавка інших кристалів не зачіпає. У зоні 3×3 довкола кристала не з'являються слиз і павутина, а павук, що туди заліз, гине. Якщо кристал з'являється посеред гри (з-під кам'яної стіни чи від клоуна), він одразу знищує павутину, слиз і павуків у своїй зоні<br>
     🧹 мітла — від 1 удару злітає і летить по прямій, вичищаючи листя, слиз і павутину (фішки лишаються). Напрямок обирає за пріоритетом: найбільше листя, потім слизу, потім павутини, потім інших мітел, потім довший шлях. Інші мітли пролітає наскрізь, зачіпаючи їх (вони теж злітають). Наткнувшись на іншу перешкоду, розвертається; долетівши до стінки (краю поля чи броньованої стіни) — з хрустом ламається<br>
-    🦫 кріт — спершу риє нору (невразлива; фішка на її місці знищується, овоч зараховується, бонус спрацьовує). Наступного ходу вилазить кріт — 1 удар (комбінація поруч, бонус). Не вдарили за цей хід — ховається й риє нору деінде. Вилазячи, кріт: з'їдає павуків поруч, знищує слиз довкола, ковтає ключ (той вилетить, коли крота переможуть; доки ключ у кроті, новий не випадає), перевертає сміттєбак, б'є кошик, а на грядці — вириває овоч. Кристал поруч убиває крота<br>
+    🦫 кріт — спершу риє нору (невразлива; фішка на її місці знищується, овоч зараховується, бонус спрацьовує). Наступного ходу вилазить кріт — 1 удар (комбінація поруч, бонус). Не вдарили за цей хід — ховається й риє нору деінде. У норі 3 кроти: переможеного через хід змінює наступний, а коли переможено всіх трьох — нора зникає. Вилазячи, кріт: з'їдає павуків поруч, знищує слиз довкола, ковтає ключ (той вилетить, коли крота переможуть; доки ключ у кроті, новий не випадає), перевертає сміттєбак, б'є кошик, а на грядці — вириває овоч. Кристал поруч убиває крота<br>
     🟠 бурштин — невразливий і не рахується перешкодою. Комбінація поруч із ним перефарбовує в колір бурштину стільки випадкових фішок на полі, скільки фішок у комбінації (3, 4, 5…): овоч стає овочем цього кольору, слиз зникає й лишає фішку кольору бурштину, павутина рветься, а фішка під нею перефарбовується<br>
     🎨 кольорова коробка — невразлива; кожна прибрана фішка її кольору (комбінацією, бонусом, вибухом) залітає в неї. Коли зібрано потрібну кількість, коробка зникає й лишає на своєму місці бонус (жабку, бомбу, блискавку чи кулю)<br>
     ⛓️ ланцюги — лежать поверх клітинки; їх не можна пошкодити, а те, що під ними, не можна ні зрушити, ні пошкодити<br>
@@ -2162,6 +2163,8 @@ function vegLaunch(fly, rect) {
 // ===================== Кріт =====================
 // Спершу — нора (невразлива; фішку на її місці знищено). Наступного ходу вилазить кріт (1 удар).
 // Не вдарили за цей хід — кріт із норою зникає й одразу риє нову нору деінде.
+// У норі MOLE_COUNT кротів: переможеного через хід змінює наступний з тієї ж нори; коли переможено останнього — нора зникає.
+const MOLE_COUNT = 3;
 const MOLE_HILL_SVG = '<svg class="mhill" viewBox="0 0 100 100">' +
   '<ellipse cx="50" cy="82" rx="42" ry="12" fill="#3d2a14" opacity=".55"/>' +
   '<path d="M8,84 Q14,52 34,48 Q50,30 66,48 Q86,52 92,84 Z" fill="#7a4a22" stroke="#4a2c12" stroke-width="2.5"/>' +
@@ -2178,9 +2181,11 @@ const N8 = [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
 async function moleTurn() {
   const moles = grid.flat().filter(g => g && g.type === MOLE && !g.broken);
   if (!moles.length) return;
-  // усі живі кроти діють синхронно: або всі вилазять, або всі ховаються й риють нові нори
-  if (moles.some(m => m.state === 'up')) await moleRelocateAll(moles);
-  else await Promise.all(moles.map(moleEmerge));
+  // усі живі кроти діють синхронно: або всі вилазять, або всі ховаються й риють нові нори деінде.
+  // Нора, де щойно переможено крота, лишається на місці й пропускає хід — новий кріт вилазить із неї через хід
+  if (moles.some(m => m.state === 'up')) await moleRelocateAll(moles.filter(m => m.state === 'up'));
+  else await Promise.all(moles.map(m => m.fresh ? null : moleEmerge(m)));
+  moles.forEach(m => { m.fresh = false; });
   collapse(); await wait(350);
   await settle();
   await resolve();
@@ -2203,7 +2208,11 @@ async function moleEmerge(m) {
     if (g.type === CRYSTAL && !g.broken) {           // кристал не терпить крота
       beam(y, x, r, c); sfx.crystalZap();
       await wait(150);
-      if (!m.broken) { m.hp = 0; m.broken = true; m.el.classList.add('breaking'); shatter(r, c, BOX_INFO[MOLE].shards, 8); score += BOX_INFO[MOLE].pts; floatText('💎 ⚡', r, c, '#c050e0'); moleDefeated(m, r, c); setTimeout(() => m.el.remove(), 400); }
+      if (!m.broken) {
+        floatText('💎 ⚡', r - .35, c, '#c050e0');
+        if (m.left > 1) moleKnock(m, r, c);
+        else { m.hp = 0; m.broken = true; m.el.classList.add('breaking'); shatter(r, c, BOX_INFO[MOLE].shards, 8); score += BOX_INFO[MOLE].pts; floatText('+' + BOX_INFO[MOLE].pts, r, c, '#ffd27a'); moleDefeated(m, r, c); setTimeout(() => m.el.remove(), 400); }
+      }
       return;
     }
   }
@@ -2228,14 +2237,14 @@ async function moleEmerge(m) {
 }
 // кроти, яких не вдарили, разом ховаються й разом риють нові нори деінде
 async function moleRelocateAll(moles) {
-  const info = moles.map(m => ({ m, from: findGem(m), keys: m.keys })).filter(x => x.from);
+  const info = moles.map(m => ({ m, from: findGem(m), keys: m.keys, left: m.left })).filter(x => x.from);
   moleKeysCarry = info.reduce((a, x) => a + (x.keys || 0), 0);   // поки кроти під землею, їхні ключі теж «на полі»
   info.forEach(({ m }) => m.el.classList.add('dive'));
   sfx.moleDive();
   await wait(300);
   info.forEach(({ m, from: [r, c] }) => { m.el.remove(); grid[r][c] = null; });
   collapse(); await wait(350);
-  await moleDigAll(info.map(x => ({ keys: x.keys, from: x.from })));
+  await moleDigAll(info.map(x => ({ keys: x.keys, from: x.from, left: x.left })));
   moleKeysCarry = 0;
 }
 // нові нори (усі одночасно): фішка на місці нори знищується (овоч — зарахований), бонус — спрацьовує
@@ -2275,10 +2284,27 @@ async function moleDigAll(list) {
     removeGemEl(grid[r][c]);
     const m = createBox(r, c, MOLE);
     m.keys = list[i].keys || 0;
+    m.left = list[i].left ?? MOLE_COUNT;
     m.el.classList.add('dig');
     grid[r][c] = m;
   });
   if (picks.some(Boolean)) sfx.dig();
+  updateHud();
+}
+// у норі ще є кроти: цього вибито (очки, ключі вилітають), нора лишається, наступний вилізе через хід
+function moleKnock(m, r, c) {
+  const body = m.el.querySelector('.mbody');
+  const fresh = body.cloneNode(true);
+  fresh.classList.remove('fly');
+  body.after(fresh);
+  flyOff(body);
+  m.el.classList.remove('up');
+  m.state = 'hole'; m.hp = 1; m.fresh = true;
+  m.left--;
+  sfx.moleHit();
+  shatter(r, c, BOX_INFO[MOLE].shards, 6);
+  score += BOX_INFO[MOLE].pts; floatText('+' + BOX_INFO[MOLE].pts, r, c, '#ffd27a');
+  moleDefeated(m, r, c);
   updateHud();
 }
 // кріт переможений: проковтнуті ключі вилітають і летять до замків
@@ -3092,7 +3118,7 @@ function createBox(r, c, type) {
   const box = { type, el, hp: BOX_INFO[type].hp, broken: false };
   // на старті рівня дзеркало повернуте склом (неармованою стороною)
   if (type === CRYSTAL) setCrystalStage(box);
-  if (type === MOLE) { box.state = 'hole'; box.keys = 0; }
+  if (type === MOLE) { box.state = 'hole'; box.keys = 0; box.left = MOLE_COUNT; box.fresh = false; }
   if (type === GRILL) { box.count = 0; box.shown = 0; setGrillStage(box); }
   if (isMirror(type)) { box.glass = true; box.sheet = type === MIRROR2; el.classList.add('glass'); }
   // у дерев'яному ящику зрідка лежить бонус
@@ -3207,6 +3233,7 @@ function hitBox(r, c) {
   const q = sel => el.querySelectorAll(sel).forEach(flyOff);
 
   if (box.hp <= 0 && box.type === MIXER) { mixerArm(box); return; }
+  if (box.hp <= 0 && box.type === MOLE && box.left > 1) { moleKnock(box, r, c); return; }
   if (box.hp <= 0 && box.type === ROBOT) {
     // 4: голова відлітає, робот спалахує і біжить на вибух
     box.final = true;
@@ -5281,7 +5308,7 @@ const TEST_MODE = new URLSearchParams(location.search).has('test');
 function levelBase(def) {
   let b = 0;
   def.map.forEach((row, r) => [...row].forEach((ch, c) => {
-    if (ch in BOX_CHARS) { const t = BOX_CHARS[ch]; if (t !== WALL) b += BOX_INFO[t].pts; if (ch === 'n') b += BOX_INFO[NAILGUN].pts; }
+    if (ch in BOX_CHARS) { const t = BOX_CHARS[ch]; if (t !== WALL) b += BOX_INFO[t].pts * (t === MOLE ? MOLE_COUNT : 1); if (ch === 'n') b += BOX_INFO[NAILGUN].pts; }
     if (ch === 'x') b += 30;
     if (ch === 'p') b += 80;
     const cv = def.cover?.[r]?.[c];
@@ -5420,7 +5447,7 @@ const INTRO = {
   l: ["Кам'яна стіна", "Руйнується після трьох ударів. Хтозна, що може ховатися за нею…"],
   i: ['Магічний кристал', "Таємничий кристал, що від кожного удару міняє барву — від нічної сині до багрянцю. Розбийте його — і вивільніть суперсилу. Блискавки він подвоює, а слиз, павутиння й павуків довкола себе не терпить — щойно з'явиться, одразу їх знищує"],
   h: ["Мітла", "Змете зі шляху опале листя, павутиння та надокучливий слиз"],
-  M: ['Кріт', 'Риє нори там, де йому заманеться, — і знищує фішку на місці нори. Нора невразлива, але наступного ходу з неї визирає кріт: встигніть його вдарити, поки не сховався й не переліз деінде!'],
+  M: ['Кріт', 'Риє нори там, де йому заманеться, — і знищує фішку на місці нори. Нора невразлива, але наступного ходу з неї визирає кріт: встигніть його вдарити, поки не сховався й не переліз деінде! У норі живуть три кроти — нора зникне, лише коли впіймаєте всіх трьох.'],
   A: ['Бурштин', 'Напівпрозорий камінь, його не зруйнувати — і не треба. Зберіть комбінацію поруч: скільки фішок у ній, стільки випадкових фішок на полі набудуть кольору бурштину. Слиз і павутину він при цьому знищує.'],
   X: ['Кольорова коробка', 'Збирає фішки свого кольору: прибрані фішки цього кольору залітають у неї. Наповніть її — і отримаєте бонус!'],
   C: ['Ланцюги', 'Сковують усе, що під ними: його не зрушити й не пошкодити. Самі ланцюги теж не розбити — потрібен ключ до замка.'],
