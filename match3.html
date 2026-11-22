@@ -758,6 +758,25 @@
   @keyframes movesPop { from { scale: 0; } }
   .stat.movesGain { animation: movesGain .7s; }
   @keyframes movesGain { 30% { transform: scale(1.18); box-shadow: 0 0 0 3px #b9a6ff, 0 0 22px #8f6cff; } }
+  /* ===== Чорна сфера (антипод скляного шару) ===== */
+  .dorb .ostand { filter: grayscale(1) brightness(.42) contrast(1.3); }
+  .dorb .oball {
+    background: radial-gradient(circle at 50% 55%, rgba(140,10,45,.6), rgba(18,4,22,.96) 68%, #000);
+    box-shadow: inset 0 0 0 2px rgba(255,90,110,.45), inset 0 -6px 12px rgba(0,0,0,.6), 0 0 10px rgba(200,20,60,.55);
+  }
+  .dorb .omist { background: conic-gradient(from 0deg, transparent 0 10%, rgba(255,40,80,.7) 18%, transparent 30%, rgba(150,0,210,.6) 45%, transparent 58%, rgba(255,120,30,.4) 72%, transparent 85%); animation-direction: reverse; }
+  .dorb .oglint { opacity: .45; }
+  .dorb .ov { color: #ffd6de; text-shadow: 0 0 6px #ff4d6d, 0 0 12px #b0002a; }
+  .dorb .ocrack path { stroke: rgba(255,90,110,.95); filter: drop-shadow(0 0 2px #ff2050); }
+  .box.dorb.crack2 .oball { box-shadow: inset 0 0 0 2px rgba(255,90,110,.6), inset 0 -6px 12px rgba(0,0,0,.6), 0 0 16px 3px rgba(230,20,70,.9); }
+  .orbRing.dark { border-color: #ff6b85; box-shadow: 0 0 16px 6px rgba(200,0,50,.85), inset 0 0 14px rgba(40,0,20,.9); animation-name: orbImplode; }
+  @keyframes orbImplode { from { transform: scale(3); opacity: 0; } 30% { opacity: 1; } to { transform: scale(.2); opacity: 0; } }
+  .orbStar.dark { background: #ff3b5c; filter: drop-shadow(0 0 4px #8a0020); }
+  .movesFly.dark { color: #ffd0d8; text-shadow: 0 0 10px #ff4d6d, 0 0 22px #b0002a, 0 2px 0 #3a0010; }
+  .stat.movesLoss { animation: movesLoss .7s; }
+  @keyframes movesLoss { 20%, 60% { transform: translateX(-4px); box-shadow: 0 0 0 3px #ff4d6d, 0 0 22px #b0002a; } 40%, 80% { transform: translateX(4px); } }
+  .box.orb.heal .oball { animation: orbHeal .9s ease-out; }
+  @keyframes orbHeal { 0% { filter: brightness(3.2) saturate(0); transform: scale(1.15); } 100% { filter: none; transform: none; } }
   /* кріт-чародій: нора мерехтить синім */
   .box.mole.wiz .mhill { filter: drop-shadow(0 0 4px rgba(110,160,255,.9)); animation: wizHill 1.4s ease-in-out infinite alternate; }
   @keyframes wizHill { to { filter: drop-shadow(0 0 8px rgba(150,120,255,1)); } }
@@ -1286,6 +1305,7 @@
     🧹 мітла — від 1 удару злітає і летить по прямій, вичищаючи листя, слиз і павутину (фішки лишаються). Напрямок обирає за пріоритетом: найбільше листя, потім слизу, потім павутини, потім інших мітел, потім довший шлях. Інші мітли пролітає наскрізь, зачіпаючи їх (вони теж злітають). Наткнувшись на іншу перешкоду, розвертається; долетівши до стінки (краю поля чи броньованої стіни) — з хрустом ламається<br>
     🦫 кріт — спершу риє нору (невразлива; фішка на її місці знищується, овоч зараховується, бонус спрацьовує). Наступного ходу вилазить кріт — 1 удар (комбінація поруч, бонус). Не вдарили за цей хід — ховається й риє нору деінде. У норі 3 кроти: переможеного через хід змінює наступний, а коли переможено всіх трьох — нора зникає. Вилазячи, кріт: з'їдає павуків поруч, знищує слиз довкола, ковтає ключ (той вилетить, коли крота переможуть; доки ключ у кроті, новий не випадає), перевертає сміттєбак, б'є кошик, а на грядці — вириває овоч. Кристал поруч убиває крота<br>
     🔮 скляний шар — 3 удари (скло тріскається). Розбили — лопається й дає додаткові ходи (число світиться всередині кулі, зазвичай +5)<br>
+    🌑 чорна сфера — антипод скляного шару: 3 удари, а коли лопне — забирає ходи (число світиться всередині, зазвичай −3). Магічний кристал поруч (у зоні 3×3) зцілює її — вона стає скляним шаром з тими ж тріщинами і дає стільки ж ходів<br>
     🧙 кріт-чародій — як звичайний кріт (нора, 3 кроти), але від кожної шкоди кастує випадкове закляття, яке секунду літає над столом і спрацьовує у випадковому місці: фаєрбол (вибух 3×3), павук, слиз, блискавка, мітла, трансмутація (ящик, камінь, слиз чи павутина стають ящиком TNT) або іскри (б'ють по кількох перешкодах)<br>
     🟠 бурштин — невразливий і не рахується перешкодою. Комбінація поруч із ним перефарбовує в колір бурштину стільки випадкових фішок на полі, скільки фішок у комбінації (3, 4, 5…): овоч стає овочем цього кольору, слиз зникає й лишає фішку кольору бурштину, павутина рветься, а фішка під нею перефарбовується<br>
     🎨 кольорова коробка — невразлива; кожна прибрана фішка її кольору (комбінацією, бонусом, вибухом) залітає в неї. Коли зібрано потрібну кількість, коробка зникає й лишає на своєму місці бонус (жабку, бомбу, блискавку чи кулю)<br>
@@ -1499,6 +1519,9 @@ const sfx = {
   moleDive: () => { tone(500, { dur: 0.15, vol: 0.07, type: 'triangle', slide: 0.4 }); noise(0.12, 0.05, 700); },
   orbHit: dmg => { tone(1300 + dmg * 300, { dur: 0.3, vol: 0.05, type: 'sine' }); tone(2600 + dmg * 400, { dur: 0.12, vol: 0.03, type: 'triangle', delay: 0.03 }); noise(0.06, 0.04, 6000); },
   orbPop: () => { [0, 3, 7, 12, 15, 19].forEach((n, i) => tone(784 * Math.pow(2, n / 12), { dur: 0.35, vol: 0.05, type: 'sine', delay: 0.15 + i * 0.06 })); noise(0.35, 0.14, 5500); },
+  orbHeal: () => { [0, 4, 7, 12, 16].forEach((n, i) => tone(660 * Math.pow(2, n / 12), { dur: 0.3, vol: 0.05, type: 'sine', delay: i * 0.07 })); },
+  dorbPop: () => { [12, 8, 5, 0, -4].forEach((n, i) => tone(392 * Math.pow(2, n / 12), { dur: 0.3, vol: 0.06, type: 'sawtooth', delay: 0.1 + i * 0.08 })); tone(70, { dur: 0.6, vol: 0.2, slide: 0.5 }); noise(0.3, 0.1, 1500); },
+  movesDrop: i => tone(520 - i * 45, { dur: 0.09, vol: 0.07, type: 'square' }),
   movesTick: i => tone(880 + i * 110, { dur: 0.07, vol: 0.06, type: 'triangle' }),
   spellCast: () => { [0, 4, 7, 11, 14].forEach((n, i) => tone(660 * Math.pow(2, n / 12), { dur: 0.18, vol: 0.05, type: 'sine', delay: i * 0.05 })); },
   spellFly: () => { tone(900, { dur: 0.9, vol: 0.03, type: 'sine', slide: 1.6 }); },
@@ -1565,7 +1588,7 @@ const sfx = {
 // ===== Гра =====
 const N = 8, TYPES = 6;
 const RAINBOW = 6, BOMB = 7, LIGHTNING = 8, FROG = 9;
-const CARDBOARD = 10, WOOD = 11, REINFORCED = 12, SLIME = 13, GENERATOR = 14, NAILGUN = 15, TNT = 16, TESLA = 17, CORE = 18, JACK = 19, STONE = 20, STONEPICK = 21, MIXER = 22, ROBOT = 23, MIRROR = 24, MIRROR2 = 25, STONEFROG = 26, WALL = 27, STONEWALL = 28, BIN = 29, BROOM = 30, CRYSTAL = 31, CARDWALL = 32, BASKET = 33, GRILL = 34, CHAIN = 35, PADLOCK = 36, COLORBOX = 37, AMBER = 38, MOLE = 39, ORB = 40;
+const CARDBOARD = 10, WOOD = 11, REINFORCED = 12, SLIME = 13, GENERATOR = 14, NAILGUN = 15, TNT = 16, TESLA = 17, CORE = 18, JACK = 19, STONE = 20, STONEPICK = 21, MIXER = 22, ROBOT = 23, MIRROR = 24, MIRROR2 = 25, STONEFROG = 26, WALL = 27, STONEWALL = 28, BIN = 29, BROOM = 30, CRYSTAL = 31, CARDWALL = 32, BASKET = 33, GRILL = 34, CHAIN = 35, PADLOCK = 36, COLORBOX = 37, AMBER = 38, MOLE = 39, ORB = 40, DORB = 41;
 const KEYT = -2;   // ключ — фішка без кольору: рухається й падає, але не збирається в комбінації
 // стіни-покриття (шар cover): l — кам'яна, u — картонна; під ними може ховатися перешкода
 const COVER_TYPES = { l: STONEWALL, u: CARDWALL };
@@ -1657,7 +1680,7 @@ function createGem(r, c, type, fromRow = r) {
   return gem;
 }
 
-const BOX_CHARS = { c: CARDBOARD, n: CARDBOARD, w: WOOD, r: REINFORCED, s: SLIME, g: GENERATOR, t: TNT, e: TESLA, o: CORE, j: JACK, k: STONE, q: STONEPICK, m: MIXER, b: ROBOT, z: MIRROR, y: MIRROR2, f: STONEFROG, a: WALL, d: BIN, h: BROOM, i: CRYSTAL, K: BASKET, G: GRILL, P: PADLOCK, X: COLORBOX, A: AMBER, M: MOLE, W: MOLE, O: ORB };
+const BOX_CHARS = { c: CARDBOARD, n: CARDBOARD, w: WOOD, r: REINFORCED, s: SLIME, g: GENERATOR, t: TNT, e: TESLA, o: CORE, j: JACK, k: STONE, q: STONEPICK, m: MIXER, b: ROBOT, z: MIRROR, y: MIRROR2, f: STONEFROG, a: WALL, d: BIN, h: BROOM, i: CRYSTAL, K: BASKET, G: GRILL, P: PADLOCK, X: COLORBOX, A: AMBER, M: MOLE, W: MOLE, O: ORB, D: DORB };
 function startLevel(i) {
   level = i;
   const def = LEVELS[i] || randomLevel();
@@ -1711,6 +1734,7 @@ function startLevel(i) {
         if (ch === 'X') setupCBox(grid[r][c], def.cboxes?.find(b => b.r === r && b.c === c));
         if (ch === 'A') setupAmber(grid[r][c], def.ambers?.find(b => b.r === r && b.c === c));
         if (ch === 'O') setupOrb(grid[r][c], def.orbs?.find(b => b.r === r && b.c === c));
+        if (ch === 'D') setupOrb(grid[r][c], def.darkorbs?.find(b => b.r === r && b.c === c));
         continue;
       }
       let t;
@@ -1727,6 +1751,8 @@ function startLevel(i) {
   }
   // є замок, а ключа нема — один ключ з'являється на полі
   if (needKey()) { const free = []; for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) if (isFree(r, c)) free.push(grid[r][c]); if (free.length) makeKey(free[Math.floor(Math.random() * free.length)]); }
+  // чорна сфера біля кристала вже на старті — скляна
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) if (grid[r][c]?.type === DORB && crystalNear(r, c)) healDorb(grid[r][c], r, c, null, false);
   // шар листя
   def.leaves?.forEach((row, r) => [...row].forEach((ch, c) => { if ((ch === 'v' || ch === 'B') && !noLayer(r, c)) addLeaf(r, c, null, ch); }));
   $('overlay').classList.remove('show');
@@ -2066,6 +2092,7 @@ const BOX_INFO = {
   [STONEFROG]:  { cls: 'stonefrog',  hp: 1, pts: 300, shards: ['#9a9fa8', '#6c717b', '#4a4e56', '#ff9a3a'] },
   [MOLE]:       { cls: 'mole',       hp: 1, pts: 250, shards: ['#6b4318', '#8a5a2e', '#3d2a14', '#ff9ab0'] },
   [ORB]:        { cls: 'orb',        hp: 3, pts: 100, shards: ['#e6ecff', '#b9a6ff', '#7f5cff', '#ffffff', '#c9b27a'] },
+  [DORB]:       { cls: 'orb dorb',   hp: 3, pts: 100, shards: ['#1a0a14', '#4a0a20', '#ff3b5c', '#2a2a2a', '#8a0020'] },
   [AMBER]:      { cls: 'amber',      hp: 1, pts: 50,   shards: ['#ffb43a'] },
   [COLORBOX]:   { cls: 'cbox',       hp: 1, pts: 300, shards: ['#c99357', '#94632e', '#ffe66d', '#ff6bb5'] },
   [CHAIN]:      { cls: 'chain',      hp: 1, pts: 50,  shards: ['#b8c0c8', '#6b747e', '#3d444c'] },
@@ -2417,18 +2444,53 @@ const ORB_HTML = '<svg class="ostand" viewBox="0 0 100 100">' +
   '<path class="c1" d="M30,18 L38,30 L34,38 L44,46 M38,30 L46,26"/>' +
   '<path class="c2" d="M72,30 L62,40 L66,50 L56,58 L60,66 M62,40 L70,46 M44,46 L52,52 L48,60"/></svg>';
 function setupOrb(box, cfg) {
-  box.moves = Math.max(1, Math.round(+cfg?.moves) || 5);
+  const dark = box.type === DORB;
+  box.moves = Math.max(1, Math.round(+cfg?.moves) || (dark ? 3 : 5));
+  box.el.querySelector('.ov').textContent = (dark ? '−' : '+') + box.moves;
+}
+// Кристал поруч (у зоні 3×3) зцілює чорну сферу: вона стає скляним шаром з тими ж тріщинами,
+// що дає стільки ж ходів, скільки сфера мала забрати
+function crystalNear(r, c) {
+  for (const [dr, dc] of N8) {
+    const g = grid[r + dr]?.[c + dc];
+    if (g && g.type === CRYSTAL && !g.broken && !locked(g)) return [r + dr, c + dc];
+  }
+  return null;
+}
+function healDorb(box, y, x, from, anim = true) {
+  if (!box || box.type !== DORB || box.broken) return;
+  box.type = ORB;
+  box.el.classList.remove('dorb');
   box.el.querySelector('.ov').textContent = '+' + box.moves;
+  if (!anim) return;
+  if (from) beam(from[0], from[1], y, x);
+  box.el.classList.remove('heal'); box.el.getBoundingClientRect(); box.el.classList.add('heal');
+  const ring = fx('orbRing', { left: `calc(var(--cell) * ${x})`, top: `calc(var(--cell) * ${y})` });
+  setTimeout(() => ring.remove(), 650);
+  sfx.crystalZap(); sfx.orbHeal();
+  floatText('✨', y, x, '#e9e2ff');
+}
+// кристал з'явився — зцілює чорні сфери довкола себе
+function crystalHealAround(r, c) {
+  let n = 0;
+  for (const [dr, dc] of N8) {
+    const y = r + dr, x = c + dc, g = grid[y]?.[x];
+    if (g && g.type === DORB && !g.broken) { const d = n++ * 60; setTimeout(() => healDorb(grid[y][x], y, x, [r, c]), d); }
+  }
+  return n;
 }
 function orbBurst(box, r, c) {
-  const n = box.moves || 5;
-  sfx.orbPop();
-  // спалах і зірочки
+  const dark = box.type === DORB;   // чорна сфера: ходи забирає, а не дає
+  const n = box.moves || (dark ? 3 : 5);
+  dark ? sfx.dorbPop() : sfx.orbPop();
+  // спалах і зірочки (у чорної сфери — темний спалах, що стягується всередину)
   const ring = fx('orbRing', { left: `calc(var(--cell) * ${c})`, top: `calc(var(--cell) * ${r})` });
+  if (dark) ring.classList.add('dark');
   setTimeout(() => ring.remove(), 650);
   for (let i = 0; i < 10; i++) {
     const a = i / 10 * Math.PI * 2 + Math.random() * .4, d = 40 + Math.random() * 35;
     const st = fx('orbStar', { left: `calc(var(--cell) * ${c})`, top: `calc(var(--cell) * ${r})` });
+    if (dark) st.classList.add('dark');
     st.style.setProperty('--dx', Math.cos(a) * d + 'px'); st.style.setProperty('--dy', Math.sin(a) * d + 'px');
     setTimeout(() => st.remove(), 850);
   }
@@ -2436,8 +2498,8 @@ function orbBurst(box, r, c) {
   const br = board.getBoundingClientRect(), cell = br.width / N;
   const x = br.left + (c + .5) * cell, y = br.top + (r + .5) * cell;
   const el = document.createElement('div');
-  el.className = 'movesFly';
-  el.innerHTML = `+${n}<small>👣</small>`;
+  el.className = 'movesFly' + (dark ? ' dark' : '');
+  el.innerHTML = `${dark ? '−' : '+'}${n}<small>👣</small>`;
   el.style.left = x + 'px'; el.style.top = y + 'px';
   document.body.appendChild(el);
   inFlight++;   // поле чекає, поки ходи долетять (щоб кінець рівня врахував нові ходи)
@@ -2449,9 +2511,12 @@ function orbBurst(box, r, c) {
   setTimeout(async () => {
     el.remove();
     const stat = $('moves').closest('.stat');
-    stat.classList.remove('movesGain'); stat.getBoundingClientRect(); stat.classList.add('movesGain');
-    for (let i = 0; i < n; i++) {   // ходи додаються по одному
-      moves++; $('moves').textContent = moves; sfx.movesTick(i);
+    const cls = dark ? 'movesLoss' : 'movesGain';
+    stat.classList.remove('movesGain', 'movesLoss'); stat.getBoundingClientRect(); stat.classList.add(cls);
+    for (let i = 0; i < n; i++) {   // ходи додаються (або забираються) по одному
+      if (dark) { if (moves <= 0) break; moves--; sfx.movesDrop(i); }
+      else { moves++; sfx.movesTick(i); }
+      $('moves').textContent = moves;
       await wait(Math.max(40, 300 / n));
     }
     updateHud();
@@ -2860,6 +2925,12 @@ function chainRelease(r, c) {
   if (!ch || ch.type !== CHAIN) return;
   grid[r][c] = ch.inner;
   if (ch.innerSpider) addSpider(r, c);
+  // звільнилась чорна сфера біля кристала — кристал її зцілює; звільнився кристал — зцілює сфери довкола
+  const inn = ch.inner;
+  if (inn?.type === DORB) {
+    const cr = crystalNear(r, c);
+    if (cr) { inFlight++; setTimeout(() => { healDorb(grid[r][c], r, c, cr); inFlight--; }, 450); }
+  } else if (inn?.type === CRYSTAL) { inFlight++; setTimeout(() => { crystalHealAround(r, c); inFlight--; }, 450); }
   ch.el.classList.add('snap');
   shatter(r, c, BOX_INFO[CHAIN].shards, 6);
   setTimeout(() => ch.el.remove(), 450);
@@ -3068,7 +3139,8 @@ function auraKillSpiders() {
 function crystalAwaken(r, c) {
   inFlight++;
   setTimeout(() => {
-    let i = 0;
+    const healed = crystalHealAround(r, c);   // чорні сфери поруч стають скляними
+    let i = healed;
     for (let y = r - 1; y <= r + 1; y++) for (let x = c - 1; x <= c + 1; x++) {
       if (y < 0 || y >= N || x < 0 || x >= N || (y === r && x === c)) continue;
       const g = grid[y][x];
@@ -3405,7 +3477,7 @@ function createBox(r, c, type) {
   if (type === CHAIN) inner = CHAIN_SVG;
   if (type === AMBER) inner = AMBER_SVG;
   if (type === MOLE) inner = MOLE_HILL_SVG + '<i class="mbody">' + MOLE_SVG + '</i>';
-  if (type === ORB) inner = ORB_HTML;
+  if (type === ORB || type === DORB) inner = ORB_HTML;
   if (type === COLORBOX) inner = '<i class="cbBody"></i><div class="cbGem"><div class="face"></div></div><i class="cbBar"><i></i></i><i class="cbCount"></i>';
   if (type === PADLOCK) inner = LOCK_SVG;
   if (type === GRILL) inner = GRILL_SVG + '<i class="gsmoke"><i></i><i></i><i></i></i>';
@@ -3429,6 +3501,7 @@ function createBox(r, c, type) {
   // на старті рівня дзеркало повернуте склом (неармованою стороною)
   if (type === CRYSTAL) setCrystalStage(box);
   if (type === ORB) box.moves = 5;
+  if (type === DORB) { box.moves = 3; el.querySelector('.ov').textContent = '−3'; }
   if (type === MOLE) { box.state = 'hole'; box.keys = 0; box.left = MOLE_COUNT; box.fresh = false; }
   if (type === GRILL) { box.count = 0; box.shown = 0; setGrillStage(box); }
   if (isMirror(type)) { box.glass = true; box.sheet = type === MIRROR2; el.classList.add('glass'); }
@@ -3565,7 +3638,7 @@ function hitBox(r, c) {
        [GENERATOR]: () => { sfx.metalBreak(); sfx.slimeBreak(); },
        [NAILGUN]: () => sfx.metalBreak(), [TNT]: () => sfx.woodBreak(),
        [TESLA]: () => { sfx.lightning(); sfx.teslaZap(true); },
-       [JACK]: () => sfx.cardBreak(), [STONE]: () => sfx.stoneBreak(), [STONEPICK]: () => sfx.stoneBreak(), [MIXER]: () => sfx.metalBreak(), [MIRROR]: () => sfx.glassBreak(), [MIRROR2]: () => sfx.glassBreak(), [STONEFROG]: () => sfx.stoneBreak(), [STONEWALL]: () => sfx.stoneBreak(), [CARDWALL]: () => sfx.cardBreak(), [BASKET]: () => sfx.cardBreak(), [GRILL]: () => sfx.metalBreak(), [MOLE]: () => sfx.moleHit(), [ORB]: () => sfx.glassBreak(), [BIN]: () => sfx.binTip(), [CRYSTAL]: () => sfx.crystalBreak() })[box.type]?.();
+       [JACK]: () => sfx.cardBreak(), [STONE]: () => sfx.stoneBreak(), [STONEPICK]: () => sfx.stoneBreak(), [MIXER]: () => sfx.metalBreak(), [MIRROR]: () => sfx.glassBreak(), [MIRROR2]: () => sfx.glassBreak(), [STONEFROG]: () => sfx.stoneBreak(), [STONEWALL]: () => sfx.stoneBreak(), [CARDWALL]: () => sfx.cardBreak(), [BASKET]: () => sfx.cardBreak(), [GRILL]: () => sfx.metalBreak(), [MOLE]: () => sfx.moleHit(), [ORB]: () => sfx.glassBreak(), [DORB]: () => sfx.glassBreak(), [BIN]: () => sfx.binTip(), [CRYSTAL]: () => sfx.crystalBreak() })[box.type]?.();
     if (box.type !== BROOM) shatter(r, c, box.nailgun ? ['#8fb8ec', '#5b8fd6', '#2c5394', '#f0e1b4'] : info.shards, box.type === REINFORCED || box.type === GENERATOR ? 12 : 8);
     if (box.type === NAILGUN) [[0,1],[0,-1],[1,0],[-1,0]].forEach(d => fireNail(r, c, d));   // цвяхи в усі 4 боки
     if (box.type === TNT) tntExplode(r, c);
@@ -3613,7 +3686,7 @@ function hitBox(r, c) {
     if (box.type === GENERATOR) pendingFill.push([r, c]);   // зона 3×3 заллється слизом
     if (box.type === BIN) pendingSpill.push([r, c]);        // 2: бак перекидається — листя 5×5
     if (box.type === GRILL) grillBlast(box, r, c);          // повний мангал вибухає 3×3
-    if (box.type === ORB) orbBurst(box, r, c);              // скляний шар лопається — додаткові ходи
+    if (box.type === ORB || box.type === DORB) orbBurst(box, r, c);   // скляний шар — додаткові ходи, чорна сфера — забирає ходи
     if (box.type === MOLE) moleDefeated(box, r, c);         // кріт переможений — проковтнуті ключі вилітають
     if (box.type === BASKET) pendingVeg.push({ r, c, n: 4 });   // 3-й удар: останні 4 овочі, кошик зникає
     if (box.type === BROOM) broomLift(r, c);                // мітла злітає, полетить, коли поле вляжеться
@@ -3649,10 +3722,10 @@ function hitBox(r, c) {
     el.classList.add('less' + (BOX_INFO[BASKET].hp - box.hp));
     sfx.cardHit();
     pendingVeg.push({ r, c, n: 3 });
-  } else if (box.type === ORB) {
+  } else if (box.type === ORB || box.type === DORB) {
     // 1–2 удари: скло тріскається, туман усередині закручується швидше
-    el.classList.add('crack' + (BOX_INFO[ORB].hp - box.hp));
-    sfx.orbHit(BOX_INFO[ORB].hp - box.hp);
+    el.classList.add('crack' + (BOX_INFO[box.type].hp - box.hp));
+    sfx.orbHit(BOX_INFO[box.type].hp - box.hp);
   } else if (box.type === CRYSTAL) {
     setCrystalStage(box);
     sfx.crystalHit(BOX_INFO[CRYSTAL].hp - box.hp);
@@ -4292,6 +4365,7 @@ function tntExplode(r, c, rad = 1) {
 const cbConfAt = (r, c) => LEVELS[level]?.cboxes?.find(b => b.r === r && b.c === c);
 const amberConfAt = (r, c) => LEVELS[level]?.ambers?.find(b => b.r === r && b.c === c);
 const orbConfAt = (r, c) => LEVELS[level]?.orbs?.find(b => b.r === r && b.c === c);
+const dorbConfAt = (r, c) => LEVELS[level]?.darkorbs?.find(b => b.r === r && b.c === c);
 function makeCellObj(r, c, ch) {
   if (ch in BOX_CHARS) {
     const b = createBox(r, c, BOX_CHARS[ch]);
@@ -4300,6 +4374,7 @@ function makeCellObj(r, c, ch) {
     if (ch === 'X') setupCBox(b, cbConfAt(r, c));
     if (ch === 'A') setupAmber(b, amberConfAt(r, c));
     if (ch === 'O') setupOrb(b, orbConfAt(r, c));
+    if (ch === 'D') setupOrb(b, dorbConfAt(r, c));
     return b;
   }
   const g = createGem(r, c, rand());
@@ -4315,6 +4390,11 @@ function spawnCell(r, c, ch) {
     if (ch === 'X') setupCBox(grid[r][c], cbConfAt(r, c));   // коробка з-під стіни — зі своїми налаштуваннями
     if (ch === 'A') setupAmber(grid[r][c], amberConfAt(r, c));
     if (ch === 'O') setupOrb(grid[r][c], orbConfAt(r, c));
+    if (ch === 'D') {
+      setupOrb(grid[r][c], dorbConfAt(r, c));
+      const cr = crystalNear(r, c);   // поруч кристал — сфера одразу зцілюється
+      if (cr) { inFlight++; setTimeout(() => { healDorb(grid[r][c], r, c, cr); inFlight--; }, 450); }
+    }
   } else {
     grid[r][c] = createGem(r, c, rand());
     if (ch === 'x') addWeb(grid[r][c]);
@@ -5564,7 +5644,7 @@ $('soundBtn').onclick = () => {
 
 // ===================== Рівні з JSON =====================
 // Формат: { "levels": [ { "name": "...", "moves": 20, "map": ["........", ... 8 рядків по 8 символів] } ] }
-const MAP_CHARS = '.cnwtrsgxpeojkqmbzyfadhiKGPQXAMWO';
+const MAP_CHARS = '.cnwtrsgxpeojkqmbzyfadhiKGPQXAMWOD';
 function parseLevels(data) {
   const list = Array.isArray(data) ? data : data?.levels;
   if (!Array.isArray(list) || !list.length) throw new Error('у файлі немає списку "levels"');
@@ -5588,6 +5668,8 @@ function parseLevels(data) {
       reward: ['frog', 'bomb', 'lightning', 'rainbow'].includes(b.reward) ? b.reward : 'random' }));
     // orbs — скільки ходів дає кожен скляний шар: [{ r, c, moves }]
     if (Array.isArray(lv.orbs)) out.orbs = lv.orbs.filter(b => map[b?.r]?.[b?.c] === 'O').map(b => ({ r: b.r, c: b.c, moves: Math.max(1, Math.min(30, Math.round(+b.moves) || 5)) }));
+    // darkorbs — скільки ходів забирає кожна чорна сфера: [{ r, c, moves }]
+    if (Array.isArray(lv.darkorbs)) out.darkorbs = lv.darkorbs.filter(b => map[b?.r]?.[b?.c] === 'D').map(b => ({ r: b.r, c: b.c, moves: Math.max(1, Math.min(30, Math.round(+b.moves) || 3)) }));
     // ambers — колір кожного бурштину: [{ r, c, color }]
     if (Array.isArray(lv.ambers)) out.ambers = lv.ambers.filter(b => map[b?.r]?.[b?.c] === 'A').map(b => ({ r: b.r, c: b.c, color: Math.max(0, Math.min(TYPES - 1, Math.round(+b.color) || 0)) }));
     // leaves — шар осіннього листя: v — клітинка вкрита листям
@@ -5773,7 +5855,8 @@ const INTRO = {
   i: ['Магічний кристал', "З кожним ударом змінює колір, аж доки не вивільнить приховану силу. Слиз, павутиння й павуків довкола себе не терпить — щойно з'явиться, одразу їх знищує."],
   h: ["Мітла", "Змете зі шляху опале листя, павутиння та надокучливий слиз"],
   M: ['Кріт', 'Підземні бешкетники риють нори й нищать фішки. Бийте кротів, коли вони визирають назовні.'],
-  O: ['Скляний шар', 'Куля пророцтв уже бачить вашу перемогу — просто їй потрібно трохи більше ходів. Три удари — і пророцтво збудеться.'],
+  O: ['Скляний шар', 'Майбутнє прихильне до тих, хто вміє чекати. Доля винагородить вас додатковими ходами.'],
+  D: ['Чорна сфера', 'У чорній безодні застигло пророцтво неминучої поразки. Три удари звільнять його — і час обернеться проти вас.'],
   W: ['Кріт-чародій', 'Поки звичайні кроти їли хробаків і гризли корінці, цей закінчував академію магічних наук — на двієчку, звичайно, але все ж.'],
   A: ['Бурштин', 'Застигла магія з талантом перефарбовувати світ. Також знищує слиз і павутину.'],
   X: ['Кольорова коробка', 'Колекціонує кольори й винагороджує за старанність.'],
@@ -5802,6 +5885,7 @@ function introTile(ch) {
     else if (ch === 'A') { g = createBox(0, 0, AMBER); setupAmber(g, { color: 1 }); }
     else if (ch === 'M') { g = createBox(0, 0, MOLE); g.el.classList.add('up'); }
     else if (ch === 'O') { g = createBox(0, 0, ORB); }
+    else if (ch === 'D') { g = createBox(0, 0, DORB); }
     else if (ch === 'W') { g = makeWizard(createBox(0, 0, MOLE)); g.el.classList.add('up'); }
     else g = createBox(0, 0, ch === 'C' ? CHAIN : COVER_TYPES[ch] ?? BOX_CHARS[ch]);
     if (ch === 'n') g.el.classList.add('ng-box');

@@ -373,6 +373,7 @@ const TOOLS = [
   { ch: 'M', name: 'Кріт (нора)', ico: '🦫' },
   { ch: 'W', name: 'Кріт-чародій (нора)', ico: '🧙' },
   { ch: 'O', name: 'Скляний шар (+ходи)', ico: '🔮' },
+  { ch: 'D', name: 'Чорна сфера (−ходи)', ico: '🌑' },
   { ch: 'd', name: 'Сміттєбак з листям', ico: '🗑️' },
   { ch: 'h', name: 'Мітла', ico: '🧹' },
   { ch: 'i', name: 'Магічний кристал', ico: '' },
@@ -382,10 +383,10 @@ const TOOLS = [
   { ch: 'B', name: 'Грядка (під фішками)', ico: '🌱' },
 ];
 const CHARS = TOOLS.map(t => t.ch).join('');
-const MINI = { '.': '', M: '#7a4a22', W: '#3466d6', O: '#7f5cff', A: '#ffb43a', X: '#d9a868', C: '#8b96a3', P: '#e8b828', Q: '#ffe066', B: '#6b3f1c', G: '#3d444c', K: '#c8954a', u: '#d9a868', i: '#4a26b4', h: '#e8c25a', l: '#a39a8e', d: '#5f8a5a', v: '#d9822b', f: '#6c717b', a: '#2a2f36', z: '#9fd2f0', y: '#e9e4d8', b: '#b8c0c8', m: '#f2a33a', k: '#8a8f98', q: '#b8bdc5', j: '#ffcc33', o: '#2a2f35', e: '#7cc8ff', c: '#c99357', n: '#5b8fd6', w: '#8d5a27', t: '#d23a2a', r: '#9aa5b1', s: '#5fc93a', g: '#3e454e', x: '#e8e8ff', p: '#c0303a' };
+const MINI = { '.': '', M: '#7a4a22', W: '#3466d6', O: '#7f5cff', D: '#2a0a18', A: '#ffb43a', X: '#d9a868', C: '#8b96a3', P: '#e8b828', Q: '#ffe066', B: '#6b3f1c', G: '#3d444c', K: '#c8954a', u: '#d9a868', i: '#4a26b4', h: '#e8c25a', l: '#a39a8e', d: '#5f8a5a', v: '#d9822b', f: '#6c717b', a: '#2a2f36', z: '#9fd2f0', y: '#e9e4d8', b: '#b8c0c8', m: '#f2a33a', k: '#8a8f98', q: '#b8bdc5', j: '#ffcc33', o: '#2a2f35', e: '#7cc8ff', c: '#c99357', n: '#5b8fd6', w: '#8d5a27', t: '#d23a2a', r: '#9aa5b1', s: '#5fc93a', g: '#3e454e', x: '#e8e8ff', p: '#c0303a' };
 const LEGEND = {
   '.': 'фішка', c: 'картонна коробка', n: 'синя коробка з цвяхозабивачем', w: "дерев'яний ящик", t: 'ящик TNT',
-  r: 'армований ящик', s: 'слиз', g: 'слизогенератор', x: 'фішка в павутині', p: 'павук на фішці', e: 'електрогенератор', o: 'металеве ядро', j: 'шкатулка з клоуном', k: 'камінь', q: 'камінь з кіркою', m: 'бетономішалка', b: 'робот', z: 'армоване дзеркало', y: 'армоване дзеркало 2 (з простирадлом)', f: 'кам\'яна жаба', a: 'броньована стіна', l: 'кам\'яна стіна', u: 'картонна стіна', C: 'ланцюги', P: 'навісний замок', Q: 'ключ', X: 'кольорова коробка', A: 'бурштин', M: 'кріт (нора)', W: 'кріт-чародій (нора)', O: 'скляний шар (+ходи)', d: 'сміттєбак з листям', h: 'мітла', i: 'магічний кристал', K: 'кошик з овочами', G: 'мангал', v: 'осіннє листя', B: 'грядка',
+  r: 'армований ящик', s: 'слиз', g: 'слизогенератор', x: 'фішка в павутині', p: 'павук на фішці', e: 'електрогенератор', o: 'металеве ядро', j: 'шкатулка з клоуном', k: 'камінь', q: 'камінь з кіркою', m: 'бетономішалка', b: 'робот', z: 'армоване дзеркало', y: 'армоване дзеркало 2 (з простирадлом)', f: 'кам\'яна жаба', a: 'броньована стіна', l: 'кам\'яна стіна', u: 'картонна стіна', C: 'ланцюги', P: 'навісний замок', Q: 'ключ', X: 'кольорова коробка', A: 'бурштин', M: 'кріт (нора)', W: 'кріт-чародій (нора)', O: 'скляний шар (+ходи)', D: 'чорна сфера (−ходи)', d: 'сміттєбак з листям', h: 'мітла', i: 'магічний кристал', K: 'кошик з овочами', G: 'мангал', v: 'осіннє листя', B: 'грядка',
 };
 
 // Стартовий набір — ті самі рівні, що вбудовані в гру
@@ -478,13 +479,13 @@ function setCell(r, c, ch) {
 const CB_COLORS = ['#e74c3c', '#f1c40f', '#2ecc71', '#3498db', '#9b59b6', '#e67e22'];
 const CB_NAMES = ['червоні', 'жовті', 'зелені', 'блакитні', 'фіолетові', 'помаранчеві'];
 let cbSel = null;   // [r, c] вибраної коробки
-// налаштування зберігаються в рівні: X — lv.cboxes (колір, кількість, бонус), A — lv.ambers (колір), O — lv.orbs (ходи)
-const CFG_KEY = { X: 'cboxes', A: 'ambers', O: 'orbs' };
+// налаштування зберігаються в рівні: X — lv.cboxes (колір, кількість, бонус), A — lv.ambers (колір), O — lv.orbs (ходи), D — lv.darkorbs (ходи)
+const CFG_KEY = { X: 'cboxes', A: 'ambers', O: 'orbs', D: 'darkorbs' };
 function cbCfg(lv, r, c, create = false) {
   const ch = lv.map[r]?.[c], k = CFG_KEY[ch];
   if (!k) return null;
   let b = lv[k]?.find(x => x.r === r && x.c === c);
-  if (!b && create) { lv[k] = lv[k] || []; b = ch === 'A' ? { r, c, color: 1 } : ch === 'O' ? { r, c, moves: 5 } : { r, c, color: 3, count: 10, reward: 'random' }; lv[k].push(b); }
+  if (!b && create) { lv[k] = lv[k] || []; b = ch === 'A' ? { r, c, color: 1 } : ch === 'O' ? { r, c, moves: 5 } : ch === 'D' ? { r, c, moves: 3 } : { r, c, color: 3, count: 10, reward: 'random' }; lv[k].push(b); }
   return b;
 }
 function cbClean(lv) {   // прибираємо налаштування коробок і бурштинів, яких уже нема на карті
@@ -500,12 +501,14 @@ function renderCBCfg() {
   const b = CFG_KEY[ch] ? cbCfg(lv, cbSel[0], cbSel[1], true) : null;
   $('cbcfg').hidden = !b;
   if (!b) { cbSel = null; return; }
-  const amber = ch === 'A', orb = ch === 'O';
+  const amber = ch === 'A', orb = ch === 'O' || ch === 'D';
   $('cbCountL').hidden = amber;
   $('cbRewardL').hidden = amber || orb;
   $('cbColors').hidden = orb;
-  $('cbCountT').textContent = orb ? 'Скільки ходів дає' : 'Скільки зібрати';
-  $('cbTitle').textContent = orb
+  $('cbCountT').textContent = ch === 'D' ? 'Скільки ходів забирає' : orb ? 'Скільки ходів дає' : 'Скільки зібрати';
+  $('cbTitle').textContent = ch === 'D'
+    ? `🌑 Чорна сфера (рядок ${b.r + 1}, стовпчик ${b.c + 1}) — коли розіб'ють, забирає ${b.moves} ходів`
+    : orb
     ? `🔮 Скляний шар (рядок ${b.r + 1}, стовпчик ${b.c + 1}) — коли розіб'ють, дає +${b.moves} ходів`
     : amber
     ? `🟠 Бурштин (рядок ${b.r + 1}, стовпчик ${b.c + 1}) — перефарбовує фішки в ${['червоний', 'жовтий', 'зелений', 'блакитний', 'фіолетовий', 'помаранчевий'][b.color]}`
@@ -519,7 +522,8 @@ $('cbCount').addEventListener('change', () => {
   const b = cbSel && cbCfg(levels[cur], cbSel[0], cbSel[1]);
   if (!b) return;
   pushUndo();
-  if (levels[cur].map[b.r][b.c] === 'O') b.moves = Math.max(1, Math.min(30, Math.round(+$('cbCount').value) || 5));
+  const mch = levels[cur].map[b.r][b.c];
+  if (mch === 'O' || mch === 'D') b.moves = Math.max(1, Math.min(30, Math.round(+$('cbCount').value) || (mch === 'D' ? 3 : 5)));
   else b.count = Math.max(1, Math.min(99, Math.round(+$('cbCount').value) || 10));
   markDirty(); renderBoard(); renderJSON();
 });
@@ -539,6 +543,7 @@ function toJSON() {
     if (l.cboxes?.length) o.cboxes = l.cboxes.map(b => ({ r: b.r, c: b.c, color: b.color, count: b.count, reward: b.reward }));
     if (l.ambers?.length) o.ambers = l.ambers.map(b => ({ r: b.r, c: b.c, color: b.color }));
     if (l.orbs?.length) o.orbs = l.orbs.map(b => ({ r: b.r, c: b.c, moves: b.moves }));
+    if (l.darkorbs?.length) o.darkorbs = l.darkorbs.map(b => ({ r: b.r, c: b.c, moves: b.moves }));
     return o;
   });
   return JSON.stringify(out, null, 2);
@@ -621,6 +626,10 @@ function parseLevels(data) {
     if (Array.isArray(lv.orbs)) {
       const ob = lv.orbs.filter(b => map[b?.r]?.[b?.c] === 'O').map(b => ({ r: +b.r, c: +b.c, moves: Math.max(1, Math.min(30, Math.round(+b.moves) || 5)) }));
       if (ob.length) out.orbs = ob;
+    }
+    if (Array.isArray(lv.darkorbs)) {
+      const db = lv.darkorbs.filter(b => map[b?.r]?.[b?.c] === 'D').map(b => ({ r: +b.r, c: +b.c, moves: Math.max(1, Math.min(30, Math.round(+b.moves) || 3)) }));
+      if (db.length) out.darkorbs = db;
     }
     return out;
   });
@@ -710,9 +719,9 @@ function renderBoard() {
       h = h.replace(/<\/div>$/, `<div class="cbx" style="background:${CB_COLORS[b.color]}"></div><div class="cbn">${b.count}</div></div>`);
       if (cbSel && cbSel[0] === r && cbSel[1] === c) h = h.replace('class="cell', 'class="cell cbsel');
     }
-    if (ch === 'O') {
-      const b = cbCfg(lv, r, c) || { moves: 5 };
-      h = h.replace(/<\/div>$/, `<div class="cbn">+${b.moves}</div></div>`);
+    if (ch === 'O' || ch === 'D') {
+      const b = cbCfg(lv, r, c) || { moves: ch === 'D' ? 3 : 5 };
+      h = h.replace(/<\/div>$/, `<div class="cbn">${ch === 'D' ? '−' : '+'}${b.moves}</div></div>`);
       if (cbSel && cbSel[0] === r && cbSel[1] === c) h = h.replace('class="cell', 'class="cell cbsel');
     }
     if (ch === 'A') {
@@ -846,6 +855,7 @@ document.addEventListener('keydown', e => {
   else if (e.key === 'M' || e.key === 'Ь') { tool = 'M'; renderPalette(); }
   else if (e.key === 'W' || e.key === 'Ц') { tool = 'W'; renderPalette(); }
   else if (e.key === 'O' || e.key === 'Щ') { tool = 'O'; renderPalette(); }
+  else if (e.key === 'D' || e.key === 'В') { tool = 'D'; renderPalette(); }
   else if (/^[0-9]$/.test(e.key) && TOOLS[+e.key]) { tool = TOOLS[+e.key].ch; renderPalette(); }
   else if (e.key.toLowerCase() === 'e' || e.key.toLowerCase() === 'у') { tool = 'e'; renderPalette(); }
   else if (e.key.toLowerCase() === 'o' || e.key.toLowerCase() === 'щ') { tool = 'o'; renderPalette(); }
