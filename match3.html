@@ -709,6 +709,30 @@
   .box.mole.dig .crate { animation: moleDig .45s cubic-bezier(.3,1.6,.5,1); }
   @keyframes moleDig { from { transform: scale(.2) translateY(30%); opacity: 0; } }
   .box.mole.tink .crate { animation: tink .22s; }
+  /* кріт-чародій: нора мерехтить синім */
+  .box.mole.wiz .mhill { filter: drop-shadow(0 0 4px rgba(110,160,255,.9)); animation: wizHill 1.4s ease-in-out infinite alternate; }
+  @keyframes wizHill { to { filter: drop-shadow(0 0 8px rgba(150,120,255,1)); } }
+  .box.mole.wiz.cast .mbody svg { animation: wizCast .5s; }
+  @keyframes wizCast { 30% { filter: brightness(1.8) drop-shadow(0 0 8px #9fd0ff); transform: scale(1.12); } }
+  /* закляття, що літає над столом */
+  .spellFx { position: absolute; left: 0; top: 0; z-index: 17; pointer-events: none; width: var(--cell); height: var(--cell); }
+  .spellFx b {
+    position: absolute; inset: 22%; border-radius: 50%; display: grid; place-items: center;
+    font-size: calc(var(--cell) * .34); font-weight: 400;
+    background: radial-gradient(circle at 40% 35%, #fff, var(--sp1) 40%, var(--sp2) 75%, transparent 76%);
+    box-shadow: 0 0 12px 4px var(--sp1), 0 0 26px 8px var(--sp2);
+    animation: spellPulse .22s ease-in-out infinite alternate;
+  }
+  @keyframes spellPulse { to { transform: scale(1.15) rotate(20deg); } }
+  .spellFx.land b { animation: spellLand .35s ease-out forwards; }
+  @keyframes spellLand { to { transform: scale(2.6); opacity: 0; } }
+  .spellTrail {
+    position: absolute; z-index: 16; pointer-events: none; width: calc(var(--cell) * .16); height: calc(var(--cell) * .16);
+    margin: calc(var(--cell) * .42); border-radius: 50%; background: var(--sp1); box-shadow: 0 0 6px var(--sp1);
+    animation: spellTrail .5s ease-out forwards;
+  }
+  @keyframes spellTrail { to { transform: scale(.1); opacity: 0; } }
+  .shock.fire { background: radial-gradient(circle, rgba(255,230,120,.9), rgba(255,120,30,.7) 45%, rgba(200,40,0,0) 75%); }
   .mole .mbody.fly { opacity: 1; z-index: 5; }
 
   /* ===== Бурштин ===== */
@@ -1212,6 +1236,7 @@
     💎 магічний кристал — 8 ударів; з кожним змінює колір від темно-синього до багряно-червоного, останні удари — з тріщинами й дрижанням. Розбитий, лишає випадкову суперкомбінацію (червону жабу, фіолетову блискавку або велику бомбу), яка одразу спрацьовує. Кірка вважає його каменем. Кожна блискавка, що влучила в кристал, породжує ще одну — зелену, поперек; зелена блискавка інших кристалів не зачіпає. У зоні 3×3 довкола кристала не з'являються слиз і павутина, а павук, що туди заліз, гине. Якщо кристал з'являється посеред гри (з-під кам'яної стіни чи від клоуна), він одразу знищує павутину, слиз і павуків у своїй зоні<br>
     🧹 мітла — від 1 удару злітає і летить по прямій, вичищаючи листя, слиз і павутину (фішки лишаються). Напрямок обирає за пріоритетом: найбільше листя, потім слизу, потім павутини, потім інших мітел, потім довший шлях. Інші мітли пролітає наскрізь, зачіпаючи їх (вони теж злітають). Наткнувшись на іншу перешкоду, розвертається; долетівши до стінки (краю поля чи броньованої стіни) — з хрустом ламається<br>
     🦫 кріт — спершу риє нору (невразлива; фішка на її місці знищується, овоч зараховується, бонус спрацьовує). Наступного ходу вилазить кріт — 1 удар (комбінація поруч, бонус). Не вдарили за цей хід — ховається й риє нору деінде. У норі 3 кроти: переможеного через хід змінює наступний, а коли переможено всіх трьох — нора зникає. Вилазячи, кріт: з'їдає павуків поруч, знищує слиз довкола, ковтає ключ (той вилетить, коли крота переможуть; доки ключ у кроті, новий не випадає), перевертає сміттєбак, б'є кошик, а на грядці — вириває овоч. Кристал поруч убиває крота<br>
+    🧙 кріт-чародій — як звичайний кріт (нора, 3 кроти), але від кожної шкоди кастує випадкове закляття, яке секунду літає над столом і спрацьовує у випадковому місці: фаєрбол (вибух 3×3), павук, слиз, блискавка, мітла, трансмутація (ящик, камінь, слиз чи павутина стають ящиком TNT) або іскри (б'ють по кількох перешкодах)<br>
     🟠 бурштин — невразливий і не рахується перешкодою. Комбінація поруч із ним перефарбовує в колір бурштину стільки випадкових фішок на полі, скільки фішок у комбінації (3, 4, 5…): овоч стає овочем цього кольору, слиз зникає й лишає фішку кольору бурштину, павутина рветься, а фішка під нею перефарбовується<br>
     🎨 кольорова коробка — невразлива; кожна прибрана фішка її кольору (комбінацією, бонусом, вибухом) залітає в неї. Коли зібрано потрібну кількість, коробка зникає й лишає на своєму місці бонус (жабку, бомбу, блискавку чи кулю)<br>
     ⛓️ ланцюги — лежать поверх клітинки; їх не можна пошкодити, а те, що під ними, не можна ні зрушити, ні пошкодити<br>
@@ -1422,6 +1447,9 @@ const sfx = {
   dig: () => { noise(0.18, 0.08, 700); tone(150, { dur: 0.12, vol: 0.08, type: 'triangle', slide: 1.6, delay: 0.05 }); },
   moleUp: () => { tone(320, { dur: 0.12, vol: 0.08, type: 'triangle', slide: 1.8 }); noise(0.15, 0.06, 900); },
   moleDive: () => { tone(500, { dur: 0.15, vol: 0.07, type: 'triangle', slide: 0.4 }); noise(0.12, 0.05, 700); },
+  spellCast: () => { [0, 4, 7, 11, 14].forEach((n, i) => tone(660 * Math.pow(2, n / 12), { dur: 0.18, vol: 0.05, type: 'sine', delay: i * 0.05 })); },
+  spellFly: () => { tone(900, { dur: 0.9, vol: 0.03, type: 'sine', slide: 1.6 }); },
+  spellLand: () => { tone(1200, { dur: 0.25, vol: 0.06, type: 'triangle', slide: 0.4 }); noise(0.2, 0.06, 3000); },
   moleHit: () => { tone(700, { dur: 0.08, vol: 0.1, type: 'square', slide: 0.6 }); tone(400, { dur: 0.15, vol: 0.08, type: 'triangle', slide: 0.5, delay: 0.06 }); },
   amber: () => { [0, 1, 2].forEach(i => tone(880 + i * 220, { dur: 0.25, vol: 0.035, type: 'sine', delay: i * 0.06 })); },
   cbPlop: n => { tone(500 + Math.min(n, 30) * 25, { dur: 0.09, vol: 0.06, type: 'triangle', slide: 1.3 }); },
@@ -1576,17 +1604,18 @@ function createGem(r, c, type, fromRow = r) {
   return gem;
 }
 
-const BOX_CHARS = { c: CARDBOARD, n: CARDBOARD, w: WOOD, r: REINFORCED, s: SLIME, g: GENERATOR, t: TNT, e: TESLA, o: CORE, j: JACK, k: STONE, q: STONEPICK, m: MIXER, b: ROBOT, z: MIRROR, y: MIRROR2, f: STONEFROG, a: WALL, d: BIN, h: BROOM, i: CRYSTAL, K: BASKET, G: GRILL, P: PADLOCK, X: COLORBOX, A: AMBER, M: MOLE };
+const BOX_CHARS = { c: CARDBOARD, n: CARDBOARD, w: WOOD, r: REINFORCED, s: SLIME, g: GENERATOR, t: TNT, e: TESLA, o: CORE, j: JACK, k: STONE, q: STONEPICK, m: MIXER, b: ROBOT, z: MIRROR, y: MIRROR2, f: STONEFROG, a: WALL, d: BIN, h: BROOM, i: CRYSTAL, K: BASKET, G: GRILL, P: PADLOCK, X: COLORBOX, A: AMBER, M: MOLE, W: MOLE };
 function startLevel(i) {
   level = i;
   const def = LEVELS[i] || randomLevel();
-  board.querySelectorAll('.gem, .beam, .bolt, .shock, .float, .combo, .shard, .tongue, .spiderEl, .nail, .dart, .leaf, .broomFx, .vegToss').forEach(e => e.remove());
+  board.querySelectorAll('.gem, .beam, .bolt, .shock, .float, .combo, .shard, .tongue, .spiderEl, .nail, .dart, .leaf, .broomFx, .vegToss, .spellFx, .spellTrail').forEach(e => e.remove());
   pendingFill.length = pendingClear.length = pendingDet.length = 0;
   inFlight = 0;
   turn = 0;
   pendingJack.length = 0;
   pendingSpill.length = 0;
   pendingBroom.length = 0;
+  pendingSpell.length = 0;
   pendingBolts.length = 0;
   pendingVeg.length = 0;
   pendingBedVeg.length = 0;
@@ -1624,6 +1653,7 @@ function startLevel(i) {
       if (ch in BOX_CHARS) {
         grid[r][c] = createBox(r, c, BOX_CHARS[ch]);
         if (ch === 'n') { grid[r][c].nailgun = true; grid[r][c].el.classList.add('ng-box'); }   // синя коробка з цвяхозабивачем
+        if (ch === 'W') makeWizard(grid[r][c]);   // кріт-чародій
         if (ch === 'X') setupCBox(grid[r][c], def.cboxes?.find(b => b.r === r && b.c === c));
         if (ch === 'A') setupAmber(grid[r][c], def.ambers?.find(b => b.r === r && b.c === c));
         continue;
@@ -2237,14 +2267,14 @@ async function moleEmerge(m) {
 }
 // кроти, яких не вдарили, разом ховаються й разом риють нові нори деінде
 async function moleRelocateAll(moles) {
-  const info = moles.map(m => ({ m, from: findGem(m), keys: m.keys, left: m.left })).filter(x => x.from);
+  const info = moles.map(m => ({ m, from: findGem(m), keys: m.keys, left: m.left, wizard: m.wizard })).filter(x => x.from);
   moleKeysCarry = info.reduce((a, x) => a + (x.keys || 0), 0);   // поки кроти під землею, їхні ключі теж «на полі»
   info.forEach(({ m }) => m.el.classList.add('dive'));
   sfx.moleDive();
   await wait(300);
   info.forEach(({ m, from: [r, c] }) => { m.el.remove(); grid[r][c] = null; });
   collapse(); await wait(350);
-  await moleDigAll(info.map(x => ({ keys: x.keys, from: x.from, left: x.left })));
+  await moleDigAll(info.map(x => ({ keys: x.keys, from: x.from, left: x.left, wizard: x.wizard })));
   moleKeysCarry = 0;
 }
 // нові нори (усі одночасно): фішка на місці нори знищується (овоч — зарахований), бонус — спрацьовує
@@ -2285,6 +2315,7 @@ async function moleDigAll(list) {
     const m = createBox(r, c, MOLE);
     m.keys = list[i].keys || 0;
     m.left = list[i].left ?? MOLE_COUNT;
+    if (list[i].wizard) makeWizard(m);
     m.el.classList.add('dig');
     grid[r][c] = m;
   });
@@ -2309,11 +2340,164 @@ function moleKnock(m, r, c) {
 }
 // кріт переможений: проковтнуті ключі вилітають і летять до замків
 function moleDefeated(m, r, c) {
+  if (m.wizard) spellQueue(m, r, c);   // кріт-чародій отримав шкоду — кастує закляття
   for (let i = 0; i < (m.keys || 0); i++) setTimeout(() => {
     const k = createGem(r, c, 0); makeKey(k);
     keyFly(k);
   }, 300 + i * 200);
   m.keys = 0;
+}
+
+// ===================== Кріт-чародій =====================
+// Як звичайний кріт (нора, 3 кроти), але синій і в чарівному капелюсі. Від кожної шкоди кастує випадкове закляття:
+// воно секунду літає над столом і спрацьовує у випадковому місці
+const WIZ_MOLE_SVG = '<svg viewBox="0 0 100 100"><g transform="translate(10,16) scale(.8)">' +
+  '<path d="M26,72 Q24,30 50,26 Q76,30 74,72 Z" fill="#3c5ab0" stroke="#16235a" stroke-width="2.5"/>' +
+  '<ellipse cx="50" cy="56" rx="15" ry="11" fill="#7d9be6" opacity=".7"/>' +
+  '<circle cx="40" cy="44" r="4" fill="#111"/><circle cx="60" cy="44" r="4" fill="#111"/><circle cx="41.5" cy="42.5" r="1.3" fill="#fff"/><circle cx="61.5" cy="42.5" r="1.3" fill="#fff"/>' +
+  '<ellipse cx="50" cy="55" rx="8" ry="6" fill="#ff9ab0" stroke="#c45a74" stroke-width="1.5"/>' +
+  '<path d="M44,62 Q50,66 56,62" fill="none" stroke="#16235a" stroke-width="2" stroke-linecap="round"/>' +
+  '<g fill="#cfe0ff" stroke="#4a63a8" stroke-width="1.5"><path d="M18,70 Q12,60 20,56 L30,66 Z"/><path d="M82,70 Q88,60 80,56 L70,66 Z"/></g></g>' +
+  // капелюх: широкі криси, високий конус із заломленим кінчиком, зірки
+  '<ellipse cx="50" cy="38" rx="31" ry="6.5" fill="#2446a8" stroke="#0f1f5c" stroke-width="2.5"/>' +
+  '<path d="M33,37 Q41,26 45,12 Q48,3 60,1 Q53,7 55,14 Q58,26 67,37 Z" fill="#3a6ae0" stroke="#0f1f5c" stroke-width="2.5" stroke-linejoin="round"/>' +
+  '<path d="M35,34 Q50,38 65,34" fill="none" stroke="#9cc0ff" stroke-width="3" opacity=".8"/>' +
+  '<g fill="#ffe066"><path d="M48,22 l1.6,3.2 3.4,.4 -2.5,2.3 .7,3.4 -3.2,-1.7 -3,1.7 .6,-3.4 -2.5,-2.3 3.4,-.4z"/><circle cx="56" cy="29" r="1.6"/><circle cx="43" cy="31" r="1.3"/></g></svg>';
+function makeWizard(box) {
+  if (!box || box.type !== MOLE) return box;
+  box.wizard = true;
+  box.el.classList.add('wiz');
+  box.el.querySelector('.mbody').innerHTML = WIZ_MOLE_SVG;
+  return box;
+}
+const SPELLS = {
+  fire:      { icon: '🔥', name: '🔥 Фаєрбол!',     c: ['#ffb347', '#ff4500'] },
+  spider:    { icon: '🕷️', name: '🕷️ Павук!',       c: ['#c39bd3', '#4a235a'] },
+  slime:     { icon: '🫧', name: '🫧 Слиз!',        c: ['#9cff7a', '#2e8b2e'] },
+  bolt:      { icon: '⚡', name: '⚡ Блискавиця!',   c: ['#fff36b', '#ffb300'] },
+  broom:     { icon: '🧹', name: '🧹 Мітла!',        c: ['#ffe08a', '#b8862e'] },
+  transmute: { icon: '🧨', name: '🧨 Трансмутація!', c: ['#ff8a8a', '#c0392b'] },
+  sparks:    { icon: '✨', name: '✨ Іскри!',        c: ['#b8f0ff', '#7b4bff'] },
+};
+const pendingSpell = [];
+function spellQueue(m, r, c) {
+  m.el.classList.remove('cast'); m.el.getBoundingClientRect(); m.el.classList.add('cast');
+  sfx.spellCast();
+  pendingSpell.push({ r, c });
+}
+// звичайна фішка, яку закляття може змінити (без ключа, овоча, павука, павутини, не скута)
+const plainGem = g => g && isNormal(g.type) && !g.key && !g.veg && !g.spider && !g.web && !g.eggs && !g.pinned && !locked(g);
+const TRANSMUTE_TYPES = [CARDBOARD, WOOD, REINFORCED, STONE, STONEPICK, SLIME];
+const transmutable = g => g && !g.broken && !locked(g) && (TRANSMUTE_TYPES.includes(g.type) || (g.web && !g.spider && !g.eggs && isNormal(g.type)));
+const sparkTarget = g => g && !g.broken && (damageable(g) || g.spider || g.eggs || (g.web && isNormal(g.type)));
+function cellsWhere(f) {
+  const out = [];
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) if (f(grid[r][c], r, c)) out.push([r, c]);
+  return out;
+}
+const pick = a => a[Math.floor(Math.random() * a.length)];
+// закляття летить над столом ~1 с (з кількома віражами), лишаючи іскристий слід
+async function spellFlight(from, to, sp) {
+  const el = document.createElement('div');
+  el.className = 'spellFx';
+  el.style.setProperty('--sp1', sp.c[0]); el.style.setProperty('--sp2', sp.c[1]);
+  el.innerHTML = `<b>${sp.icon}</b>`;
+  board.appendChild(el);
+  const pts = [from];
+  for (let i = 0; i < 2; i++) pts.push([Math.random() * (N - 1), Math.random() * (N - 1)]);
+  pts.push(to);
+  const tf = ([r, c]) => `translate(${c * 100}%, ${r * 100}%)`;
+  const anim = el.animate(pts.map(p => ({ transform: tf(p) })), { duration: 1000, easing: 'ease-in-out', fill: 'forwards' });
+  sfx.spellFly();
+  const trail = setInterval(() => {
+    const t = getComputedStyle(el).transform;
+    const d = document.createElement('div');
+    d.className = 'spellTrail';
+    d.style.setProperty('--sp1', sp.c[0]);
+    d.style.transform = t === 'none' ? '' : t;
+    d.style.width = d.style.height = 'calc(var(--cell) * .16)';
+    d.style.left = 0; d.style.top = 0;
+    board.appendChild(d);
+    setTimeout(() => d.remove(), 520);
+  }, 45);
+  await anim.finished.catch(() => {});
+  clearInterval(trail);
+  el.classList.add('land');
+  sfx.spellLand();
+  setTimeout(() => el.remove(), 380);
+}
+async function castSpell({ r, c }) {
+  // які закляття мають куди влучити
+  const plain = cellsWhere(plainGem);
+  const trans = cellsWhere(transmutable);
+  const sparks = cellsWhere(sparkTarget);
+  const opts = ['fire', 'broom'];
+  if (plain.length) opts.push('spider', 'slime', 'bolt');
+  if (trans.length) opts.push('transmute');
+  if (sparks.length) opts.push('sparks');
+  const kind = pick(opts), sp = SPELLS[kind];
+  const any = [Math.floor(Math.random() * N), Math.floor(Math.random() * N)];
+  const to = kind === 'transmute' ? pick(trans) : ['spider', 'slime', 'bolt'].includes(kind) ? pick(plain) : any;
+  floatText(sp.name, r, c, sp.c[0]);
+  await spellFlight([r, c], to, sp);
+  const [y, x] = to;
+  const g = grid[y][x];
+  if (kind === 'fire') fireballAt(y, x);
+  else if (kind === 'spider') { if (plainGem(g)) { addSpider(y, x); sfx.hatch(); } }
+  else if (kind === 'slime') {
+    if (plainGem(g)) {
+      g.el.remove();
+      const b = createBox(y, x, SLIME);
+      b.el.classList.add('spawn');
+      grid[y][x] = b;
+      sfx.slimeBreak();
+    }
+  }
+  else if (kind === 'bolt') {
+    if (plainGem(g)) {
+      g.el.remove();
+      const b = createGem(y, x, LIGHTNING);
+      b.el.classList.add('appear');
+      b.pinned = true;   // спрацьовує саме тут
+      grid[y][x] = b;
+      pendingDet.push(b);
+    }
+  }
+  else if (kind === 'broom') { broomLift(y, x); pendingBroom[pendingBroom.length - 1].dir0 = pick(BDIRS); }
+  else if (kind === 'transmute') {
+    if (transmutable(g)) {
+      if (g.spiderEl) g.spiderEl.remove();
+      g.el.remove();
+      const b = createBox(y, x, TNT);
+      b.el.classList.add('spawn');
+      grid[y][x] = b;
+      sfx.woodBreak();
+    }
+  }
+  else if (kind === 'sparks') {
+    const list = sparks.filter(([a, b]) => grid[a][b] && sparkTarget(grid[a][b])).sort(() => Math.random() - .5).slice(0, 4);
+    list.forEach(([a, b], i) => {
+      setTimeout(() => beam(y, x, a, b), i * 90);
+      setTimeout(() => { if (grid[a][b]) { hitBox(a, b); sfx.crystalZap(); } }, i * 90 + 120);
+    });
+    await wait(list.length * 90 + 250);
+  }
+  updateHud();
+  await wait(250);
+}
+// маленький фаєрбол: вибух 3×3 (центр теж)
+function fireballAt(r, c) {
+  sfx.bomb(); shakeBoard();
+  fx('shock', { left: `calc(var(--cell) * ${c - 1})`, top: `calc(var(--cell) * ${r - 1})`, width: 'calc(var(--cell) * 3)', height: 'calc(var(--cell) * 3)' }).classList.add('fire');
+  for (let rr = r - 1; rr <= r + 1; rr++) for (let cc = c - 1; cc <= c + 1; cc++) {
+    if (rr < 0 || rr >= N || cc < 0 || cc >= N) continue;
+    const g = grid[rr][cc];
+    if (!g) continue;
+    if (isObstacle(g) || locked(g)) { inFlight++; setTimeout(() => { hitBox(rr, cc); inFlight--; }, 120); }
+    else if (isSpecial(g.type)) pendingDet.push(g);
+    else if (isNormal(g.type) && !pendingClear.includes(g)) { g.el.classList.add('pop'); pendingClear.push(g); score += 10; }
+  }
+  updateHud();
 }
 
 // ===================== Бурштин =====================
@@ -2855,10 +3039,24 @@ function broomLift(r, c) {
   sfx.broomWhoosh();
   pendingBroom.push({ el, r, c });
 }
-async function broomRun({ el, r, c }) {
+async function broomRun({ el, r, c, dir0 }) {
   el.classList.remove('hover');
   let dir = null;
   for (let turn = 0; turn < 12; turn++) {
+    if (turn === 0 && dir0) {   // мітла від закляття — летить у випадковому напрямку (якщо там є куди)
+      const o0 = broomScan(r, c, dir0);
+      if (o0.path.length) {
+        dir = o0.d;
+        el.querySelector('i').style.transform = `rotate(${Math.atan2(dir[0], dir[1])}rad)`;
+        el.classList.add('flying'); sfx.broomWhoosh();
+        for (const [y, x] of o0.path) { el.style.transform = `translate(${x * 100}%, ${y * 100}%)`; await wait(95); broomSweep(y, x); }
+        [r, c] = o0.path[o0.path.length - 1];
+        if (o0.wall) break;
+        el.classList.remove('bump'); el.getBoundingClientRect(); el.classList.add('bump'); sfx.broomBump();
+        await wait(220);
+        continue;
+      }
+    }
     // напрямок: де більше прибирання, а при рівності — довший шлях; назад — лише якщо інакше ніяк
     let opts = BDIRS.filter(d => !dir || d[0] !== -dir[0] || d[1] !== -dir[1]).map(d => broomScan(r, c, d)).filter(o => o.path.length);
     if (!opts.length && dir) opts = [broomScan(r, c, [-dir[0], -dir[1]])].filter(o => o.path.length);
@@ -3831,6 +4029,7 @@ async function jackScatter([jr, jc]) {
         g.el.remove();
         const box = createBox(r, c, BOX_CHARS[ch]);
         if (ch === 'n') { box.nailgun = true; box.el.classList.add('ng-box'); }
+        if (ch === 'W') makeWizard(box);
         box.el.classList.add('spawn');
         grid[r][c] = box;
         if (box.type === CRYSTAL) crystalAwaken(r, c);
@@ -3978,6 +4177,7 @@ function makeCellObj(r, c, ch) {
   if (ch in BOX_CHARS) {
     const b = createBox(r, c, BOX_CHARS[ch]);
     if (ch === 'n') { b.nailgun = true; b.el.classList.add('ng-box'); }
+    if (ch === 'W') makeWizard(b);
     if (ch === 'X') setupCBox(b, cbConfAt(r, c));
     if (ch === 'A') setupAmber(b, amberConfAt(r, c));
     return b;
@@ -3991,6 +4191,7 @@ function spawnCell(r, c, ch) {
   if (ch in BOX_CHARS) {
     grid[r][c] = createBox(r, c, BOX_CHARS[ch]);
     if (ch === 'n') { grid[r][c].nailgun = true; grid[r][c].el.classList.add('ng-box'); }
+    if (ch === 'W') makeWizard(grid[r][c]);
     if (ch === 'X') setupCBox(grid[r][c], cbConfAt(r, c));   // коробка з-під стіни — зі своїми налаштуваннями
     if (ch === 'A') setupAmber(grid[r][c], amberConfAt(r, c));
   } else {
@@ -4048,7 +4249,8 @@ async function settle() {
         for (const box of pendingSuck.splice(0)) await mixerSuck(box);
         continue;
       }
-      if (!pendingJack.length && !pendingMixer.length && !pendingSpill.length && !pendingBroom.length && !pendingVeg.length) return;
+      if (!pendingJack.length && !pendingMixer.length && !pendingSpill.length && !pendingBroom.length && !pendingVeg.length && !pendingSpell.length) return;
+      if (pendingSpell.length) { for (const sp of pendingSpell.splice(0)) await castSpell(sp); continue; }
       for (const v of pendingVeg.splice(0)) await basketThrow(v);
       for (const pos of pendingSpill.splice(0)) await spillLeaves(pos);
       for (const b of pendingBroom.splice(0)) await broomRun(b);
@@ -5241,7 +5443,7 @@ $('soundBtn').onclick = () => {
 
 // ===================== Рівні з JSON =====================
 // Формат: { "levels": [ { "name": "...", "moves": 20, "map": ["........", ... 8 рядків по 8 символів] } ] }
-const MAP_CHARS = '.cnwtrsgxpeojkqmbzyfadhiKGPQXAM';
+const MAP_CHARS = '.cnwtrsgxpeojkqmbzyfadhiKGPQXAMW';
 function parseLevels(data) {
   const list = Array.isArray(data) ? data : data?.levels;
   if (!Array.isArray(list) || !list.length) throw new Error('у файлі немає списку "levels"');
@@ -5448,6 +5650,7 @@ const INTRO = {
   i: ['Магічний кристал', "З кожним ударом змінює колір, аж доки не вивільнить приховану силу. Слиз, павутиння й павуків довкола себе не терпить — щойно з'явиться, одразу їх знищує."],
   h: ["Мітла", "Змете зі шляху опале листя, павутиння та надокучливий слиз"],
   M: ['Кріт', 'Підземні бешкетники риють нори й нищать фішки. Бийте кротів, коли вони визирають назовні.'],
+  W: ['Кріт-чародій', 'Поки звичайні кроти їли хробаків і гризли корінці, цей закінчував академію магічних наук — на двієчку, звичайно, але все ж.'],
   A: ['Бурштин', 'Застигла магія з талантом перефарбовувати світ. Також знищує слиз і павутину.'],
   X: ['Кольорова коробка', 'Колекціонує кольори й винагороджує за старанність.'],
   C: ['Ланцюги', 'Міцно сковують усе під собою, не дозволяючи рухати чи руйнувати. Звичайні удари тут безсилі — доведеться шукати ключі.'],
@@ -5474,6 +5677,7 @@ function introTile(ch) {
     else if (ch === 'X') { g = createBox(0, 0, COLORBOX); setupCBox(g, { color: 3, count: 10 }); }
     else if (ch === 'A') { g = createBox(0, 0, AMBER); setupAmber(g, { color: 1 }); }
     else if (ch === 'M') { g = createBox(0, 0, MOLE); g.el.classList.add('up'); }
+    else if (ch === 'W') { g = makeWizard(createBox(0, 0, MOLE)); g.el.classList.add('up'); }
     else g = createBox(0, 0, ch === 'C' ? CHAIN : COVER_TYPES[ch] ?? BOX_CHARS[ch]);
     if (ch === 'n') g.el.classList.add('ng-box');
   }
