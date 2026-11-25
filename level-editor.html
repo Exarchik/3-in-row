@@ -132,8 +132,14 @@
   .cell .lf { position: absolute; }
   .k-B .t, .cell .lf.bed { inset: 2px; border-radius: 6px; background: repeating-linear-gradient(0deg, #6b3f1c 0 6px, #4a2c12 6px 8px); }
   .k-B .ico { display: none; }
+  .k-Y .t, .cell .lf.honey { inset: 2px; border-radius: 6px; background: radial-gradient(circle at 32% 28%, #fff0a0, #f5b028 55%, #c07a10); }
+  .k-Y .ico { display: none; }
+  .k-H .t { inset: 10% 14% 8%; border-radius: 50% 50% 10px 10px; background: repeating-linear-gradient(0deg, #e6b458 0 6px, #a86e22 6px 8px); }
+  .k-Z .t { inset: 8%; border-radius: 8px; background: rgba(255,204,34,.25); }
   .cell.obs .lf.bed { background: none; border-color: #6b3f1c; }
   .cell.obs .lf.bed::after { content: '🌱'; }
+  .cell.obs .lf.honey { background: none; border-color: #f5b028; }
+  .cell.obs .lf.honey::after { content: '🍯'; }
   .cell.obs .lf { inset: 0; z-index: 3; background: none; border: 3px solid #e8742a; border-radius: 6px; pointer-events: none; }
   .cell.obs .lf::after { content: '🍂'; position: absolute; right: -3px; bottom: -5px; font-size: 13px; }
   .k-l .t, .cell .sw {
@@ -381,12 +387,15 @@ const TOOLS = [
   { ch: 'G', name: 'Мангал', ico: '🔥' },
   { ch: 'v', name: 'Осіннє листя (під фішками)', ico: '🍂' },
   { ch: 'B', name: 'Грядка (під фішками)', ico: '🌱' },
+  { ch: 'Y', name: 'Медовий покрив (під фішками)', ico: '' },
+  { ch: 'H', name: 'Вулик', ico: '🛖' },
+  { ch: 'Z', name: 'Бджола на фішці', ico: '🐝' },
 ];
 const CHARS = TOOLS.map(t => t.ch).join('');
-const MINI = { '.': '', M: '#7a4a22', W: '#3466d6', O: '#7f5cff', D: '#2a0a18', A: '#ffb43a', X: '#d9a868', C: '#8b96a3', P: '#e8b828', Q: '#ffe066', B: '#6b3f1c', G: '#3d444c', K: '#c8954a', u: '#d9a868', i: '#4a26b4', h: '#e8c25a', l: '#a39a8e', d: '#5f8a5a', v: '#d9822b', f: '#6c717b', a: '#2a2f36', z: '#9fd2f0', y: '#e9e4d8', b: '#b8c0c8', m: '#f2a33a', k: '#8a8f98', q: '#b8bdc5', j: '#ffcc33', o: '#2a2f35', e: '#7cc8ff', c: '#c99357', n: '#5b8fd6', w: '#8d5a27', t: '#d23a2a', r: '#9aa5b1', s: '#5fc93a', g: '#3e454e', x: '#e8e8ff', p: '#c0303a' };
+const MINI = { '.': '', M: '#7a4a22', W: '#3466d6', O: '#7f5cff', D: '#2a0a18', H: '#d9a040', Z: '#ffcc22', Y: '#f5b028', A: '#ffb43a', X: '#d9a868', C: '#8b96a3', P: '#e8b828', Q: '#ffe066', B: '#6b3f1c', G: '#3d444c', K: '#c8954a', u: '#d9a868', i: '#4a26b4', h: '#e8c25a', l: '#a39a8e', d: '#5f8a5a', v: '#d9822b', f: '#6c717b', a: '#2a2f36', z: '#9fd2f0', y: '#e9e4d8', b: '#b8c0c8', m: '#f2a33a', k: '#8a8f98', q: '#b8bdc5', j: '#ffcc33', o: '#2a2f35', e: '#7cc8ff', c: '#c99357', n: '#5b8fd6', w: '#8d5a27', t: '#d23a2a', r: '#9aa5b1', s: '#5fc93a', g: '#3e454e', x: '#e8e8ff', p: '#c0303a' };
 const LEGEND = {
   '.': 'фішка', c: 'картонна коробка', n: 'синя коробка з цвяхозабивачем', w: "дерев'яний ящик", t: 'ящик TNT',
-  r: 'армований ящик', s: 'слиз', g: 'слизогенератор', x: 'фішка в павутині', p: 'павук на фішці', e: 'електрогенератор', o: 'металеве ядро', j: 'шкатулка з клоуном', k: 'камінь', q: 'камінь з кіркою', m: 'бетономішалка', b: 'робот', z: 'армоване дзеркало', y: 'армоване дзеркало 2 (з простирадлом)', f: 'кам\'яна жаба', a: 'броньована стіна', l: 'кам\'яна стіна', u: 'картонна стіна', C: 'ланцюги', P: 'навісний замок', Q: 'ключ', X: 'кольорова коробка', A: 'бурштин', M: 'кріт (нора)', W: 'кріт-чародій (нора)', O: 'скляний шар (+ходи)', D: 'чорна сфера (−ходи)', d: 'сміттєбак з листям', h: 'мітла', i: 'магічний кристал', K: 'кошик з овочами', G: 'мангал', v: 'осіннє листя', B: 'грядка',
+  r: 'армований ящик', s: 'слиз', g: 'слизогенератор', x: 'фішка в павутині', p: 'павук на фішці', e: 'електрогенератор', o: 'металеве ядро', j: 'шкатулка з клоуном', k: 'камінь', q: 'камінь з кіркою', m: 'бетономішалка', b: 'робот', z: 'армоване дзеркало', y: 'армоване дзеркало 2 (з простирадлом)', f: 'кам\'яна жаба', a: 'броньована стіна', l: 'кам\'яна стіна', u: 'картонна стіна', C: 'ланцюги', P: 'навісний замок', Q: 'ключ', X: 'кольорова коробка', A: 'бурштин', M: 'кріт (нора)', W: 'кріт-чародій (нора)', O: 'скляний шар (+ходи)', D: 'чорна сфера (−ходи)', H: 'вулик', Z: 'бджола на фішці', Y: 'медовий покрив', d: 'сміттєбак з листям', h: 'мітла', i: 'магічний кристал', K: 'кошик з овочами', G: 'мангал', v: 'осіннє листя', B: 'грядка',
 };
 
 // Стартовий набір — ті самі рівні, що вбудовані в гру
@@ -433,7 +442,7 @@ const coverAt = (lv, r, c) => !!coverType(lv, r, c);
 const coverCount = lv => lv.cover ? lv.cover.join('').split('').filter(ch => COVERS.includes(ch)).length : 0;
 const obstacles = lv => leafCount(lv) + lv.map.join('').replace(/\./g, '').length + lv.map.join('').split('').filter((ch, i) => ch === '.' && coverAt(lv, Math.floor(i / N), i % N)).length;
 // шар під фішками: v — листя, B — грядка
-const LAYERS = 'vB';
+const LAYERS = 'vBY';
 const leafType = (lv, r, c) => { const ch = lv.leaves?.[r]?.[c]; return ch && LAYERS.includes(ch) ? ch : ''; };
 const leafAt = (lv, r, c) => !!leafType(lv, r, c);
 const leafCount = lv => lv.leaves ? lv.leaves.join('').split('').filter(ch => LAYERS.includes(ch)).length : 0;
@@ -611,7 +620,7 @@ function parseLevels(data) {
     }
     if (Array.isArray(lv.leaves) && lv.leaves.length === N) {
       const lf = lv.leaves.map((row, r) => [...String(row).padEnd(N, '.').slice(0, N)].map((ch, c) => LAYERS.includes(ch) && !'aA'.includes(map[r][c]) ? ch : '.').join(''));
-      if (/[vB]/.test(lf.join(''))) out.leaves = lf;
+      if (/[vBY]/.test(lf.join(''))) out.leaves = lf;
     }
     if (Array.isArray(lv.cboxes)) {
       const cb = lv.cboxes.filter(b => map[b?.r]?.[b?.c] === 'X').map(b => ({ r: +b.r, c: +b.c,
@@ -730,7 +739,7 @@ function renderBoard() {
       if (cbSel && cbSel[0] === r && cbSel[1] === c) h = h.replace('class="cell', 'class="cell cbsel');
     }
     const lt = leafType(lv, r, c);
-    if (lt) h = h.replace(/^(<div [^>]*>)/, `$1<div class="lf${lt === 'B' ? ' bed' : ''}"></div>`).replace('title="', `title="${LEGEND[lt]} · `);
+    if (lt) h = h.replace(/^(<div [^>]*>)/, `$1<div class="lf${lt === 'B' ? ' bed' : lt === 'Y' ? ' honey' : ''}"></div>`).replace('title="', `title="${LEGEND[lt]} · `);
     return h;
   }).join('')).join('');
   const counts = {};
@@ -856,6 +865,9 @@ document.addEventListener('keydown', e => {
   else if (e.key === 'W' || e.key === 'Ц') { tool = 'W'; renderPalette(); }
   else if (e.key === 'O' || e.key === 'Щ') { tool = 'O'; renderPalette(); }
   else if (e.key === 'D' || e.key === 'В') { tool = 'D'; renderPalette(); }
+  else if (e.key === 'H' || e.key === 'Р') { tool = 'H'; renderPalette(); }
+  else if (e.key === 'Z' || e.key === 'Я') { tool = 'Z'; renderPalette(); }
+  else if (e.key === 'Y' || e.key === 'Н') { tool = 'Y'; renderPalette(); }
   else if (/^[0-9]$/.test(e.key) && TOOLS[+e.key]) { tool = TOOLS[+e.key].ch; renderPalette(); }
   else if (e.key.toLowerCase() === 'e' || e.key.toLowerCase() === 'у') { tool = 'e'; renderPalette(); }
   else if (e.key.toLowerCase() === 'o' || e.key.toLowerCase() === 'щ') { tool = 'o'; renderPalette(); }

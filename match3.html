@@ -696,6 +696,46 @@
   .leaf.gone svg { animation: leafGone .45s ease-in forwards; }
   @keyframes leafGone { to { transform: translate(8px, -16px) rotate(70deg) scale(1.3); opacity: 0; } }
 
+  /* ===== Медовий покрив (шар під фішками) ===== */
+  .leaf.honey::before {
+    background: radial-gradient(circle at 32% 28%, rgba(255,240,160,.95), rgba(248,186,48,.9) 50%, rgba(205,125,12,.95));
+    box-shadow: inset 0 0 0 2px rgba(255,214,96,.85), inset 0 -3px 7px rgba(140,70,0,.5);
+  }
+  .leaf.honey svg { filter: none; }
+  .leaf.honey.gone svg { animation: bedGone .45s ease-in forwards; }
+  .leaf.honey.fresh { animation: honeyIn .5s cubic-bezier(.3,1.5,.5,1); }
+  @keyframes honeyIn { from { opacity: 0; scale: .3; } }
+  /* ===== Бджола ===== */
+  .beeEl { position: absolute; left: 0; top: 0; width: var(--cell); height: var(--cell); z-index: 8; pointer-events: none; }
+  .beeEl i { position: absolute; left: 22%; top: 12%; width: 62%; height: 62%; animation: beeBob .9s ease-in-out infinite alternate; }
+  .beeEl svg { width: 100%; height: 100%; filter: drop-shadow(0 3px 2px rgba(0,0,0,.4)); overflow: visible; }
+  .beeEl .wing { transform-box: fill-box; transform-origin: 50% 100%; animation: beeWing .07s linear infinite alternate; }
+  @keyframes beeWing { to { transform: scaleY(.3); } }
+  @keyframes beeBob { to { transform: translate(2px, -4px) rotate(5deg); } }
+  .beeEl.stuck i { animation: beeStruggle .16s linear infinite alternate; }
+  @keyframes beeStruggle { from { transform: rotate(-12deg); } to { transform: rotate(12deg) translateX(2px); } }
+  .beeEl.dead i { animation: beeDie .5s forwards; }
+  @keyframes beeDie { to { transform: translateY(16px) rotate(170deg) scale(.4); opacity: 0; } }
+  .introTile .beeEl { transform: none; }
+  /* ===== Вулик ===== */
+  .gem.box.hive::before { display: none; }
+  .hive .crate { background: none; box-shadow: none; inset: 0; }
+  .hive .hsk { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .hive .hcr { fill: none; stroke: #4a2a08; stroke-width: 2.5; stroke-linecap: round; opacity: 0; }
+  .hive .hdrip { opacity: 0; }
+  .box.hive.crack1 .hcr.c1, .box.hive.crack2 .hcr { opacity: 1; }
+  .box.hive.crack1 .hdrip, .box.hive.crack2 .hdrip { opacity: 1; animation: hiveDrip 1.6s ease-in-out infinite alternate; }
+  @keyframes hiveDrip { to { transform: translateY(3px) scaleY(1.25); } }
+  .hive .hbee { position: absolute; width: 22%; height: 22%; left: 39%; top: 30%; animation: hiveOrbit 2.4s linear infinite; }
+  .hive .hbee.b2 { animation-duration: 3.1s; animation-direction: reverse; animation-delay: -1s; }
+  .hive .hbee svg { width: 100%; height: 100%; }
+  @keyframes hiveOrbit { from { transform: rotate(0deg) translateX(calc(var(--cell) * .38)) rotate(0deg); } to { transform: rotate(360deg) translateX(calc(var(--cell) * .38)) rotate(-360deg); } }
+  .box.hive.crack2 .crate { animation: hiveAngry .35s ease-in-out infinite alternate; }
+  @keyframes hiveAngry { from { transform: rotate(-2deg); } to { transform: rotate(2deg); } }
+  .box.hive.crack2 .hbee { animation-duration: 1.2s; }
+  .broomFx.stuck i { animation: broomStuck .12s linear 4 alternate; }
+  @keyframes broomStuck { from { translate: -2px 0; } to { translate: 2px 0; } }
+
   /* ===== Кріт ===== */
   .gem.box.mole::before { display: none; }
   .mole .crate { background: none; box-shadow: none; inset: 0; overflow: hidden; border-radius: 8px; }
@@ -1304,6 +1344,9 @@
     💎 магічний кристал — 8 ударів; з кожним змінює колір від темно-синього до багряно-червоного, останні удари — з тріщинами й дрижанням. Розбитий, лишає випадкову суперкомбінацію (червону жабу, фіолетову блискавку або велику бомбу), яка одразу спрацьовує. Кірка вважає його каменем. Кожна блискавка, що влучила в кристал, породжує ще одну — зелену, поперек; зелена блискавка інших кристалів не зачіпає. У зоні 3×3 довкола кристала не з'являються слиз і павутина, а павук, що туди заліз, гине. Якщо кристал з'являється посеред гри (з-під кам'яної стіни чи від клоуна), він одразу знищує павутину, слиз і павуків у своїй зоні<br>
     🧹 мітла — від 1 удару злітає і летить по прямій, вичищаючи листя, слиз і павутину (фішки лишаються). Напрямок обирає за пріоритетом: найбільше листя, потім слизу, потім павутини, потім інших мітел, потім довший шлях. Інші мітли пролітає наскрізь, зачіпаючи їх (вони теж злітають). Наткнувшись на іншу перешкоду, розвертається; долетівши до стінки (краю поля чи броньованої стіни) — з хрустом ламається<br>
     🦫 кріт — спершу риє нору (невразлива; фішка на її місці знищується, овоч зараховується, бонус спрацьовує). Наступного ходу вилазить кріт — 1 удар (комбінація поруч, бонус). Не вдарили за цей хід — ховається й риє нору деінде. У норі 3 кроти: переможеного через хід змінює наступний, а коли переможено всіх трьох — нора зникає. Вилазячи, кріт: з'їдає павуків поруч, знищує слиз довкола, ковтає ключ (той вилетить, коли крота переможуть; доки ключ у кроті, новий не випадає), перевертає сміттєбак, б'є кошик, а на грядці — вириває овоч. Кристал поруч убиває крота<br>
+    🍯 медовий покрив — лежить під фішками, як листя; щоб пройти рівень, його треба прибрати. На меду не з'являються слиз і павутина; павук, що заліз у мед, застрягає (не повзе, не плете павутину й не відкладає яєць); кріт, що виліз на меду, вже не може сховатися; мітла застрягає в першій клітинці з медом і ламається, прибравши його; бетономішалка зриває мед у зоні 3×3; листя зі сміттєбака лягає поверх меду, замінюючи його<br>
+    🐝 бджола — сидить на фішці (фішку не можна рухати); щоходу перелітає на випадкову клітинку й лишає мед там, звідки полетіла. На грядки не сідає; сівши на слиз — знищує його, на овоч — збирає його для вас. У павутині застрягає, а павук поруч повзе до неї й з'їдає. Гине з 1 удару; кристал убиває бджіл і прибирає мед довкола себе<br>
+    🛖 вулик — 3 удари; розбитий заливає медом зону 3×3 (крім грядок) і випускає 3 бджоли<br>
     🔮 скляний шар — 3 удари (скло тріскається). Розбили — лопається й дає додаткові ходи (число світиться всередині кулі, зазвичай +5)<br>
     🌑 чорна сфера — антипод скляного шару: 3 удари, а коли лопне — забирає ходи (число світиться всередині, зазвичай −3). Магічний кристал поруч (у зоні 3×3) зцілює її — вона стає скляним шаром з тими ж тріщинами і дає стільки ж ходів<br>
     🧙 кріт-чародій — як звичайний кріт (нора, 3 кроти), але від кожної шкоди кастує випадкове закляття, яке секунду літає над столом і спрацьовує у випадковому місці: фаєрбол (вибух 3×3), павук, слиз, блискавка, мітла, трансмутація (ящик, камінь, слиз чи павутина стають ящиком TNT) або іскри (б'ють по кількох перешкодах)<br>
@@ -1519,6 +1562,12 @@ const sfx = {
   moleDive: () => { tone(500, { dur: 0.15, vol: 0.07, type: 'triangle', slide: 0.4 }); noise(0.12, 0.05, 700); },
   orbHit: dmg => { tone(1300 + dmg * 300, { dur: 0.3, vol: 0.05, type: 'sine' }); tone(2600 + dmg * 400, { dur: 0.12, vol: 0.03, type: 'triangle', delay: 0.03 }); noise(0.06, 0.04, 6000); },
   orbPop: () => { [0, 3, 7, 12, 15, 19].forEach((n, i) => tone(784 * Math.pow(2, n / 12), { dur: 0.35, vol: 0.05, type: 'sine', delay: 0.15 + i * 0.06 })); noise(0.35, 0.14, 5500); },
+  beeBuzz: () => { tone(210, { dur: 0.45, vol: 0.035, type: 'sawtooth', slide: 1.15 }); tone(217, { dur: 0.45, vol: 0.03, type: 'sawtooth', slide: 1.1 }); },
+  beeDie: () => { tone(880, { dur: 0.18, vol: 0.06, type: 'square', slide: 0.35 }); },
+  honeyDrop: () => { tone(260, { dur: 0.14, vol: 0.06, type: 'sine', slide: 1.7 }); },
+  hiveHit: () => { noise(0.1, 0.1, 900); tone(180, { dur: 0.35, vol: 0.05, type: 'sawtooth', slide: 1.3 }); },
+  hiveBurst: () => { noise(0.3, 0.16, 800); [0, 1, 2].forEach(i => tone(200 + i * 37, { dur: 0.7, vol: 0.04, type: 'sawtooth', slide: 1.4, delay: 0.1 + i * 0.05 })); },
+  broomStuck: () => { tone(200, { dur: 0.25, vol: 0.08, type: 'triangle', slide: 0.5 }); },
   orbHeal: () => { [0, 4, 7, 12, 16].forEach((n, i) => tone(660 * Math.pow(2, n / 12), { dur: 0.3, vol: 0.05, type: 'sine', delay: i * 0.07 })); },
   dorbPop: () => { [12, 8, 5, 0, -4].forEach((n, i) => tone(392 * Math.pow(2, n / 12), { dur: 0.3, vol: 0.06, type: 'sawtooth', delay: 0.1 + i * 0.08 })); tone(70, { dur: 0.6, vol: 0.2, slide: 0.5 }); noise(0.3, 0.1, 1500); },
   movesDrop: i => tone(520 - i * 45, { dur: 0.09, vol: 0.07, type: 'square' }),
@@ -1588,7 +1637,7 @@ const sfx = {
 // ===== Гра =====
 const N = 8, TYPES = 6;
 const RAINBOW = 6, BOMB = 7, LIGHTNING = 8, FROG = 9;
-const CARDBOARD = 10, WOOD = 11, REINFORCED = 12, SLIME = 13, GENERATOR = 14, NAILGUN = 15, TNT = 16, TESLA = 17, CORE = 18, JACK = 19, STONE = 20, STONEPICK = 21, MIXER = 22, ROBOT = 23, MIRROR = 24, MIRROR2 = 25, STONEFROG = 26, WALL = 27, STONEWALL = 28, BIN = 29, BROOM = 30, CRYSTAL = 31, CARDWALL = 32, BASKET = 33, GRILL = 34, CHAIN = 35, PADLOCK = 36, COLORBOX = 37, AMBER = 38, MOLE = 39, ORB = 40, DORB = 41;
+const CARDBOARD = 10, WOOD = 11, REINFORCED = 12, SLIME = 13, GENERATOR = 14, NAILGUN = 15, TNT = 16, TESLA = 17, CORE = 18, JACK = 19, STONE = 20, STONEPICK = 21, MIXER = 22, ROBOT = 23, MIRROR = 24, MIRROR2 = 25, STONEFROG = 26, WALL = 27, STONEWALL = 28, BIN = 29, BROOM = 30, CRYSTAL = 31, CARDWALL = 32, BASKET = 33, GRILL = 34, CHAIN = 35, PADLOCK = 36, COLORBOX = 37, AMBER = 38, MOLE = 39, ORB = 40, DORB = 41, HIVE = 42;
 const KEYT = -2;   // ключ — фішка без кольору: рухається й падає, але не збирається в комбінації
 // стіни-покриття (шар cover): l — кам'яна, u — картонна; під ними може ховатися перешкода
 const COVER_TYPES = { l: STONEWALL, u: CARDWALL };
@@ -1680,11 +1729,11 @@ function createGem(r, c, type, fromRow = r) {
   return gem;
 }
 
-const BOX_CHARS = { c: CARDBOARD, n: CARDBOARD, w: WOOD, r: REINFORCED, s: SLIME, g: GENERATOR, t: TNT, e: TESLA, o: CORE, j: JACK, k: STONE, q: STONEPICK, m: MIXER, b: ROBOT, z: MIRROR, y: MIRROR2, f: STONEFROG, a: WALL, d: BIN, h: BROOM, i: CRYSTAL, K: BASKET, G: GRILL, P: PADLOCK, X: COLORBOX, A: AMBER, M: MOLE, W: MOLE, O: ORB, D: DORB };
+const BOX_CHARS = { c: CARDBOARD, n: CARDBOARD, w: WOOD, r: REINFORCED, s: SLIME, g: GENERATOR, t: TNT, e: TESLA, o: CORE, j: JACK, k: STONE, q: STONEPICK, m: MIXER, b: ROBOT, z: MIRROR, y: MIRROR2, f: STONEFROG, a: WALL, d: BIN, h: BROOM, i: CRYSTAL, K: BASKET, G: GRILL, P: PADLOCK, X: COLORBOX, A: AMBER, M: MOLE, W: MOLE, O: ORB, D: DORB, H: HIVE };
 function startLevel(i) {
   level = i;
   const def = LEVELS[i] || randomLevel();
-  board.querySelectorAll('.gem, .beam, .bolt, .shock, .float, .combo, .shard, .tongue, .spiderEl, .nail, .dart, .leaf, .broomFx, .vegToss, .spellFx, .spellTrail, .orbRing, .orbStar').forEach(e => e.remove());
+  board.querySelectorAll('.gem, .beam, .bolt, .shock, .float, .combo, .shard, .tongue, .spiderEl, .nail, .dart, .leaf, .broomFx, .vegToss, .spellFx, .spellTrail, .orbRing, .orbStar, .beeEl').forEach(e => e.remove());
   document.querySelectorAll('.movesFly').forEach(e => e.remove());
   pendingFill.length = pendingClear.length = pendingDet.length = 0;
   inFlight = 0;
@@ -1693,6 +1742,7 @@ function startLevel(i) {
   pendingSpill.length = 0;
   pendingBroom.length = 0;
   pendingSpell.length = 0;
+  pendingHive.length = 0;
   pendingBolts.length = 0;
   pendingVeg.length = 0;
   pendingBedVeg.length = 0;
@@ -1746,6 +1796,7 @@ function startLevel(i) {
       grid[r][c] = createGem(r, c, t, r - N);
       if (ch === 'x') addWeb(grid[r][c]);
       if (ch === 'p') addSpider(r, c);
+      if (ch === 'Z') addBee(r, c);
       if (ch === 'Q') makeKey(grid[r][c]);
     }
   }
@@ -1754,7 +1805,7 @@ function startLevel(i) {
   // чорна сфера біля кристала вже на старті — скляна
   for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) if (grid[r][c]?.type === DORB && crystalNear(r, c)) healDorb(grid[r][c], r, c, null, false);
   // шар листя
-  def.leaves?.forEach((row, r) => [...row].forEach((ch, c) => { if ((ch === 'v' || ch === 'B') && !noLayer(r, c)) addLeaf(r, c, null, ch); }));
+  def.leaves?.forEach((row, r) => [...row].forEach((ch, c) => { if ((ch === 'v' || ch === 'B' || ch === 'Y') && !noLayer(r, c)) addLeaf(r, c, null, ch); }));
   $('overlay').classList.remove('show');
   updateHud();
   if (!findMove()) shuffle();
@@ -2092,6 +2143,7 @@ const BOX_INFO = {
   [STONEFROG]:  { cls: 'stonefrog',  hp: 1, pts: 300, shards: ['#9a9fa8', '#6c717b', '#4a4e56', '#ff9a3a'] },
   [MOLE]:       { cls: 'mole',       hp: 1, pts: 250, shards: ['#6b4318', '#8a5a2e', '#3d2a14', '#ff9ab0'] },
   [ORB]:        { cls: 'orb',        hp: 3, pts: 100, shards: ['#e6ecff', '#b9a6ff', '#7f5cff', '#ffffff', '#c9b27a'] },
+  [HIVE]:       { cls: 'hive',       hp: 3, pts: 150, shards: ['#e8b04a', '#b5782a', '#7a4a1a', '#ffd23a'] },
   [DORB]:       { cls: 'orb dorb',   hp: 3, pts: 100, shards: ['#1a0a14', '#4a0a20', '#ff3b5c', '#2a2a2a', '#8a0020'] },
   [AMBER]:      { cls: 'amber',      hp: 1, pts: 50,   shards: ['#ffb43a'] },
   [COLORBOX]:   { cls: 'cbox',       hp: 1, pts: 300, shards: ['#c99357', '#94632e', '#ffe66d', '#ff6bb5'] },
@@ -2296,8 +2348,11 @@ async function moleTurn() {
   if (!moles.length) return;
   // усі живі кроти діють синхронно: або всі вилазять, або всі ховаються й риють нові нори деінде.
   // Нора, де щойно переможено крота, лишається на місці й пропускає хід — новий кріт вилазить із неї через хід
-  if (moles.some(m => m.state === 'up')) await moleRelocateAll(moles.filter(m => m.state === 'up'));
-  else await Promise.all(moles.map(m => m.fresh ? null : moleEmerge(m)));
+  // кріт, що виліз на меду, застряг: більше не ховається (і не переїжджає)
+  const stuckUp = m => { const p = findGem(m); return m.state === 'up' && p && honeyAt(...p); };
+  const free = moles.filter(m => !stuckUp(m));
+  if (free.some(m => m.state === 'up')) await moleRelocateAll(free.filter(m => m.state === 'up'));
+  else await Promise.all(free.map(m => m.fresh || m.state === 'up' ? null : moleEmerge(m)));
   moles.forEach(m => { m.fresh = false; });
   collapse(); await wait(350);
   await settle();
@@ -2431,6 +2486,159 @@ function moleDefeated(m, r, c) {
   m.keys = 0;
 }
 
+// ===================== Мед, бджоли, вулик =====================
+const honeyAt = (r, c) => leaves[r]?.[c]?.dataset.kind === 'Y';
+const bedAt = (r, c) => leaves[r]?.[c]?.dataset.kind === 'B';
+// де може з'явитися мед: клітинка без листя/грядки, не під стіною чи бурштином, не в зоні кристала
+const canHoney = (r, c) => r >= 0 && r < N && c >= 0 && c < N && !leaves[r][c] && !noLayer(r, c) && !inAura(r, c);
+function addHoney(r, c, from = null) {
+  if (!canHoney(r, c)) return false;
+  addLeaf(r, c, from, 'Y');
+  const el = leaves[r][c];
+  if (!from) { el.classList.add('fresh'); setTimeout(() => el.classList.remove('fresh'), 520); }
+  return true;
+}
+const BEE_SVG = '<svg viewBox="0 0 100 100">' +
+  '<ellipse class="wing" cx="44" cy="26" rx="12" ry="20" fill="rgba(225,242,255,.8)" stroke="#7aa0c0" stroke-width="2"/>' +
+  '<ellipse class="wing" cx="60" cy="28" rx="11" ry="18" fill="rgba(225,242,255,.7)" stroke="#7aa0c0" stroke-width="2"/>' +
+  '<path d="M80,58 L95,62 L80,67 Z" fill="#2a1a00"/>' +
+  '<ellipse cx="54" cy="62" rx="28" ry="20" fill="#ffcc22" stroke="#2a1a00" stroke-width="3"/>' +
+  '<g stroke="#2a1a00" stroke-width="7" fill="none"><path d="M50,43 Q45,62 50,81"/><path d="M64,45 Q60,62 64,79"/></g>' +
+  '<circle cx="28" cy="58" r="13" fill="#2a1a00"/><circle cx="24" cy="54" r="4" fill="#fff"/><circle cx="23" cy="54" r="2" fill="#111"/>' +
+  '<g stroke="#2a1a00" stroke-width="2.5" fill="none" stroke-linecap="round"><path d="M24,46 Q18,34 12,32"/><path d="M30,46 Q30,34 26,28"/></g></svg>';
+function makeBeeEl() {
+  const el = document.createElement('div');
+  el.className = 'beeEl';
+  el.innerHTML = '<i>' + BEE_SVG + '</i>';
+  board.appendChild(el);
+  return el;
+}
+const placeBee = (el, r, c) => { el.style.transform = `translate(${c * 100}%, ${r * 100}%)`; };
+// бджола сідає на фішку (у павутині — застрягає)
+function addBee(r, c, el = null) {
+  const g = grid[r][c];
+  if (!g) { el?.remove(); return; }
+  g.bee = { stuck: !!g.web };
+  g.beeEl = el || makeBeeEl();
+  placeBee(g.beeEl, r, c);
+  g.beeEl.classList.toggle('stuck', g.bee.stuck);
+  g.el.classList.add('beed');
+}
+function killBee(g, r, c, pts = true) {
+  if (!g?.bee) return;
+  const el = g.beeEl;
+  g.bee = null; g.beeEl = null;
+  g.el.classList.remove('beed');
+  if (el) { el.classList.add('dead'); setTimeout(() => el.remove(), 550); }
+  sfx.beeDie();
+  if (pts) { score += 60; floatText('+60', r, c, '#ffd27a'); }
+  updateHud();
+}
+// куди бджола може сісти: звичайна фішка (і овоч, і фішка в павутині) або слиз; не на грядку, не на павука, ключ чи іншу бджолу
+const beeSpot = (g, r, c) => g && !g.broken && !bedAt(r, c) && !g.bee && !g.spider && !g.eggs && !g.key && !g.pinned &&
+  (isNormal(g.type) || g.type === SLIME);
+function beeFly(el, [r1, c1], [r2, c2]) {
+  const tf = (r, c, k = 1) => `translate(${c * 100}%, ${r * 100}%) scale(${k})`;
+  const mr = (r1 + r2) / 2 - .8, mc = (c1 + c2) / 2 + (Math.random() - .5);
+  placeBee(el, r2, c2);
+  return el.animate([{ transform: tf(r1, c1) }, { transform: tf(mr, mc, 1.15) }, { transform: tf(r2, c2) }],
+    { duration: 650 + Math.random() * 150, easing: 'ease-in-out' }).finished.catch(() => {});
+}
+// бджола сіла: слиз — знищує, овоч — збирає для гравця (той летить на мангал або за екран)
+function beeLand(el, y, x) {
+  let g = grid[y][x];
+  if (!g || g.broken || !beeSpot(g, y, x)) {
+    // клітинку тим часом зайняли — бджола сідає на будь-яке вільне місце
+    const alt = [];
+    for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) if (beeSpot(grid[r][c], r, c)) alt.push([r, c]);
+    if (!alt.length) { el.classList.add('dead'); setTimeout(() => el.remove(), 550); return; }
+    [y, x] = pick(alt); g = grid[y][x]; placeBee(el, y, x);
+  }
+  if (g.type === SLIME) {
+    g.el.classList.add('breaking');
+    const old = g.el; setTimeout(() => old.remove(), 400);
+    shatter(y, x, BOX_INFO[SLIME].shards, 6);
+    sfx.slimeBreak(); score += BOX_INFO[SLIME].pts; floatText('+' + BOX_INFO[SLIME].pts, y, x, '#ffd27a');
+    g = createGem(y, x, rand()); g.el.classList.add('appear'); grid[y][x] = g;
+  } else if (g.veg) {
+    removeGemEl(g);
+    floatText('🐝🥕', y, x, '#ffe66d');
+    g = createGem(y, x, rand()); g.el.classList.add('appear'); grid[y][x] = g;
+  }
+  addBee(y, x, el);
+  if (g.bee.stuck) floatText('🕸️', y, x, '#e8e8ff');
+}
+// Хід бджіл: кожна вільна бджола перелітає на випадкову клітинку й лишає мед там, де сиділа
+async function beeTurn() {
+  const list = [];
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) if (grid[r][c]?.bee && !grid[r][c].bee.stuck) list.push([r, c]);
+  if (!list.length) return;
+  const taken = new Set(), jobs = [];
+  for (const [r, c] of list) {
+    const opts = [];
+    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++)
+      if ((y !== r || x !== c) && !taken.has(key(y, x)) && beeSpot(grid[y][x], y, x)) opts.push([y, x]);
+    if (!opts.length) continue;
+    const to = pick(opts);
+    taken.add(key(...to));
+    const from = grid[r][c], el = from.beeEl;
+    from.bee = null; from.beeEl = null; from.el.classList.remove('beed');
+    setTimeout(() => { if (addHoney(r, c)) sfx.honeyDrop(); }, 200);
+    jobs.push(beeFly(el, [r, c], to).then(() => beeLand(el, ...to)));
+  }
+  if (!jobs.length) return;
+  sfx.beeBuzz();
+  await Promise.all(jobs);
+  await auraKillSpiders();   // сіла біля кристала — кристал її вбиває
+  updateHud();
+  await resolve();
+  await settle();
+  if (!findMove()) await shuffle();
+}
+// Вулик розбито: мед 3×3 (не на грядках) і 3 бджоли
+const HIVE_BEE = '<svg viewBox="0 0 100 100"><ellipse cx="50" cy="55" rx="30" ry="22" fill="#ffcc22" stroke="#2a1a00" stroke-width="6"/><path d="M42,35 V75 M58,35 V75" stroke="#2a1a00" stroke-width="9"/><ellipse cx="45" cy="26" rx="14" ry="12" fill="rgba(230,245,255,.85)"/></svg>';
+const HIVE_HTML = '<svg class="hsk" viewBox="0 0 100 100">' +
+  '<ellipse cx="50" cy="92" rx="40" ry="6" fill="rgba(0,0,0,.35)"/>' +
+  '<path d="M10,90 Q10,76 18,74 H82 Q90,76 90,90 Z" fill="#c98a36" stroke="#6b4210" stroke-width="2.5"/>' +
+  '<path d="M16,75 Q16,60 25,58 H75 Q84,60 84,75 Z" fill="#dca048" stroke="#6b4210" stroke-width="2.5"/>' +
+  '<path d="M23,59 Q24,44 33,42 H67 Q76,44 77,59 Z" fill="#e6b458" stroke="#6b4210" stroke-width="2.5"/>' +
+  '<path d="M32,43 Q34,26 50,22 Q66,26 68,43 Z" fill="#efc46a" stroke="#6b4210" stroke-width="2.5"/>' +
+  '<path d="M46,23 Q50,14 54,23 Z" fill="#c98a36" stroke="#6b4210" stroke-width="2"/>' +
+  '<g stroke="#a86e22" stroke-width="1.5" opacity=".7"><path d="M22,82 H78"/><path d="M27,66 H73"/><path d="M34,50 H66"/></g>' +
+  '<ellipse cx="50" cy="82" rx="9" ry="6" fill="#2a1606"/>' +
+  '<path class="hdrip" d="M46,86 Q50,98 54,86 Z" fill="#ffb81c" stroke="#c07a10" stroke-width="1.2"/>' +
+  '<path class="hcr c1" d="M36,46 L42,54 L38,60 L44,68"/>' +
+  '<path class="hcr c2" d="M66,30 L60,40 L66,48 L60,58 M72,64 L64,72"/></svg>' +
+  '<i class="hbee">' + HIVE_BEE + '</i><i class="hbee b2">' + HIVE_BEE + '</i>';
+const pendingHive = [];
+async function hiveBurst([r, c]) {
+  sfx.hiveBurst();
+  floatText('🍯', r, c, '#ffd23a');
+  let n = 0;
+  for (let y = r - 1; y <= r + 1; y++) for (let x = c - 1; x <= c + 1; x++) {
+    if (!canHoney(y, x)) continue;   // на грядки, листя, біля кристала — ні
+    const yy = y, xx = x, d = n++ * 50;
+    setTimeout(() => { if (addHoney(yy, xx, [r, c])) sfx.honeyDrop(); }, d);
+  }
+  await wait(n * 50 + 350);
+  updateHud();
+  // три бджоли вилітають з вулика
+  const taken = new Set(), jobs = [];
+  for (let i = 0; i < 3; i++) {
+    const opts = [];
+    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) if (!taken.has(key(y, x)) && beeSpot(grid[y][x], y, x)) opts.push([y, x]);
+    if (!opts.length) break;
+    const to = pick(opts); taken.add(key(...to));
+    const el = makeBeeEl(); placeBee(el, r, c);
+    jobs.push(wait(i * 160).then(() => beeFly(el, [r, c], to)).then(() => beeLand(el, ...to)));
+  }
+  sfx.beeBuzz();
+  await Promise.all(jobs);
+  await auraKillSpiders();
+  updateHud();
+  await resolve();
+}
+
 // ===================== Скляний шар =====================
 // Куля пророцтв: 3 удари (тріщини, туман крутиться швидше). Розбили — лопається, і гравець отримує додаткові ходи
 // (скільки — задається в редакторі, за замовчуванням +5): число вилітає з кулі й летить до лічильника ходів
@@ -2562,10 +2770,10 @@ function spellQueue(m, r, c) {
   pendingSpell.push({ r, c });
 }
 // звичайна фішка, яку закляття може змінити (без ключа, овоча, павука, павутини, не скута)
-const plainGem = g => g && isNormal(g.type) && !g.key && !g.veg && !g.spider && !g.web && !g.eggs && !g.pinned && !locked(g);
+const plainGem = g => g && isNormal(g.type) && !g.key && !g.veg && !g.spider && !g.bee && !g.web && !g.eggs && !g.pinned && !locked(g);
 const TRANSMUTE_TYPES = [CARDBOARD, WOOD, REINFORCED, STONE, STONEPICK, SLIME];
 const transmutable = g => g && !g.broken && !locked(g) && (TRANSMUTE_TYPES.includes(g.type) || (g.web && !g.spider && !g.eggs && isNormal(g.type)));
-const sparkTarget = g => g && !g.broken && (damageable(g) || g.spider || g.eggs || (g.web && isNormal(g.type)));
+const sparkTarget = g => g && !g.broken && (damageable(g) || g.spider || g.bee || g.eggs || (g.web && isNormal(g.type)));
 function cellsWhere(f) {
   const out = [];
   for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) if (f(grid[r][c], r, c)) out.push([r, c]);
@@ -2608,12 +2816,14 @@ async function castSpell({ r, c }) {
   const trans = cellsWhere(transmutable);
   const sparks = cellsWhere(sparkTarget);
   const opts = ['fire', 'broom'];
-  if (plain.length) opts.push('spider', 'slime', 'bolt');
+  const plainS = plain.filter(([y, x]) => !honeyAt(y, x));   // слиз на мед не лягає
+  if (plain.length) opts.push('spider', 'bolt');
+  if (plainS.length) opts.push('slime');
   if (trans.length) opts.push('transmute');
   if (sparks.length) opts.push('sparks');
   const kind = pick(opts), sp = SPELLS[kind];
   const any = [Math.floor(Math.random() * N), Math.floor(Math.random() * N)];
-  const to = kind === 'transmute' ? pick(trans) : ['spider', 'slime', 'bolt'].includes(kind) ? pick(plain) : any;
+  const to = kind === 'transmute' ? pick(trans) : kind === 'slime' ? pick(plainS) : ['spider', 'bolt'].includes(kind) ? pick(plain) : any;
   floatText(sp.name, r, c, sp.c[0]);
   await spellFlight([r, c], to, sp);
   const [y, x] = to;
@@ -2721,7 +2931,7 @@ async function amberApply(jobs) {
     const opts = [];
     for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
       const g = grid[y][x];
-      if (!g || used.has(key(y, x)) || g.spider || g.eggs) continue;
+      if (!g || used.has(key(y, x)) || g.spider || g.bee || g.eggs) continue;
       const ok = (g.type === SLIME && !g.broken) || (isNormal(g.type) && g.type !== t);
       if (ok) opts.push([y, x]);
     }
@@ -3125,12 +3335,12 @@ function auraKillSpiders() {
   let i = 0;
   for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
     const g = grid[r][c];
-    if (!g?.spider) continue;
+    if (!g?.spider && !g?.bee) continue;
     const cr = auraCrystalOf(r, c);
     if (!cr) continue;
     const d = i++ * 60;
     setTimeout(() => beam(cr[0], cr[1], r, c), d);
-    setTimeout(() => { if (g.spider) { killSpider(g, r, c); sfx.crystalZap(); } }, d + 120);
+    setTimeout(() => { if (g.bee) { killBee(g, r, c); sfx.crystalZap(); } else if (g.spider) { killSpider(g, r, c); sfx.crystalZap(); } }, d + 120);
   }
   return wait(i ? (i - 1) * 60 + 250 : 0);
 }
@@ -3144,13 +3354,19 @@ function crystalAwaken(r, c) {
     for (let y = r - 1; y <= r + 1; y++) for (let x = c - 1; x <= c + 1; x++) {
       if (y < 0 || y >= N || x < 0 || x >= N || (y === r && x === c)) continue;
       const g = grid[y][x];
+      if (honeyAt(y, x)) {   // мед кристал теж не терпить
+        setTimeout(() => beam(r, c, y, x), i * 60);
+        setTimeout(() => { if (honeyAt(y, x)) { clearLeaf(y, x); sfx.crystalZap(); } }, i * 60 + 120);
+        i++;
+      }
       if (!g || g.broken) continue;
-      const dirty = g.type === SLIME || g.spider || g.eggs || g.web;
+      const dirty = g.type === SLIME || g.spider || g.eggs || g.web || g.bee;
       if (!dirty) continue;
       setTimeout(() => beam(r, c, y, x), i * 60);
       setTimeout(() => {
         const h = grid[y][x];
         if (!h || h.broken) return;
+        if (h.bee) killBee(h, y, x);
         if (h.type === SLIME) hitBox(y, x);
         else for (let k = 0; k < 3 && (h.spider || h.eggs || h.web); k++) hitBox(y, x);   // павук → кладка → павутина
         sfx.crystalZap();
@@ -3199,9 +3415,11 @@ function broomScan(r, c, [dr, dc]) {
   // що є на прямій: листя, слиз, павутина, інші мітли
   const n = { lf: 0, sl: 0, wb: 0, bm: 0, vg: 0 };
   let y = r + dr, x = c + dc;
+  let honey = false;
   while (y >= 0 && y < N && x >= 0 && x < N && !broomBlocks(grid[y][x])) {
     const g = grid[y][x];
     path.push([y, x]);
+    if (honeyAt(y, x)) { honey = true; break; }   // у меду мітла застрягає
     if (leaves[y][x]) n.lf++;
     if (g.type === SLIME && !g.broken) n.sl++;
     if (g.web && !g.spider && !g.eggs) n.wb++;
@@ -3209,8 +3427,8 @@ function broomScan(r, c, [dr, dc]) {
     if (g.veg && !locked(g)) n.vg++;
     y += dr; x += dc;
   }
-  const out = y < 0 || y >= N || x < 0 || x >= N || grid[y][x]?.type === WALL;   // стінка: край поля або броньована стіна
-  return { d: [dr, dc], path, n, wall: out };
+  const out = !honey && (y < 0 || y >= N || x < 0 || x >= N || grid[y][x]?.type === WALL);   // стінка: край поля або броньована стіна
+  return { d: [dr, dc], path, n, wall: out, honey };
 }
 // Мітла зачеплена — піднімається над полем і чекає, поки все вляжеться
 function broomLift(r, c) {
@@ -3234,6 +3452,7 @@ async function broomRun({ el, r, c, dir0 }) {
         el.classList.add('flying'); sfx.broomWhoosh();
         for (const [y, x] of o0.path) { el.style.transform = `translate(${x * 100}%, ${y * 100}%)`; await wait(95); broomSweep(y, x); }
         [r, c] = o0.path[o0.path.length - 1];
+        if (o0.honey) { await broomHoney(el, r, c); break; }
         if (o0.wall) break;
         el.classList.remove('bump'); el.getBoundingClientRect(); el.classList.add('bump'); sfx.broomBump();
         await wait(220);
@@ -3257,6 +3476,7 @@ async function broomRun({ el, r, c, dir0 }) {
       broomSweep(y, x);
     }
     if (o.path.length) [r, c] = o.path[o.path.length - 1];
+    if (o.honey) { await broomHoney(el, r, c); break; }  // застрягла в меду — ламається (мед прибрала)
     if (o.wall) break;                                   // долетіла до стінки — ламається
     // наткнулась на перешкоду — відскок і розворот
     el.classList.remove('bump'); el.getBoundingClientRect(); el.classList.add('bump');
@@ -3271,13 +3491,19 @@ async function broomRun({ el, r, c, dir0 }) {
   updateHud();
   await wait(300);
 }
+async function broomHoney(el, r, c) {
+  el.classList.add('stuck');
+  floatText('🍯', r, c, '#ffd23a');
+  sfx.broomStuck();
+  await wait(480);
+}
 // Мітла чистить клітинку: листя, слиз, павутину. Фішки не чіпає
 function broomSweep(y, x) {
   const g = grid[y][x];
   const wasVeg = !!g?.veg;   // овоч, що щойно виліз із грядки під мітлою, лишається
   if (leaves[y][x]) clearLeaf(y, x);
   if (g && g.type === SLIME && !g.broken) hitBox(y, x);
-  else if (g && g.web && !g.spider && !g.eggs) hitBox(y, x);
+  else if (g && g.web && !g.spider && !g.eggs && !g.bee) hitBox(y, x);
   else if (g && wasVeg && !locked(g)) vegSweep(g);   // овоч мітла змітає
   else if (g && g.type === BROOM && !g.broken) {
     // інша мітла: пролітаємо наскрізь, зачеплена теж злітає
@@ -3317,11 +3543,18 @@ const BED_SVG = '<svg viewBox="0 0 100 100">' +
   '<g fill="#8a5a2e"><circle cx="20" cy="34" r="3"/><circle cx="70" cy="62" r="3.5"/><circle cx="44" cy="90" r="2.5"/><circle cx="84" cy="32" r="2.5"/></g>' +
   '<g class="sprout"><path d="M14,14 V6" stroke="#3fae2e" stroke-width="2.5" stroke-linecap="round"/><path d="M14,8 Q8,2 4,6 Q8,10 14,8 Z M14,8 Q20,2 24,6 Q20,10 14,8 Z" fill="#6bd04a"/>' +
   '<path d="M86,94 V86" stroke="#3fae2e" stroke-width="2.5" stroke-linecap="round"/><path d="M86,88 Q80,82 76,86 Q80,90 86,88 Z M86,88 Q92,82 96,86 Q92,90 86,88 Z" fill="#6bd04a"/></g></svg>';
+// Медовий покрив: стільники по кутах, патьоки й відблиск
+const HONEY_SVG = '<svg viewBox="0 0 100 100">' +
+  '<g fill="none" stroke="rgba(255,248,210,.55)" stroke-width="2">' +
+  '<path d="M6,14 L13,10 L20,14 L20,22 L13,26 L6,22 Z"/><path d="M80,6 L87,2 L94,6 L94,14 L87,18 L80,14 Z"/>' +
+  '<path d="M78,80 L85,76 L92,80 L92,88 L85,92 L78,88 Z"/><path d="M8,78 L15,74 L22,78 L22,86 L15,90 L8,86 Z"/></g>' +
+  '<g fill="#e89a10" opacity=".85"><path d="M30,97 Q33,86 36,97 Q33,101 30,97 Z"/><path d="M60,97 Q64,82 68,97 Q64,102 60,97 Z"/><path d="M3,48 Q12,52 3,57 Z"/></g>' +
+  '<ellipse cx="30" cy="22" rx="14" ry="6" fill="rgba(255,255,255,.45)" transform="rotate(-20 30 22)"/></svg>';
 function makeLeafEl(kind = 'v') {
   const el = document.createElement('div');
-  el.className = 'leaf' + (kind === 'B' ? ' bed' : '');
+  el.className = 'leaf' + (kind === 'B' ? ' bed' : kind === 'Y' ? ' honey' : '');
   el.dataset.kind = kind;
-  el.innerHTML = kind === 'B' ? BED_SVG : leafSVG();
+  el.innerHTML = kind === 'B' ? BED_SVG : kind === 'Y' ? HONEY_SVG : leafSVG();
   return el;
 }
 // Грядку прибрано — з неї вилазить овоч і лишається на цій клітинці.
@@ -3392,7 +3625,13 @@ async function spillLeaves([r, c]) {
     if (rr < 0 || rr >= N || cc < 0 || cc >= N) continue;
     if (noLayer(rr, cc)) continue;                       // на броньовану стіну й бурштин листя не лягає
     const d = Math.hypot(rr - r, cc - c) * 60;
-    setTimeout(() => { if (addLeaf(rr, cc, [r, c])) updateHud(); }, d);
+    setTimeout(() => {
+      if (honeyAt(rr, cc)) {   // листя лягає поверх меду й замінює його
+        const old = leaves[rr][cc]; leaves[rr][cc] = null;
+        old.classList.add('gone'); setTimeout(() => old.remove(), 450);
+      }
+      if (addLeaf(rr, cc, [r, c])) updateHud();
+    }, d);
   }
   await wait(700);
   updateHud();
@@ -3478,6 +3717,7 @@ function createBox(r, c, type) {
   if (type === AMBER) inner = AMBER_SVG;
   if (type === MOLE) inner = MOLE_HILL_SVG + '<i class="mbody">' + MOLE_SVG + '</i>';
   if (type === ORB || type === DORB) inner = ORB_HTML;
+  if (type === HIVE) inner = HIVE_HTML;
   if (type === COLORBOX) inner = '<i class="cbBody"></i><div class="cbGem"><div class="face"></div></div><i class="cbBar"><i></i></i><i class="cbCount"></i>';
   if (type === PADLOCK) inner = LOCK_SVG;
   if (type === GRILL) inner = GRILL_SVG + '<i class="gsmoke"><i></i><i></i><i></i></i>';
@@ -3535,7 +3775,7 @@ function tearWeb(gem, r, c) {
   floatText('+30', r, c, '#e8e8ff');
   updateHud();
 }
-const locked = g => g && (g.web || g.spider || g.eggs);
+const locked = g => g && (g.web || g.spider || g.eggs || g.bee);
 const isObstacle = g => g && ((isBox(g.type) && !g.broken) || locked(g));
 const movable = g => g && !isBox(g.type) && !locked(g);
 const isFree = (r, c) => isNormal(grid[r][c].type) && !locked(grid[r][c]) && !grid[r][c].veg;
@@ -3605,6 +3845,7 @@ function hitBox(r, c) {
     if (!hitBox.lastTink || now - hitBox.lastTink > 120) { sfx.coreTink(); hitBox.lastTink = now; }
     return;
   }
+  if (box.bee) { killBee(box, r, c); return; }
   if (box.spider) { killSpider(box, r, c); return; }
   if (box.web) { tearWeb(box, r, c); return; }       // спершу рветься павутина
   if (box.eggs) { breakEggs(box, r, c); return; }     // потім — яйця
@@ -3638,7 +3879,7 @@ function hitBox(r, c) {
        [GENERATOR]: () => { sfx.metalBreak(); sfx.slimeBreak(); },
        [NAILGUN]: () => sfx.metalBreak(), [TNT]: () => sfx.woodBreak(),
        [TESLA]: () => { sfx.lightning(); sfx.teslaZap(true); },
-       [JACK]: () => sfx.cardBreak(), [STONE]: () => sfx.stoneBreak(), [STONEPICK]: () => sfx.stoneBreak(), [MIXER]: () => sfx.metalBreak(), [MIRROR]: () => sfx.glassBreak(), [MIRROR2]: () => sfx.glassBreak(), [STONEFROG]: () => sfx.stoneBreak(), [STONEWALL]: () => sfx.stoneBreak(), [CARDWALL]: () => sfx.cardBreak(), [BASKET]: () => sfx.cardBreak(), [GRILL]: () => sfx.metalBreak(), [MOLE]: () => sfx.moleHit(), [ORB]: () => sfx.glassBreak(), [DORB]: () => sfx.glassBreak(), [BIN]: () => sfx.binTip(), [CRYSTAL]: () => sfx.crystalBreak() })[box.type]?.();
+       [JACK]: () => sfx.cardBreak(), [STONE]: () => sfx.stoneBreak(), [STONEPICK]: () => sfx.stoneBreak(), [MIXER]: () => sfx.metalBreak(), [MIRROR]: () => sfx.glassBreak(), [MIRROR2]: () => sfx.glassBreak(), [STONEFROG]: () => sfx.stoneBreak(), [STONEWALL]: () => sfx.stoneBreak(), [CARDWALL]: () => sfx.cardBreak(), [BASKET]: () => sfx.cardBreak(), [GRILL]: () => sfx.metalBreak(), [MOLE]: () => sfx.moleHit(), [ORB]: () => sfx.glassBreak(), [DORB]: () => sfx.glassBreak(), [HIVE]: () => sfx.woodBreak(), [BIN]: () => sfx.binTip(), [CRYSTAL]: () => sfx.crystalBreak() })[box.type]?.();
     if (box.type !== BROOM) shatter(r, c, box.nailgun ? ['#8fb8ec', '#5b8fd6', '#2c5394', '#f0e1b4'] : info.shards, box.type === REINFORCED || box.type === GENERATOR ? 12 : 8);
     if (box.type === NAILGUN) [[0,1],[0,-1],[1,0],[-1,0]].forEach(d => fireNail(r, c, d));   // цвяхи в усі 4 боки
     if (box.type === TNT) tntExplode(r, c);
@@ -3685,6 +3926,7 @@ function hitBox(r, c) {
     }
     if (box.type === GENERATOR) pendingFill.push([r, c]);   // зона 3×3 заллється слизом
     if (box.type === BIN) pendingSpill.push([r, c]);        // 2: бак перекидається — листя 5×5
+    if (box.type === HIVE) pendingHive.push([r, c]);        // вулик розвалився — мед 3×3 і 3 бджоли
     if (box.type === GRILL) grillBlast(box, r, c);          // повний мангал вибухає 3×3
     if (box.type === ORB || box.type === DORB) orbBurst(box, r, c);   // скляний шар — додаткові ходи, чорна сфера — забирає ходи
     if (box.type === MOLE) moleDefeated(box, r, c);         // кріт переможений — проковтнуті ключі вилітають
@@ -3726,6 +3968,9 @@ function hitBox(r, c) {
     // 1–2 удари: скло тріскається, туман усередині закручується швидше
     el.classList.add('crack' + (BOX_INFO[box.type].hp - box.hp));
     sfx.orbHit(BOX_INFO[box.type].hp - box.hp);
+  } else if (box.type === HIVE) {
+    el.classList.add('crack' + (BOX_INFO[HIVE].hp - box.hp));   // тріщини, мед капає, бджоли злішають
+    sfx.hiveHit();
   } else if (box.type === CRYSTAL) {
     setCrystalStage(box);
     sfx.crystalHit(BOX_INFO[CRYSTAL].hp - box.hp);
@@ -3800,7 +4045,7 @@ async function spreadSlime() {
     if (!g || g.type !== SLIME || g.broken) continue;
     [[1,0],[-1,0],[0,1],[0,-1]].forEach(([dr, dc]) => {
       const rr = r + dr, cc = c + dc;
-      if (rr >= 0 && rr < N && cc >= 0 && cc < N && isFreeV(rr, cc) && !inAura(rr, cc)) options.push([r, c, rr, cc]);
+      if (rr >= 0 && rr < N && cc >= 0 && cc < N && isFreeV(rr, cc) && !inAura(rr, cc) && !honeyAt(rr, cc)) options.push([r, c, rr, cc]);
     });
   }
   if (!options.length) return;
@@ -3811,7 +4056,7 @@ async function spreadSlime() {
 
 // Перетворює фішки на слиз (з анімацією)
 async function makeSlime(cells) {
-  cells = cells.filter(([r, c]) => !inAura(r, c));   // біля кристала слиз не з'являється
+  cells = cells.filter(([r, c]) => !inAura(r, c) && !honeyAt(r, c));   // біля кристала й на меду слиз не з'являється
   if (!cells.length) return;
   cells.forEach(([r, c]) => {
     const g = grid[r][c];
@@ -3839,7 +4084,7 @@ async function runGenerators() {
     const opts = [];
     for (const [dr, dc] of [[1,0],[-1,0],[0,1],[0,-1]]) {
       const rr = r + dr, cc = c + dc;
-      if (rr >= 0 && rr < N && cc >= 0 && cc < N && isFreeV(rr, cc) && !inAura(rr, cc) &&
+      if (rr >= 0 && rr < N && cc >= 0 && cc < N && isFreeV(rr, cc) && !inAura(rr, cc) && !honeyAt(rr, cc) &&
           !targets.some(([a, b]) => a === rr && b === cc)) opts.push([rr, cc]);
     }
     if (!opts.length) continue;
@@ -4063,6 +4308,7 @@ async function mixerSuck(box) {
   let sucked = 0;
   for (let rr = r - 2; rr <= r + 2; rr++) for (let cc = c - 2; cc <= c + 2; cc++) {
     if (rr < 0 || rr >= N || cc < 0 || cc >= N || !leaves[rr][cc]) continue;
+    if (honeyAt(rr, cc) && Math.max(Math.abs(rr - r), Math.abs(cc - c)) > 1) continue;   // мед зриває лише в зоні 3×3
     const lf = leaves[rr][cc];
     leaves[rr][cc] = null;
     if (lf.dataset.kind === 'B') bedVeg(rr, cc);
@@ -4287,8 +4533,8 @@ async function spiderTurn() {
     const spiders = [], webs = [];
     for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
       const g = grid[r][c];
-      if (g?.spider) spiders.push([r, c]);
-      else if (g?.web && !g.eggs) webs.push([r, c]);
+      if (g?.spider && !honeyAt(r, c)) spiders.push([r, c]);   // павук у меду яєць не відкладає
+      else if (g?.web && !g.eggs && !g.bee && !honeyAt(r, c)) webs.push([r, c]);
     }
     if (spiders.length && webs.length) {
       const near = webs.filter(([r, c]) => spiders.some(([a, b]) => Math.abs(a - r) + Math.abs(b - c) === 1));
@@ -4399,6 +4645,7 @@ function spawnCell(r, c, ch) {
     grid[r][c] = createGem(r, c, rand());
     if (ch === 'x') addWeb(grid[r][c]);
     if (ch === 'p') addSpider(r, c);
+    if (ch === 'Z') addBee(r, c);
     if (ch === 'Q') makeKey(grid[r][c]);   // ключ, схований під стіною
   }
   return grid[r][c];
@@ -4450,7 +4697,8 @@ async function settle() {
         for (const box of pendingSuck.splice(0)) await mixerSuck(box);
         continue;
       }
-      if (!pendingJack.length && !pendingMixer.length && !pendingSpill.length && !pendingBroom.length && !pendingVeg.length && !pendingSpell.length) return;
+      if (!pendingJack.length && !pendingMixer.length && !pendingSpill.length && !pendingBroom.length && !pendingVeg.length && !pendingSpell.length && !pendingHive.length) return;
+      if (pendingHive.length) { for (const h of pendingHive.splice(0)) await hiveBurst(h); continue; }
       if (pendingSpell.length) { for (const sp of pendingSpell.splice(0)) await castSpell(sp); continue; }
       for (const v of pendingVeg.splice(0)) await basketThrow(v);
       for (const pos of pendingSpill.splice(0)) await spillLeaves(pos);
@@ -4520,17 +4768,41 @@ async function moveSpiders() {
   for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) if (grid[r][c]?.spider) list.push([r, c]);
   const taken = new Set();
   let moved = false;
+  // бджоли, що застрягли в павутині
+  const prey = [];
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) if (grid[r][c]?.bee?.stuck) prey.push([r, c]);
   for (const [r, c] of list) {
-    const opts = [[1,0],[-1,0],[0,1],[0,-1]].map(([dr, dc]) => [r + dr, c + dc])
+    if (honeyAt(r, c)) continue;   // павук у меду застряг: не повзе, не плете
+    // застрягла бджола поруч (до 3 клітинок) — павук повзе до неї, а дістався — з'їдає
+    const near = prey.filter(([y, x]) => Math.max(Math.abs(y - r), Math.abs(x - c)) <= 3 && grid[y][x]?.bee)
+      .sort((a, b) => (Math.abs(a[0] - r) + Math.abs(a[1] - c)) - (Math.abs(b[0] - r) + Math.abs(b[1] - c)))[0];
+    if (near && Math.abs(near[0] - r) + Math.abs(near[1] - c) === 1 && !taken.has(key(...near))) {
+      const [nr, nc] = near, from = grid[r][c], to = grid[nr][nc];
+      taken.add(key(nr, nc));
+      killBee(to, nr, nc, false);
+      floatText('😋', nr, nc, '#ff9a9a');
+      to.spider = true; to.spiderEl = from.spiderEl; to.el.classList.add('spidered');
+      from.spider = false; from.spiderEl = null; from.el.classList.remove('spidered');
+      placeSpider(to.spiderEl, nr, nc);
+      if (!inAura(r, c) && !honeyAt(r, c)) setTimeout(() => addWeb(from), 180);
+      moved = true;
+      continue;
+    }
+    let opts = [[1,0],[-1,0],[0,1],[0,-1]].map(([dr, dc]) => [r + dr, c + dc])
       .filter(([rr, cc]) => rr >= 0 && rr < N && cc >= 0 && cc < N && isFreeV(rr, cc) && !taken.has(key(rr, cc)));   // павук лізе й на овочі — накриває їх павутиною
     if (!opts.length) continue;
+    if (near) {   // крок у бік бджоли
+      const dist = ([y, x]) => Math.abs(y - near[0]) + Math.abs(x - near[1]);
+      const best = Math.min(...opts.map(dist));
+      opts = opts.filter(o => dist(o) === best);
+    }
     const [nr, nc] = opts[Math.floor(Math.random() * opts.length)];
     taken.add(key(nr, nc));
     const from = grid[r][c], to = grid[nr][nc];
     to.spider = true; to.spiderEl = from.spiderEl; to.el.classList.add('spidered');
     from.spider = false; from.spiderEl = null; from.el.classList.remove('spidered');
     placeSpider(to.spiderEl, nr, nc);
-    if (!inAura(r, c)) setTimeout(() => addWeb(from), 180);   // лишає павутину там, де сидів (біля кристала — ні)
+    if (!inAura(r, c) && !honeyAt(r, c)) setTimeout(() => addWeb(from), 180);   // лишає павутину там, де сидів (біля кристала й на меду — ні)
     moved = true;
   }
   if (!moved) return;
@@ -4550,7 +4822,7 @@ function applyPendingFill() {
       if (r < 0 || r >= N || c < 0 || c >= N) continue;
       const g = grid[r][c];
       if (g && !(isNormal(g.type) && !locked(g))) continue;  // інші перешкоди, бонуси, павутину не чіпаємо
-      if (inAura(r, c)) continue;                           // біля кристала слиз не з'являється
+      if (inAura(r, c) || honeyAt(r, c)) continue;          // біля кристала й на меду слиз не з'являється
       if (g) removeGemEl(g);                                 // овоч слиз змітає
       grid[r][c] = createBox(r, c, SLIME);
       grid[r][c].el.classList.add('grow');
@@ -5119,6 +5391,7 @@ async function trySwap(a, b) {
     await flipMirrors();
     await runGenerators();
     if (!slimeHit) await spreadSlime();
+    await beeTurn();
     await spiderTurn();
     await moleTurn();
   }
@@ -5644,7 +5917,7 @@ $('soundBtn').onclick = () => {
 
 // ===================== Рівні з JSON =====================
 // Формат: { "levels": [ { "name": "...", "moves": 20, "map": ["........", ... 8 рядків по 8 символів] } ] }
-const MAP_CHARS = '.cnwtrsgxpeojkqmbzyfadhiKGPQXAMWOD';
+const MAP_CHARS = '.cnwtrsgxpeojkqmbzyfadhiKGPQXAMWODHZ';
 function parseLevels(data) {
   const list = Array.isArray(data) ? data : data?.levels;
   if (!Array.isArray(list) || !list.length) throw new Error('у файлі немає списку "levels"');
@@ -5674,7 +5947,7 @@ function parseLevels(data) {
     if (Array.isArray(lv.ambers)) out.ambers = lv.ambers.filter(b => map[b?.r]?.[b?.c] === 'A').map(b => ({ r: b.r, c: b.c, color: Math.max(0, Math.min(TYPES - 1, Math.round(+b.color) || 0)) }));
     // leaves — шар осіннього листя: v — клітинка вкрита листям
     if (Array.isArray(lv.leaves) && lv.leaves.length === N)
-      out.leaves = lv.leaves.map(row => [...String(row).padEnd(N, '.').slice(0, N)].map(ch => ch === 'v' || ch === 'B' ? ch : '.').join(''));
+      out.leaves = lv.leaves.map(row => [...String(row).padEnd(N, '.').slice(0, N)].map(ch => ch === 'v' || ch === 'B' || ch === 'Y' ? ch : '.').join(''));
     return out;
   });
 }
@@ -5718,10 +5991,11 @@ function levelBase(def) {
     if (ch in BOX_CHARS) { const t = BOX_CHARS[ch]; if (t !== WALL) b += BOX_INFO[t].pts * (t === MOLE ? MOLE_COUNT : 1); if (ch === 'n') b += BOX_INFO[NAILGUN].pts; }
     if (ch === 'x') b += 30;
     if (ch === 'p') b += 80;
+    if (ch === 'Z') b += 60;
     const cv = def.cover?.[r]?.[c];
     if (cv === 'l') b += BOX_INFO[STONEWALL].pts; else if (cv === 'u') b += BOX_INFO[CARDWALL].pts; else if (cv === 'C') b += BOX_INFO[CHAIN].pts;
     const lf = def.leaves?.[r]?.[c];
-    if (lf === 'v' || lf === 'B') b += 20;
+    if (lf === 'v' || lf === 'B' || lf === 'Y') b += 20;
   }));
   return b;
 }
@@ -5856,6 +6130,9 @@ const INTRO = {
   h: ["Мітла", "Змете зі шляху опале листя, павутиння та надокучливий слиз"],
   M: ['Кріт', 'Підземні бешкетники риють нори й нищать фішки. Бийте кротів, коли вони визирають назовні.'],
   O: ['Скляний шар', 'Майбутнє прихильне до тих, хто вміє чекати. Доля винагородить вас додатковими ходами.'],
+  Y: ['Медовий покрив', 'Солодкий, липкий і дуже впертий. Слиз і павутина на ньому не тримаються, а павук, що в нього вліз, застрягає назавжди. Мітла в ньому теж грузне.'],
+  Z: ['Бджола', 'Непосидюча трудівниця: щоходу перелітає деінде й лишає по собі мед. Слиз їй не завада, овочі вона збирає для вас, а от павутина — пастка, і павуки про це знають.'],
+  H: ['Вулик', 'Три удари — і вулик розвалиться: мед розтечеться довкола, а розлючені бджоли розлетяться по столу.'],
   D: ['Чорна сфера', 'У чорній безодні застигло пророцтво неминучої поразки. Три удари звільнять його — і час обернеться проти вас.'],
   W: ['Кріт-чародій', 'Поки звичайні кроти їли хробаків і гризли корінці, цей закінчував академію магічних наук — на двієчку, звичайно, але все ж.'],
   A: ['Бурштин', 'Застигла магія з талантом перефарбовувати світ. Також знищує слиз і павутину.'],
@@ -5875,9 +6152,9 @@ function introTile(ch) {
   const tile = document.createElement('div');
   tile.className = 'introTile';
   let g;
-  if (ch === 'v' || ch === 'B') tile.appendChild(makeLeafEl(ch));
-  if (ch === 'x' || ch === 'p' || ch === 'v' || ch === 'B') {
-    g = createGem(0, 0, ch === 'v' ? 2 : ch === 'B' ? 1 : 0);
+  if (ch === 'v' || ch === 'B' || ch === 'Y') tile.appendChild(makeLeafEl(ch));
+  if (ch === 'x' || ch === 'p' || ch === 'v' || ch === 'B' || ch === 'Y' || ch === 'Z') {
+    g = createGem(0, 0, ch === 'v' ? 2 : ch === 'B' ? 1 : ch === 'Y' ? 3 : ch === 'Z' ? 4 : 0);
     if (ch === 'x') addWeb(g);
   } else {
     if (ch === 'Q') { g = createGem(0, 0, 0); makeKey(g); }
@@ -5896,6 +6173,7 @@ function introTile(ch) {
     sp.className = 'spiderEl'; sp.innerHTML = SPIDER_SVG;
     tile.appendChild(sp);
   }
+  if (ch === 'Z') { const be = makeBeeEl(); be.remove(); tile.appendChild(be); }
   return tile;
 }
 let introPending = [];
@@ -5909,7 +6187,7 @@ function showIntro(def) {
       if (cv === 'C' && INTRO[ch]) found.add(ch);   // під ланцюгами все видно (під стінами — секрет)
     } else if (INTRO[ch]) found.add(ch);
     if (ch === 'P') found.add('Q');   // є замок — буде й ключ
-    if ((def.leaves?.[r][c] === 'v' || def.leaves?.[r][c] === 'B') && ch !== 'a') found.add(def.leaves[r][c]);
+    if ((def.leaves?.[r][c] === 'v' || def.leaves?.[r][c] === 'B' || def.leaves?.[r][c] === 'Y') && ch !== 'a') found.add(def.leaves[r][c]);
   }));
   introPending = Object.keys(INTRO).filter(ch => found.has(ch) && !seen[ch]);
   if (!introPending.length) { $('intro').classList.remove('show'); return; }
