@@ -726,6 +726,7 @@
   @keyframes ghostBoo { from { transform: scale(.2); opacity: 0; } }
   .gem.haunted.shrug .ghostEl { animation: ghostShrug .3s; }
   @keyframes ghostShrug { 50% { transform: translateX(-4px) rotate(-10deg); } }
+  .box.haunt .crate { filter: drop-shadow(0 0 5px rgba(205,218,255,.95)); }
   .ghostFly { position: absolute; left: 0; top: 0; width: var(--cell); height: var(--cell); padding: calc(var(--cell) * .08); z-index: 18; pointer-events: none; }
   /* ===== Бджола ===== */
   .beeEl { position: absolute; left: 0; top: 0; width: var(--cell); height: var(--cell); z-index: 8; pointer-events: none; }
@@ -1366,7 +1367,7 @@
     💎 магічний кристал — 8 ударів; з кожним змінює колір від темно-синього до багряно-червоного, останні удари — з тріщинами й дрижанням. Розбитий, лишає випадкову суперкомбінацію (червону жабу, фіолетову блискавку або велику бомбу), яка одразу спрацьовує. Кірка вважає його каменем. Кожна блискавка, що влучила в кристал, породжує ще одну — зелену, поперек; зелена блискавка інших кристалів не зачіпає. У зоні 3×3 довкола кристала не з'являються слиз і павутина, а павук, що туди заліз, гине. Якщо кристал з'являється посеред гри (з-під кам'яної стіни чи від клоуна), він одразу знищує павутину, слиз і павуків у своїй зоні<br>
     🧹 мітла — від 1 удару злітає і летить по прямій, вичищаючи листя, слиз і павутину (фішки лишаються). Напрямок обирає за пріоритетом: найбільше листя, потім слизу, потім павутини, потім інших мітел, потім довший шлях. Інші мітли пролітає наскрізь, зачіпаючи їх (вони теж злітають). Наткнувшись на іншу перешкоду, розвертається; долетівши до стінки (краю поля чи броньованої стіни) — з хрустом ламається<br>
     🦫 кріт — спершу риє нору (невразлива; фішка на її місці знищується, овоч зараховується, бонус спрацьовує). Наступного ходу вилазить кріт — 1 удар (комбінація поруч, бонус). Не вдарили за цей хід — ховається й риє нору деінде. У норі 3 кроти: переможеного через хід змінює наступний, а коли переможено всіх трьох — нора зникає. Вилазячи, кріт: з'їдає павуків поруч, знищує слиз довкола, ковтає ключ (той вилетить, коли крота переможуть; доки ключ у кроті, новий не випадає), перевертає сміттєбак, б'є кошик, а на грядці — вириває овоч. Кристал поруч убиває крота<br>
-    👻 привид — вселяється у фішку: вона стає напівпрозорою, але її можна рухати. Комбінація поруч (чи з цією фішкою), бонус або удар перешкоди — привид показується. Ще один удар наступного ходу — і він вилітає за екран. Не встигли — перелітає на іншу фішку (може сховатися й під ланцюгами) і знову ховається. Мітла робить привида видимим; бетономішалка схованого показує, а видимого затягує й викидає за екран. Біля кристала привид сховатися не може (але кристал його не знищує)<br>
+    👻 привид — вселяється у фішку: вона стає чорно-білою, але її можна рухати. Комбінація поруч (чи з цією фішкою), бонус або удар перешкоди — привид показується. Ще один удар — у наступній комбінації каскаду чи наступного ходу — і він вилітає за екран. Не встигли — перелітає на іншу фішку (може сховатися й під ланцюгами) і знову ховається. Мітла робить привида видимим; бетономішалка схованого показує, а видимого затягує й викидає за екран. Біля кристала привид сховатися не може (але кристал його не знищує). Дзеркало, біля якого є привид, завжди обернене крихкою стороною<br>
     🍯 медовий покрив — лежить під фішками, як листя; щоб пройти рівень, його треба прибрати. На меду не з'являються слиз і павутина; павук, що заліз у мед, застрягає (не повзе, не плете павутину й не відкладає яєць); кріт, що виліз на меду, вже не може сховатися; мітла застрягає в першій клітинці з медом і ламається, прибравши його; бетономішалка зриває мед у зоні 3×3; листя зі сміттєбака лягає поверх меду, замінюючи його<br>
     🐝 бджола — сидить на фішці (фішку не можна рухати); щоходу перелітає на випадкову клітинку й лишає мед там, звідки полетіла. На грядки не сідає; сівши на слиз — знищує його, на овоч — збирає його для вас. У павутині застрягає, а павук поруч повзе до неї й з'їдає. Гине з 1 удару; кристал убиває бджіл і прибирає мед довкола себе<br>
     🛖 вулик — 3 удари; розбитий заливає медом зону 3×3 (крім грядок) і випускає 3 бджоли<br>
@@ -1833,6 +1834,7 @@ function startLevel(i) {
   // чорна сфера біля кристала вже на старті — скляна
   for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) if (grid[r][c]?.type === DORB && crystalNear(r, c)) healDorb(grid[r][c], r, c, null, false);
   for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) if (grid[r][c]?.ghost && inAura(r, c)) revealGhost(grid[r][c], r, c, true);
+  ghostMirrors(true);
   // шар листя
   def.leaves?.forEach((row, r) => [...row].forEach((ch, c) => { if ((ch === 'v' || ch === 'B' || ch === 'Y') && !noLayer(r, c)) addLeaf(r, c, null, ch); }));
   $('overlay').classList.remove('show');
@@ -2527,7 +2529,7 @@ const GHOST_SVG = '<svg viewBox="0 0 100 100">' +
   '<circle cx="30" cy="56" r="4.5" fill="#ffb3c8" opacity=".75"/><circle cx="70" cy="56" r="4.5" fill="#ffb3c8" opacity=".75"/></svg>';
 function makeGhost(g, state = 'hidden', anim = false) {
   if (!g) return;
-  g.ghost = { state, shownTurn: turn };
+  g.ghost = { state, shownTurn: turn, shownWave: hitWave };
   if (!g.el.querySelector('.ghostEl')) { const e = document.createElement('i'); e.className = 'ghostEl'; e.innerHTML = GHOST_SVG; g.el.appendChild(e); }
   g.el.classList.toggle('ghosted', state === 'hidden');
   g.el.classList.toggle('haunted', state === 'shown');
@@ -2540,6 +2542,7 @@ function revealGhost(g, r, c, quiet = false) {
   if (!g?.ghost || g.ghost.state !== 'hidden') return;
   g.ghost.state = 'shown';
   g.ghost.shownTurn = turn;
+  g.ghost.shownWave = hitWave;
   g.el.classList.remove('ghosted', 'possess');
   g.el.classList.add('haunted', 'boo', 'unpossess');
   setTimeout(() => g.el.classList.remove('boo', 'unpossess'), 500);
@@ -2549,11 +2552,12 @@ function ghostOff(g) {
   g.ghost = null;
   g.el.classList.remove('ghosted', 'haunted', 'boo', 'shrug', 'possess', 'unpossess');
   g.el.querySelector('.ghostEl')?.remove();
+  ghostMirrors(true);   // привид пішов — дзеркала поруч знову звичайні
 }
 // привид отримав удар: схований — показується; видимий з минулого ходу — вилітає за екран
 function hitGhost(g, r, c) {
   if (g.ghost.state === 'hidden') { revealGhost(g, r, c); return; }
-  if (turn > g.ghost.shownTurn) { ghostBye(g, r, c); return; }
+  if (turn > g.ghost.shownTurn || hitWave > g.ghost.shownWave) { ghostBye(g, r, c); return; }   // наступний хід або наступна комбінація каскаду
   g.el.classList.remove('shrug'); g.el.getBoundingClientRect(); g.el.classList.add('shrug');   // цього ж ходу — лише ухиляється
 }
 function ghostBye(g, r, c) {
@@ -2625,6 +2629,7 @@ async function ghostTurn() {
     }));
   }
   if (jobs.length) { sfx.ghostMove(); await Promise.all(jobs); }
+  if (ghostMirrors()) await wait(450);
   // схований привид, якого занесло в зону кристала, показується
   for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
     const g = grid[r][c];
@@ -4315,11 +4320,32 @@ function landCores() {
 // 🔄 Бетономішалка: швидко крутиться, затягує звичайні фішки 3×3, рахує однакові і розвалюється.
 // Бонуси з'являються поруч пізніше (у settle), коли фішки вже впали.
 // 🪞 Щоходу всі дзеркала перевертаються, як монета
+// привид поруч (у зоні 3×3, зокрема під ланцюгами)
+const ghostNear = (r, c) => N8.some(([dr, dc]) => { const g = grid[r + dr]?.[c + dc]; const h = g?.type === CHAIN ? g.inner : g; return !!h?.ghost; });
+// дзеркала біля привида завжди обернені крихкою (скляною) стороною й ледь світяться
+function ghostMirrors(quiet = false) {
+  let any = false;
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
+    const g = grid[r][c];
+    if (!g || !isMirror(g.type) || g.broken) continue;
+    const near = ghostNear(r, c);
+    g.el.classList.toggle('haunt', near);
+    if (near && !g.glass) { g.glass = true; g.el.classList.add('glass'); any = true; }
+  }
+  if (any && !quiet) sfx.mirrorFlip();
+  return any;
+}
 async function flipMirrors() {
   let any = false;
   for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
     const g = grid[r][c];
     if (!g || !isMirror(g.type) || g.broken) continue;
+    const near = ghostNear(r, c);
+    g.el.classList.toggle('haunt', near);
+    if (near) {   // поруч привид — дзеркало не перевертається, лишається скляним
+      if (!g.glass) { g.glass = true; g.el.classList.add('glass'); any = true; }
+      continue;
+    }
     g.glass = !g.glass;
     g.el.classList.toggle('glass', g.glass);
     any = true;
@@ -4574,6 +4600,7 @@ async function pickaxeRun(r, c) {
 
 // 🤡 Шкатулка розкидає 3 випадкові перешкоди (крім шкатулки)
 let turn = 0;                     // скільки ходів зроблено на рівні
+let hitWave = 0;                  // «хвиля» ударів: кожна комбінація каскаду, хвиля вибухів, крок осідання поля — нова хвиля
 const pendingJack = [];
 const SCATTER = ['c', 'c', 'n', 'w', 'w', 't', 'r', 's', 'g', 'x', 'x', 'p', 'e', 'o', 'k', 'q', 'm', 'b', 'z', 'y', 'f', 'd', 'h', 'i', 'K'];
 const SCATTER_ICON = { c: '📦', n: '📦', w: '🪵', t: '🧨', r: '🛡️', s: '🟢', g: '⚙️', x: '🕸️', p: '🕷️', e: '⚡', o: '⚫', k: '🪨', q: '⛏️', m: '🔄', b: '🤖', z: '🪞', y: '🪞', f: '🗿', d: '🗑️', h: '🧹', i: '💎', K: '🧺' };
@@ -4837,6 +4864,7 @@ function absorbSpecial(r, c, type, [fr, fc]) {
 // Добиваємо все відкладене: цвяхи в польоті, вибухи TNT, зламані перешкоди
 async function settle() {
   for (let guard = 0; guard < 80; guard++) {
+    hitWave++;
     while (inFlight > 0) await wait(50);
     if (landCores()) { await wait(250); while (inFlight > 0) await wait(50); }
     if (pendingBolts.length) { await detonate(pendingBolts.splice(0)); await resolve(); continue; }
@@ -5126,6 +5154,7 @@ async function detonate(triggers, consumed = []) {
   let wave = triggers;
 
   while (wave.length) {
+    hitWave++;
     wave = wave.filter(t => {
       const k = t.virtual ? 'v' + key(t.r, t.c) + t.dir : key(t.r, t.c);   // кристал не знищується своєю ж блискавкою
       if (fired.has(k)) return false;
@@ -5541,6 +5570,7 @@ async function trySwap(a, b) {
     await resolve([a, b]);
   }
   await settle();
+  if (ghostMirrors()) await wait(450);   // фішку з привидом підсунули до дзеркала
   if (boxesLeft() > 0 && moves > 0) {
     await regenTeslas();
     await flipMirrors();
@@ -5558,6 +5588,7 @@ async function trySwap(a, b) {
 async function resolve(swap = null) {
   let combo = 1;
   while (true) {
+    hitWave++;
     const runs = findRuns();
     const squares = findSquares();
     if (!runs.length && !squares.length) break;
