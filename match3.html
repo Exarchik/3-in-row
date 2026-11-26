@@ -5559,7 +5559,7 @@ async function rainbowConvert(rbPos, otherPos, newType, dir) {
   const rb = grid[rr][rc];
   const cells = [];
   for (let r = 0; r < N; r++) for (let c = 0; c < N; c++)
-    if (grid[r][c].type === target && !locked(grid[r][c]) && !grid[r][c].veg) cells.push([r, c]);
+    if (grid[r][c].type === target && !locked(grid[r][c]) && !grid[r][c].veg && !grid[r][c].ghost) cells.push([r, c]);
 
   rb.el.classList.add('charging');
   sfx.rainbow();
@@ -5767,7 +5767,7 @@ async function resolve(swap = null) {
     if (specials.length) {
       const names = { [RAINBOW]: '🌈 Куля!', [BOMB]: '💣 Бомба!', [LIGHTNING]: '⚡ Блискавка!', [FROG]: '🐸 Жабка!' };
       specials.forEach(({ r, c, type }) => {
-        if (grid[r][c]?.ghost) {   // на фішці з привидом бонус не з'являється — переносимо на вільну клітинку комбінації
+        if (grid[r][c]) {   // клітинка не звільнилась (фішка з привидом, павутиною, павуком, бджолою) — бонус на вільну клітинку комбінації, інакше стара фішка лишилась би під ним
           const alt = matches.find(([y, x]) => !grid[y][x]);
           if (!alt) return;
           [r, c] = alt;
