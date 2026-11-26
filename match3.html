@@ -728,6 +728,24 @@
   @keyframes ghostShrug { 50% { transform: translateX(-4px) rotate(-10deg); } }
   .box.haunt .crate { filter: drop-shadow(0 0 5px rgba(205,218,255,.95)); }
   .ghostFly { position: absolute; left: 0; top: 0; width: var(--cell); height: var(--cell); padding: calc(var(--cell) * .08); z-index: 18; pointer-events: none; }
+  /* ===== Кам'яний надгробок ===== */
+  .gem.box.tomb::before { display: none; }
+  .gem.box.tomb { z-index: 7; }   /* над чорно-білою зоною: сам надгробок барв не втрачає */
+  .tomb .crate { background: none; box-shadow: none; inset: 0; }
+  .tomb .tmb { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .tomb .tcr { fill: none; stroke: #3a3d43; stroke-width: 2.5; stroke-linecap: round; opacity: 0; }
+  .box.tomb.crack1 .tcr.c1, .box.tomb.crack2 .tcr { opacity: 1; }
+  .tomb .tglow { position: absolute; left: 20%; top: 4%; width: 60%; height: 60%; border-radius: 50%; opacity: 0; transition: opacity .5s;
+    background: radial-gradient(circle, rgba(215,225,255,.85), rgba(160,180,255,.25) 55%, transparent 72%); animation: tombGlow 1.8s ease-in-out infinite alternate; }
+  .box.tomb.occupied .tglow { opacity: 1; }
+  @keyframes tombGlow { to { transform: scale(1.18); } }
+  /* довкола надгробка світ чорно-білий */
+  .tombShade {
+    position: absolute; left: 0; top: 0; width: calc(var(--cell) * 3); height: calc(var(--cell) * 3); z-index: 6; pointer-events: none;
+    -webkit-backdrop-filter: grayscale(1); backdrop-filter: grayscale(1); border-radius: 14px;
+    background: radial-gradient(circle, rgba(20,20,35,0) 40%, rgba(20,20,35,.18)); transition: opacity .6s;
+  }
+  .tombShade.gone { opacity: 0; }
   /* ===== Бджола ===== */
   .beeEl { position: absolute; left: 0; top: 0; width: var(--cell); height: var(--cell); z-index: 8; pointer-events: none; }
   .beeEl i { position: absolute; left: 22%; top: 12%; width: 62%; height: 62%; animation: beeBob .9s ease-in-out infinite alternate; }
@@ -1368,6 +1386,7 @@
     🧹 мітла — від 1 удару злітає і летить по прямій, вичищаючи листя, слиз і павутину (фішки лишаються). Напрямок обирає за пріоритетом: найбільше листя, потім слизу, потім павутини, потім інших мітел, потім довший шлях. Інші мітли пролітає наскрізь, зачіпаючи їх (вони теж злітають). Наткнувшись на іншу перешкоду, розвертається; долетівши до стінки (краю поля чи броньованої стіни) — з хрустом ламається<br>
     🦫 кріт — спершу риє нору (невразлива; фішка на її місці знищується, овоч зараховується, бонус спрацьовує). Наступного ходу вилазить кріт — 1 удар (комбінація поруч, бонус). Не вдарили за цей хід — ховається й риє нору деінде. У норі 3 кроти: переможеного через хід змінює наступний, а коли переможено всіх трьох — нора зникає. Вилазячи, кріт: з'їдає павуків поруч, знищує слиз довкола, ковтає ключ (той вилетить, коли крота переможуть; доки ключ у кроті, новий не випадає), перевертає сміттєбак, б'є кошик, а на грядці — вириває овоч. Кристал поруч убиває крота<br>
     👻 привид — вселяється у фішку: вона стає чорно-білою, але її можна рухати. Комбінація поруч (чи з цією фішкою), бонус або удар перешкоди — привид показується. Ще один удар — у наступній комбінації каскаду чи наступного ходу — і він вилітає за екран. Не встигли — перелітає на іншу фішку (може сховатися й під ланцюгами) і знову ховається. Мітла робить привида видимим; бетономішалка схованого показує, а видимого затягує й викидає за екран. Біля кристала привид сховатися не може (але кристал його не знищує). Дзеркало, біля якого є привид, завжди обернене крихкою стороною<br>
+    🪦 кам'яний надгробок — 3 удари; клітинки довкола нього завжди чорно-білі. Завжди має свого привида (якщо привида немає — створює). Поки надгробок цілий, вигнаний привид повертається до нього, а через хід знову вселяється у фішку; розбили надгробок — його привид вилітає за край поля назавжди<br>
     🍯 медовий покрив — лежить під фішками, як листя; щоб пройти рівень, його треба прибрати. На меду не з'являються слиз і павутина; павук, що заліз у мед, застрягає (не повзе, не плете павутину й не відкладає яєць); кріт, що виліз на меду, вже не може сховатися; мітла застрягає в першій клітинці з медом і ламається, прибравши його; бетономішалка зриває мед у зоні 3×3; листя зі сміттєбака лягає поверх меду, замінюючи його<br>
     🐝 бджола — сидить на фішці (фішку не можна рухати); щоходу перелітає на випадкову клітинку й лишає мед там, звідки полетіла. На грядки не сідає; сівши на слиз — знищує його, на овоч — збирає його для вас. У павутині застрягає, а павук поруч повзе до неї й з'їдає. Гине з 1 удару; кристал убиває бджіл і прибирає мед довкола себе<br>
     🛖 вулик — 3 удари; розбитий заливає медом зону 3×3 (крім грядок) і випускає 3 бджоли<br>
@@ -1587,6 +1606,7 @@ const sfx = {
   orbHit: dmg => { tone(1300 + dmg * 300, { dur: 0.3, vol: 0.05, type: 'sine' }); tone(2600 + dmg * 400, { dur: 0.12, vol: 0.03, type: 'triangle', delay: 0.03 }); noise(0.06, 0.04, 6000); },
   orbPop: () => { [0, 3, 7, 12, 15, 19].forEach((n, i) => tone(784 * Math.pow(2, n / 12), { dur: 0.35, vol: 0.05, type: 'sine', delay: 0.15 + i * 0.06 })); noise(0.35, 0.14, 5500); },
   ghostBoo: () => { tone(330, { dur: 0.35, vol: 0.07, type: 'triangle', slide: 0.6 }); tone(495, { dur: 0.3, vol: 0.04, type: 'sine', slide: 0.6, delay: 0.04 }); },
+  ghostHome: () => { tone(500, { dur: 0.6, vol: 0.05, type: 'sine', slide: 0.5 }); noise(0.2, 0.03, 600); },
   ghostIn: () => { tone(700, { dur: 0.35, vol: 0.045, type: 'sine', slide: 0.45 }); tone(1050, { dur: 0.3, vol: 0.025, type: 'sine', slide: 0.4, delay: 0.06 }); },
   ghostMove: () => { tone(600, { dur: 0.5, vol: 0.04, type: 'sine', slide: 1.5 }); },
   ghostBye: () => { tone(900, { dur: 0.9, vol: 0.06, type: 'sine', slide: 0.25 }); tone(1350, { dur: 0.7, vol: 0.03, type: 'sine', slide: 0.3, delay: 0.05 }); },
@@ -1665,7 +1685,7 @@ const sfx = {
 // ===== Гра =====
 const N = 8, TYPES = 6;
 const RAINBOW = 6, BOMB = 7, LIGHTNING = 8, FROG = 9;
-const CARDBOARD = 10, WOOD = 11, REINFORCED = 12, SLIME = 13, GENERATOR = 14, NAILGUN = 15, TNT = 16, TESLA = 17, CORE = 18, JACK = 19, STONE = 20, STONEPICK = 21, MIXER = 22, ROBOT = 23, MIRROR = 24, MIRROR2 = 25, STONEFROG = 26, WALL = 27, STONEWALL = 28, BIN = 29, BROOM = 30, CRYSTAL = 31, CARDWALL = 32, BASKET = 33, GRILL = 34, CHAIN = 35, PADLOCK = 36, COLORBOX = 37, AMBER = 38, MOLE = 39, ORB = 40, DORB = 41, HIVE = 42;
+const CARDBOARD = 10, WOOD = 11, REINFORCED = 12, SLIME = 13, GENERATOR = 14, NAILGUN = 15, TNT = 16, TESLA = 17, CORE = 18, JACK = 19, STONE = 20, STONEPICK = 21, MIXER = 22, ROBOT = 23, MIRROR = 24, MIRROR2 = 25, STONEFROG = 26, WALL = 27, STONEWALL = 28, BIN = 29, BROOM = 30, CRYSTAL = 31, CARDWALL = 32, BASKET = 33, GRILL = 34, CHAIN = 35, PADLOCK = 36, COLORBOX = 37, AMBER = 38, MOLE = 39, ORB = 40, DORB = 41, HIVE = 42, TOMB = 43;
 const KEYT = -2;   // ключ — фішка без кольору: рухається й падає, але не збирається в комбінації
 // стіни-покриття (шар cover): l — кам'яна, u — картонна; під ними може ховатися перешкода
 const COVER_TYPES = { l: STONEWALL, u: CARDWALL };
@@ -1757,11 +1777,11 @@ function createGem(r, c, type, fromRow = r) {
   return gem;
 }
 
-const BOX_CHARS = { c: CARDBOARD, n: CARDBOARD, w: WOOD, r: REINFORCED, s: SLIME, g: GENERATOR, t: TNT, e: TESLA, o: CORE, j: JACK, k: STONE, q: STONEPICK, m: MIXER, b: ROBOT, z: MIRROR, y: MIRROR2, f: STONEFROG, a: WALL, d: BIN, h: BROOM, i: CRYSTAL, K: BASKET, G: GRILL, P: PADLOCK, X: COLORBOX, A: AMBER, M: MOLE, W: MOLE, O: ORB, D: DORB, H: HIVE };
+const BOX_CHARS = { c: CARDBOARD, n: CARDBOARD, w: WOOD, r: REINFORCED, s: SLIME, g: GENERATOR, t: TNT, e: TESLA, o: CORE, j: JACK, k: STONE, q: STONEPICK, m: MIXER, b: ROBOT, z: MIRROR, y: MIRROR2, f: STONEFROG, a: WALL, d: BIN, h: BROOM, i: CRYSTAL, K: BASKET, G: GRILL, P: PADLOCK, X: COLORBOX, A: AMBER, M: MOLE, W: MOLE, O: ORB, D: DORB, H: HIVE, T: TOMB };
 function startLevel(i) {
   level = i;
   const def = LEVELS[i] || randomLevel();
-  board.querySelectorAll('.gem, .beam, .bolt, .shock, .float, .combo, .shard, .tongue, .spiderEl, .nail, .dart, .leaf, .broomFx, .vegToss, .spellFx, .spellTrail, .orbRing, .orbStar, .beeEl, .ghostFly').forEach(e => e.remove());
+  board.querySelectorAll('.gem, .beam, .bolt, .shock, .float, .combo, .shard, .tongue, .spiderEl, .nail, .dart, .leaf, .broomFx, .vegToss, .spellFx, .spellTrail, .orbRing, .orbStar, .beeEl, .ghostFly, .tombShade').forEach(e => e.remove());
   document.querySelectorAll('.movesFly').forEach(e => e.remove());
   pendingFill.length = pendingClear.length = pendingDet.length = 0;
   inFlight = 0;
@@ -1813,6 +1833,7 @@ function startLevel(i) {
         if (ch === 'A') setupAmber(grid[r][c], def.ambers?.find(b => b.r === r && b.c === c));
         if (ch === 'O') setupOrb(grid[r][c], def.orbs?.find(b => b.r === r && b.c === c));
         if (ch === 'D') setupOrb(grid[r][c], def.darkorbs?.find(b => b.r === r && b.c === c));
+        if (ch === 'T') setupTomb(grid[r][c], r, c);
         continue;
       }
       let t;
@@ -1834,6 +1855,7 @@ function startLevel(i) {
   // чорна сфера біля кристала вже на старті — скляна
   for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) if (grid[r][c]?.type === DORB && crystalNear(r, c)) healDorb(grid[r][c], r, c, null, false);
   for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) if (grid[r][c]?.ghost && inAura(r, c)) revealGhost(grid[r][c], r, c, true);
+  initTombs();   // кожен надгробок прив'язує привида (або створює свого)
   ghostMirrors(true);
   // шар листя
   def.leaves?.forEach((row, r) => [...row].forEach((ch, c) => { if ((ch === 'v' || ch === 'B' || ch === 'Y') && !noLayer(r, c)) addLeaf(r, c, null, ch); }));
@@ -2174,6 +2196,7 @@ const BOX_INFO = {
   [STONEFROG]:  { cls: 'stonefrog',  hp: 1, pts: 300, shards: ['#9a9fa8', '#6c717b', '#4a4e56', '#ff9a3a'] },
   [MOLE]:       { cls: 'mole',       hp: 1, pts: 250, shards: ['#6b4318', '#8a5a2e', '#3d2a14', '#ff9ab0'] },
   [ORB]:        { cls: 'orb',        hp: 3, pts: 100, shards: ['#e6ecff', '#b9a6ff', '#7f5cff', '#ffffff', '#c9b27a'] },
+  [TOMB]:       { cls: 'tomb',       hp: 3, pts: 200, shards: ['#9aa0a8', '#6c717b', '#c3c8ce', '#5f8a4a'] },
   [HIVE]:       { cls: 'hive',       hp: 3, pts: 150, shards: ['#e8b04a', '#b5782a', '#7a4a1a', '#ffd23a'] },
   [DORB]:       { cls: 'orb dorb',   hp: 3, pts: 100, shards: ['#1a0a14', '#4a0a20', '#ff3b5c', '#2a2a2a', '#8a0020'] },
   [AMBER]:      { cls: 'amber',      hp: 1, pts: 50,   shards: ['#ffb43a'] },
@@ -2527,9 +2550,9 @@ const GHOST_SVG = '<svg viewBox="0 0 100 100">' +
   '<circle cx="41" cy="40" r="2" fill="#fff"/><circle cx="63" cy="40" r="2" fill="#fff"/>' +
   '<ellipse cx="50" cy="64" rx="5" ry="7" fill="#1d2340"/>' +
   '<circle cx="30" cy="56" r="4.5" fill="#ffb3c8" opacity=".75"/><circle cx="70" cy="56" r="4.5" fill="#ffb3c8" opacity=".75"/></svg>';
-function makeGhost(g, state = 'hidden', anim = false) {
+function makeGhost(g, state = 'hidden', anim = false, tomb = null) {
   if (!g) return;
-  g.ghost = { state, shownTurn: turn, shownWave: hitWave };
+  g.ghost = { state, shownTurn: turn, shownWave: hitWave, tomb };
   if (!g.el.querySelector('.ghostEl')) { const e = document.createElement('i'); e.className = 'ghostEl'; e.innerHTML = GHOST_SVG; g.el.appendChild(e); }
   g.el.classList.toggle('ghosted', state === 'hidden');
   g.el.classList.toggle('haunted', state === 'shown');
@@ -2561,7 +2584,13 @@ function hitGhost(g, r, c) {
   g.el.classList.remove('shrug'); g.el.getBoundingClientRect(); g.el.classList.add('shrug');   // цього ж ходу — лише ухиляється
 }
 function ghostBye(g, r, c) {
+  const tomb = g.ghost?.tomb;
+  if (tomb && !tomb.broken) { ghostHome(g, r, c, tomb); return; }   // поки надгробок цілий — привид летить додому
   ghostOff(g);
+  ghostFlyOff(r, c);
+}
+// привид вилітає за край поля (назавжди)
+function ghostFlyOff(r, c) {
   const el = document.createElement('div');
   el.className = 'ghostFly';
   el.innerHTML = GHOST_SVG;
@@ -2576,6 +2605,113 @@ function ghostBye(g, r, c) {
   sfx.ghostBye();
   score += 120; floatText('+120', r, c, '#ffd27a');
   updateHud();
+}
+// ===== Кам'яний надгробок =====
+// 3 удари; клітинки довкола завжди чорно-білі. Завжди має свого привида (немає вільного — створює).
+// Поки надгробок цілий, вигнаний привид повертається до нього, а через хід знову вселяється у фішку.
+// Надгробок розбито — його привид вилітає за край поля назавжди
+const TOMB_HTML = '<svg class="tmb" viewBox="0 0 100 100">' +
+  '<ellipse cx="50" cy="90" rx="40" ry="7" fill="#4a3420"/>' +
+  '<path d="M24,90 V40 Q24,12 50,12 Q76,12 76,40 V90 Z" fill="#9aa0a8" stroke="#4a4e56" stroke-width="3" stroke-linejoin="round"/>' +
+  '<path d="M30,86 V42 Q30,20 50,18" fill="none" stroke="#c9ced4" stroke-width="3" opacity=".6"/>' +
+  '<path d="M42,62 V49 Q42,39 50,39 Q58,39 58,49 V62 L55,59 L52.5,62 L50,59 L47.5,62 L45,59 Z" fill="none" stroke="#5a5e66" stroke-width="2.5" stroke-linejoin="round"/>' +
+  '<g fill="#5a5e66"><circle cx="47" cy="49" r="1.8"/><circle cx="53" cy="49" r="1.8"/></g>' +
+  '<path d="M35,72 H65 M38,79 H62" stroke="#6a6e76" stroke-width="2.5" stroke-linecap="round"/>' +
+  '<path d="M24,84 Q30,77 36,86 Q42,80 47,90 H24 Z" fill="#5f8a4a" opacity=".9"/><path d="M76,86 Q70,80 66,90 H76 Z" fill="#5f8a4a" opacity=".8"/>' +
+  '<path class="tcr c1" d="M60,20 L54,32 L60,40 L54,50"/>' +
+  '<path class="tcr c2" d="M30,46 L38,56 L33,64 M70,58 L62,68 L68,78"/></svg>' +
+  '<i class="tglow"></i>';
+function setupTomb(box, r, c) {
+  box.gstate = 'none';   // none — привида ще нема, out — привид на полі, home — привид у надгробку
+  box.homeTurn = 0;
+  const sh = document.createElement('div');
+  sh.className = 'tombShade';
+  sh.style.left = `calc(var(--cell) * ${c - 1})`; sh.style.top = `calc(var(--cell) * ${r - 1})`;
+  board.appendChild(sh);
+  box.shade = sh;
+}
+// усі привиди на полі (і під ланцюгами): [{ g, r, c }]
+function allGhosts() {
+  const out = [];
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
+    const g = grid[r][c], h = g?.type === CHAIN ? g.inner : g;
+    if (h?.ghost) out.push({ g: h, r, c });
+  }
+  return out;
+}
+function allTombs() {
+  const out = [];
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
+    const g = grid[r][c], h = g?.type === CHAIN ? g.inner : g;
+    if (h?.type === TOMB && !h.broken) out.push({ t: h, r, c });
+  }
+  return out;
+}
+// куди може вселитися привид: [[y, x, host]]
+function ghostSpots(exclude = []) {
+  const opts = [];
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+    if (exclude.some(([a, b]) => a === y && b === x)) continue;
+    const g = grid[y][x];
+    const host = g?.type === CHAIN ? g.inner : g;
+    if (ghostHost(host)) opts.push([y, x, host]);
+  }
+  return opts;
+}
+// на старті: кожен надгробок бере собі найближчого вільного привида, а як нема — створює свого
+function initTombs() {
+  const ghosts = allGhosts(), tombs = allTombs();
+  // пари «надгробок — привид» від найближчих
+  const pairs = [];
+  tombs.forEach(T => ghosts.forEach(G => pairs.push({ T, G, d: Math.hypot(G.r - T.r, G.c - T.c) })));
+  pairs.sort((a, b) => a.d - b.d).forEach(({ T, G }) => {
+    if (T.t.gstate !== 'none' || G.g.ghost.tomb) return;
+    G.g.ghost.tomb = T.t; T.t.gstate = 'out';
+  });
+  for (const { t } of tombs) {
+    if (t.gstate !== 'none') continue;
+    const spot = pick(ghostSpots());
+    if (!spot) continue;
+    makeGhost(spot[2], 'hidden', false, t);
+    ghosts.push({ g: spot[2], r: spot[0], c: spot[1] });
+    t.gstate = 'out';
+  }
+}
+// надгробок випускає свого привида: той вилітає з каменю й вселяється у фішку
+async function tombSpawn(t, r, c) {
+  const spot = pick(ghostSpots());
+  if (!spot) return false;
+  const [y, x, host] = spot;
+  t.gstate = 'out';
+  t.el.classList.remove('occupied');
+  sfx.ghostMove();
+  await ghostFly([r, c], [y, x]);
+  if (host.ghost || !ghostHost(host)) { t.gstate = 'home'; t.homeTurn = -1; t.el.classList.add('occupied'); return false; }   // місце зайняли — спробує наступного ходу
+  makeGhost(host, 'hidden', true, t);
+  sfx.ghostIn();
+  if (grid[y][x] === host && inAura(y, x)) revealGhost(host, y, x);
+  ghostMirrors();
+  return true;
+}
+// вигнаний привид летить додому, у надгробок
+function ghostHome(g, r, c, tomb) {
+  ghostOff(g);
+  tomb.gstate = 'home';
+  tomb.homeTurn = turn;
+  const pos = findGem(tomb) || (() => { for (const x of allTombs()) if (x.t === tomb) return [x.r, x.c]; return null; })();
+  floatText('🪦', r, c, '#cfd8ff');
+  sfx.ghostHome();
+  if (pos) ghostFly([r, c], pos).then(() => { if (!tomb.broken && tomb.gstate === 'home') tomb.el.classList.add('occupied'); });
+  else tomb.el.classList.add('occupied');
+}
+function tombBreak(box, r, c) {
+  box.shade?.classList.add('gone');
+  const sh = box.shade; setTimeout(() => sh?.remove(), 650);
+  box.el.classList.remove('occupied');
+  // привид надгробка зникає назавжди: з фішки, де сидить, або просто з каменю
+  if (box.gstate === 'home') ghostFlyOff(r, c);
+  else for (const x of allGhosts()) if (x.g.ghost.tomb === box) { x.g.ghost.tomb = null; ghostOff(x.g); ghostFlyOff(x.r, x.c); }
+  box.gstate = 'none';
 }
 // куди привид може вселитися: звичайна фішка (на полі чи під ланцюгами), без ключа, овоча, павутини, павука, бджоли
 const ghostHost = g => g && isNormal(g.type) && !g.ghost && !g.key && !g.veg && !g.pinned && !locked(g) && !g.broken;
@@ -2621,14 +2757,18 @@ async function ghostTurn() {
     if (!opts.length) continue;
     const [y, x, host] = pick(opts);
     taken.add(key(y, x));
+    const link = grid[r][c].ghost.tomb;
     ghostOff(grid[r][c]);
     jobs.push(ghostFly([r, c], [y, x]).then(() => {
-      makeGhost(host, 'hidden', true);
+      makeGhost(host, 'hidden', true, link);
       sfx.ghostIn();
       if (grid[y][x] === host && inAura(y, x)) revealGhost(host, y, x);   // біля кристала не сховаєшся
     }));
   }
   if (jobs.length) { sfx.ghostMove(); await Promise.all(jobs); }
+  // надгробки: привид, що повернувся додому минулого ходу (чи якого ще нема), знову вселяється у фішку
+  const spawns = allTombs().filter(({ t }) => t.gstate === 'none' || (t.gstate === 'home' && turn > t.homeTurn));
+  if (spawns.length) await Promise.all(spawns.map(({ t, r, c }) => tombSpawn(t, r, c)));
   if (ghostMirrors()) await wait(450);
   // схований привид, якого занесло в зону кристала, показується
   for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
@@ -3871,6 +4011,7 @@ function createBox(r, c, type) {
   if (type === MOLE) inner = MOLE_HILL_SVG + '<i class="mbody">' + MOLE_SVG + '</i>';
   if (type === ORB || type === DORB) inner = ORB_HTML;
   if (type === HIVE) inner = HIVE_HTML;
+  if (type === TOMB) inner = TOMB_HTML;
   if (type === COLORBOX) inner = '<i class="cbBody"></i><div class="cbGem"><div class="face"></div></div><i class="cbBar"><i></i></i><i class="cbCount"></i>';
   if (type === PADLOCK) inner = LOCK_SVG;
   if (type === GRILL) inner = GRILL_SVG + '<i class="gsmoke"><i></i><i></i><i></i></i>';
@@ -4033,7 +4174,7 @@ function hitBox(r, c) {
        [GENERATOR]: () => { sfx.metalBreak(); sfx.slimeBreak(); },
        [NAILGUN]: () => sfx.metalBreak(), [TNT]: () => sfx.woodBreak(),
        [TESLA]: () => { sfx.lightning(); sfx.teslaZap(true); },
-       [JACK]: () => sfx.cardBreak(), [STONE]: () => sfx.stoneBreak(), [STONEPICK]: () => sfx.stoneBreak(), [MIXER]: () => sfx.metalBreak(), [MIRROR]: () => sfx.glassBreak(), [MIRROR2]: () => sfx.glassBreak(), [STONEFROG]: () => sfx.stoneBreak(), [STONEWALL]: () => sfx.stoneBreak(), [CARDWALL]: () => sfx.cardBreak(), [BASKET]: () => sfx.cardBreak(), [GRILL]: () => sfx.metalBreak(), [MOLE]: () => sfx.moleHit(), [ORB]: () => sfx.glassBreak(), [DORB]: () => sfx.glassBreak(), [HIVE]: () => sfx.woodBreak(), [BIN]: () => sfx.binTip(), [CRYSTAL]: () => sfx.crystalBreak() })[box.type]?.();
+       [JACK]: () => sfx.cardBreak(), [STONE]: () => sfx.stoneBreak(), [STONEPICK]: () => sfx.stoneBreak(), [MIXER]: () => sfx.metalBreak(), [MIRROR]: () => sfx.glassBreak(), [MIRROR2]: () => sfx.glassBreak(), [STONEFROG]: () => sfx.stoneBreak(), [STONEWALL]: () => sfx.stoneBreak(), [CARDWALL]: () => sfx.cardBreak(), [BASKET]: () => sfx.cardBreak(), [GRILL]: () => sfx.metalBreak(), [MOLE]: () => sfx.moleHit(), [ORB]: () => sfx.glassBreak(), [DORB]: () => sfx.glassBreak(), [HIVE]: () => sfx.woodBreak(), [TOMB]: () => sfx.stoneBreak(), [BIN]: () => sfx.binTip(), [CRYSTAL]: () => sfx.crystalBreak() })[box.type]?.();
     if (box.type !== BROOM) shatter(r, c, box.nailgun ? ['#8fb8ec', '#5b8fd6', '#2c5394', '#f0e1b4'] : info.shards, box.type === REINFORCED || box.type === GENERATOR ? 12 : 8);
     if (box.type === NAILGUN) [[0,1],[0,-1],[1,0],[-1,0]].forEach(d => fireNail(r, c, d));   // цвяхи в усі 4 боки
     if (box.type === TNT) tntExplode(r, c);
@@ -4080,7 +4221,8 @@ function hitBox(r, c) {
     }
     if (box.type === GENERATOR) pendingFill.push([r, c]);   // зона 3×3 заллється слизом
     if (box.type === BIN) pendingSpill.push([r, c]);        // 2: бак перекидається — листя 5×5
-    if (box.type === HIVE) pendingHive.push([r, c]);        // вулик розвалився — мед 3×3 і 3 бджоли
+    if (box.type === HIVE) pendingHive.push([r, c]);
+    if (box.type === TOMB) tombBreak(box, r, c);           // надгробок розбито — його привид зникає назавжди        // вулик розвалився — мед 3×3 і 3 бджоли
     if (box.type === GRILL) grillBlast(box, r, c);          // повний мангал вибухає 3×3
     if (box.type === ORB || box.type === DORB) orbBurst(box, r, c);   // скляний шар — додаткові ходи, чорна сфера — забирає ходи
     if (box.type === MOLE) moleDefeated(box, r, c);         // кріт переможений — проковтнуті ключі вилітають
@@ -4122,6 +4264,9 @@ function hitBox(r, c) {
     // 1–2 удари: скло тріскається, туман усередині закручується швидше
     el.classList.add('crack' + (BOX_INFO[box.type].hp - box.hp));
     sfx.orbHit(BOX_INFO[box.type].hp - box.hp);
+  } else if (box.type === TOMB) {
+    el.classList.add('crack' + (BOX_INFO[TOMB].hp - box.hp));
+    sfx.stoneHit();
   } else if (box.type === HIVE) {
     el.classList.add('crack' + (BOX_INFO[HIVE].hp - box.hp));   // тріщини, мед капає, бджоли злішають
     sfx.hiveHit();
@@ -4801,6 +4946,7 @@ function makeCellObj(r, c, ch) {
     if (ch === 'A') setupAmber(b, amberConfAt(r, c));
     if (ch === 'O') setupOrb(b, orbConfAt(r, c));
     if (ch === 'D') setupOrb(b, dorbConfAt(r, c));
+    if (ch === 'T') setupTomb(b, r, c);
     return b;
   }
   const g = createGem(r, c, rand());
@@ -4817,6 +4963,7 @@ function spawnCell(r, c, ch) {
     if (ch === 'X') setupCBox(grid[r][c], cbConfAt(r, c));   // коробка з-під стіни — зі своїми налаштуваннями
     if (ch === 'A') setupAmber(grid[r][c], amberConfAt(r, c));
     if (ch === 'O') setupOrb(grid[r][c], orbConfAt(r, c));
+    if (ch === 'T') { setupTomb(grid[r][c], r, c); tombSpawn(grid[r][c], r, c); }   // надгробок з-під стіни одразу кличе свого привида
     if (ch === 'D') {
       setupOrb(grid[r][c], dorbConfAt(r, c));
       const cr = crystalNear(r, c);   // поруч кристал — сфера одразу зцілюється
@@ -6109,7 +6256,7 @@ $('soundBtn').onclick = () => {
 
 // ===================== Рівні з JSON =====================
 // Формат: { "levels": [ { "name": "...", "moves": 20, "map": ["........", ... 8 рядків по 8 символів] } ] }
-const MAP_CHARS = '.cnwtrsgxpeojkqmbzyfadhiKGPQXAMWODHZS';
+const MAP_CHARS = '.cnwtrsgxpeojkqmbzyfadhiKGPQXAMWODHZST';
 function parseLevels(data) {
   const list = Array.isArray(data) ? data : data?.levels;
   if (!Array.isArray(list) || !list.length) throw new Error('у файлі немає списку "levels"');
@@ -6185,6 +6332,7 @@ function levelBase(def) {
     if (ch === 'p') b += 80;
     if (ch === 'Z') b += 60;
     if (ch === 'S') b += 120;
+    if (ch === 'T') b += 120;   // привид надгробка
     const cv = def.cover?.[r]?.[c];
     if (cv === 'l') b += BOX_INFO[STONEWALL].pts; else if (cv === 'u') b += BOX_INFO[CARDWALL].pts; else if (cv === 'C') b += BOX_INFO[CHAIN].pts;
     const lf = def.leaves?.[r]?.[c];
@@ -6323,6 +6471,7 @@ const INTRO = {
   h: ["Мітла", "Змете зі шляху опале листя, павутиння та надокучливий слиз"],
   M: ['Кріт', 'Підземні бешкетники риють нори й нищать фішки. Бийте кротів, коли вони визирають назовні.'],
   O: ['Скляний шар', 'Майбутнє прихильне до тих, хто вміє чекати. Доля винагородить вас додатковими ходами.'],
+  T: ['Кам\'яний надгробок', 'Тут спочиває привид — і спочиває неспокійно. Поки камінь цілий, привид щоразу повертається додому, а довкола надгробка світ втрачає барви. Три удари — і привид зникне назавжди.'],
   S: ['Привид', 'Вселяється у фішку — і та ледь проглядає крізь туман. Зачепіть її, щоб привид показався, а наступним ходом виженіть його геть, поки він не сховався знову.'],
   Y: ['Медовий покрив', 'Солодкий, липкий і дуже впертий. Слиз і павутина на ньому не тримаються, а павук, що в нього вліз, застрягає назавжди. Мітла в ньому теж грузне.'],
   Z: ['Бджола', 'Непосидюча трудівниця: щоходу перелітає деінде й лишає по собі мед. Слиз їй не завада, овочі вона збирає для вас, а от павутина — пастка, і павуки про це знають.'],
