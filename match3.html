@@ -705,6 +705,28 @@
   .leaf.honey.gone svg { animation: bedGone .45s ease-in forwards; }
   .leaf.honey.fresh { animation: honeyIn .5s cubic-bezier(.3,1.5,.5,1); }
   @keyframes honeyIn { from { opacity: 0; scale: .3; } }
+  /* ===== Привид ===== */
+  .gem.ghosted { filter: grayscale(1) contrast(.92) brightness(1.02) drop-shadow(0 0 2px rgba(210,220,255,.35)); animation: ghostAura 2.8s ease-in-out infinite; }
+  @keyframes ghostAura { 50% { filter: grayscale(1) contrast(.92) brightness(1.08) drop-shadow(0 0 6px rgba(210,220,255,.75)); } }
+  /* привид вселяється: колір витікає з фішки */
+  .gem.ghosted.possess { animation: possessIn .7s ease-out; }
+  @keyframes possessIn {
+    0% { filter: grayscale(0) brightness(1) drop-shadow(0 0 0 rgba(210,220,255,0)); }
+    35% { filter: grayscale(.4) brightness(1.6) drop-shadow(0 0 10px rgba(220,230,255,1)); }
+    100% { filter: grayscale(1) contrast(.92) brightness(1.02) drop-shadow(0 0 2px rgba(210,220,255,.35)); }
+  }
+  /* привида викрили: колір повертається */
+  .gem.unpossess { animation: possessOut .45s ease-out; }
+  @keyframes possessOut { from { filter: grayscale(1) brightness(1.5); } to { filter: none; } }
+  .ghostEl { position: absolute; inset: 4% 12% 10%; z-index: 6; pointer-events: none; display: none; }
+  .gem.haunted .ghostEl { display: block; animation: ghostFloat 1.5s ease-in-out infinite alternate; }
+  @keyframes ghostFloat { from { transform: translateY(2px) rotate(-4deg); } to { transform: translateY(-4px) rotate(4deg); } }
+  .ghostEl svg, .ghostFly svg { width: 100%; height: 100%; filter: drop-shadow(0 0 6px rgba(190,210,255,.95)); }
+  .gem.haunted.boo .ghostEl { animation: ghostBoo .45s cubic-bezier(.2,1.8,.4,1); }
+  @keyframes ghostBoo { from { transform: scale(.2); opacity: 0; } }
+  .gem.haunted.shrug .ghostEl { animation: ghostShrug .3s; }
+  @keyframes ghostShrug { 50% { transform: translateX(-4px) rotate(-10deg); } }
+  .ghostFly { position: absolute; left: 0; top: 0; width: var(--cell); height: var(--cell); padding: calc(var(--cell) * .08); z-index: 18; pointer-events: none; }
   /* ===== Бджола ===== */
   .beeEl { position: absolute; left: 0; top: 0; width: var(--cell); height: var(--cell); z-index: 8; pointer-events: none; }
   .beeEl i { position: absolute; left: 22%; top: 12%; width: 62%; height: 62%; animation: beeBob .9s ease-in-out infinite alternate; }
@@ -1344,6 +1366,7 @@
     💎 магічний кристал — 8 ударів; з кожним змінює колір від темно-синього до багряно-червоного, останні удари — з тріщинами й дрижанням. Розбитий, лишає випадкову суперкомбінацію (червону жабу, фіолетову блискавку або велику бомбу), яка одразу спрацьовує. Кірка вважає його каменем. Кожна блискавка, що влучила в кристал, породжує ще одну — зелену, поперек; зелена блискавка інших кристалів не зачіпає. У зоні 3×3 довкола кристала не з'являються слиз і павутина, а павук, що туди заліз, гине. Якщо кристал з'являється посеред гри (з-під кам'яної стіни чи від клоуна), він одразу знищує павутину, слиз і павуків у своїй зоні<br>
     🧹 мітла — від 1 удару злітає і летить по прямій, вичищаючи листя, слиз і павутину (фішки лишаються). Напрямок обирає за пріоритетом: найбільше листя, потім слизу, потім павутини, потім інших мітел, потім довший шлях. Інші мітли пролітає наскрізь, зачіпаючи їх (вони теж злітають). Наткнувшись на іншу перешкоду, розвертається; долетівши до стінки (краю поля чи броньованої стіни) — з хрустом ламається<br>
     🦫 кріт — спершу риє нору (невразлива; фішка на її місці знищується, овоч зараховується, бонус спрацьовує). Наступного ходу вилазить кріт — 1 удар (комбінація поруч, бонус). Не вдарили за цей хід — ховається й риє нору деінде. У норі 3 кроти: переможеного через хід змінює наступний, а коли переможено всіх трьох — нора зникає. Вилазячи, кріт: з'їдає павуків поруч, знищує слиз довкола, ковтає ключ (той вилетить, коли крота переможуть; доки ключ у кроті, новий не випадає), перевертає сміттєбак, б'є кошик, а на грядці — вириває овоч. Кристал поруч убиває крота<br>
+    👻 привид — вселяється у фішку: вона стає напівпрозорою, але її можна рухати. Комбінація поруч (чи з цією фішкою), бонус або удар перешкоди — привид показується. Ще один удар наступного ходу — і він вилітає за екран. Не встигли — перелітає на іншу фішку (може сховатися й під ланцюгами) і знову ховається. Мітла робить привида видимим; бетономішалка схованого показує, а видимого затягує й викидає за екран. Біля кристала привид сховатися не може (але кристал його не знищує)<br>
     🍯 медовий покрив — лежить під фішками, як листя; щоб пройти рівень, його треба прибрати. На меду не з'являються слиз і павутина; павук, що заліз у мед, застрягає (не повзе, не плете павутину й не відкладає яєць); кріт, що виліз на меду, вже не може сховатися; мітла застрягає в першій клітинці з медом і ламається, прибравши його; бетономішалка зриває мед у зоні 3×3; листя зі сміттєбака лягає поверх меду, замінюючи його<br>
     🐝 бджола — сидить на фішці (фішку не можна рухати); щоходу перелітає на випадкову клітинку й лишає мед там, звідки полетіла. На грядки не сідає; сівши на слиз — знищує його, на овоч — збирає його для вас. У павутині застрягає, а павук поруч повзе до неї й з'їдає. Гине з 1 удару; кристал убиває бджіл і прибирає мед довкола себе<br>
     🛖 вулик — 3 удари; розбитий заливає медом зону 3×3 (крім грядок) і випускає 3 бджоли<br>
@@ -1562,6 +1585,10 @@ const sfx = {
   moleDive: () => { tone(500, { dur: 0.15, vol: 0.07, type: 'triangle', slide: 0.4 }); noise(0.12, 0.05, 700); },
   orbHit: dmg => { tone(1300 + dmg * 300, { dur: 0.3, vol: 0.05, type: 'sine' }); tone(2600 + dmg * 400, { dur: 0.12, vol: 0.03, type: 'triangle', delay: 0.03 }); noise(0.06, 0.04, 6000); },
   orbPop: () => { [0, 3, 7, 12, 15, 19].forEach((n, i) => tone(784 * Math.pow(2, n / 12), { dur: 0.35, vol: 0.05, type: 'sine', delay: 0.15 + i * 0.06 })); noise(0.35, 0.14, 5500); },
+  ghostBoo: () => { tone(330, { dur: 0.35, vol: 0.07, type: 'triangle', slide: 0.6 }); tone(495, { dur: 0.3, vol: 0.04, type: 'sine', slide: 0.6, delay: 0.04 }); },
+  ghostIn: () => { tone(700, { dur: 0.35, vol: 0.045, type: 'sine', slide: 0.45 }); tone(1050, { dur: 0.3, vol: 0.025, type: 'sine', slide: 0.4, delay: 0.06 }); },
+  ghostMove: () => { tone(600, { dur: 0.5, vol: 0.04, type: 'sine', slide: 1.5 }); },
+  ghostBye: () => { tone(900, { dur: 0.9, vol: 0.06, type: 'sine', slide: 0.25 }); tone(1350, { dur: 0.7, vol: 0.03, type: 'sine', slide: 0.3, delay: 0.05 }); },
   beeBuzz: () => { tone(210, { dur: 0.45, vol: 0.035, type: 'sawtooth', slide: 1.15 }); tone(217, { dur: 0.45, vol: 0.03, type: 'sawtooth', slide: 1.1 }); },
   beeDie: () => { tone(880, { dur: 0.18, vol: 0.06, type: 'square', slide: 0.35 }); },
   honeyDrop: () => { tone(260, { dur: 0.14, vol: 0.06, type: 'sine', slide: 1.7 }); },
@@ -1733,7 +1760,7 @@ const BOX_CHARS = { c: CARDBOARD, n: CARDBOARD, w: WOOD, r: REINFORCED, s: SLIME
 function startLevel(i) {
   level = i;
   const def = LEVELS[i] || randomLevel();
-  board.querySelectorAll('.gem, .beam, .bolt, .shock, .float, .combo, .shard, .tongue, .spiderEl, .nail, .dart, .leaf, .broomFx, .vegToss, .spellFx, .spellTrail, .orbRing, .orbStar, .beeEl').forEach(e => e.remove());
+  board.querySelectorAll('.gem, .beam, .bolt, .shock, .float, .combo, .shard, .tongue, .spiderEl, .nail, .dart, .leaf, .broomFx, .vegToss, .spellFx, .spellTrail, .orbRing, .orbStar, .beeEl, .ghostFly').forEach(e => e.remove());
   document.querySelectorAll('.movesFly').forEach(e => e.remove());
   pendingFill.length = pendingClear.length = pendingDet.length = 0;
   inFlight = 0;
@@ -1797,6 +1824,7 @@ function startLevel(i) {
       if (ch === 'x') addWeb(grid[r][c]);
       if (ch === 'p') addSpider(r, c);
       if (ch === 'Z') addBee(r, c);
+      if (ch === 'S') makeGhost(grid[r][c]);
       if (ch === 'Q') makeKey(grid[r][c]);
     }
   }
@@ -1804,6 +1832,7 @@ function startLevel(i) {
   if (needKey()) { const free = []; for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) if (isFree(r, c)) free.push(grid[r][c]); if (free.length) makeKey(free[Math.floor(Math.random() * free.length)]); }
   // чорна сфера біля кристала вже на старті — скляна
   for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) if (grid[r][c]?.type === DORB && crystalNear(r, c)) healDorb(grid[r][c], r, c, null, false);
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) if (grid[r][c]?.ghost && inAura(r, c)) revealGhost(grid[r][c], r, c, true);
   // шар листя
   def.leaves?.forEach((row, r) => [...row].forEach((ch, c) => { if ((ch === 'v' || ch === 'B' || ch === 'Y') && !noLayer(r, c)) addLeaf(r, c, null, ch); }));
   $('overlay').classList.remove('show');
@@ -2421,7 +2450,7 @@ async function moleDigAll(list) {
     const opts = [];
     for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
       const g = grid[y][x];
-      if (!g || g.key || g.pinned || locked(g) || !(isNormal(g.type) || isSpecial(g.type))) continue;
+      if (!g || g.key || g.pinned || g.ghost || locked(g) || !(isNormal(g.type) || isSpecial(g.type))) continue;
       if (taken.some(([a, b]) => Math.max(Math.abs(a - y), Math.abs(b - x)) < 1)) continue;
       if (from && Math.max(Math.abs(y - from[0]), Math.abs(x - from[1])) < 2) continue;   // подалі від старої нори
       opts.push([y, x]);
@@ -2486,6 +2515,124 @@ function moleDefeated(m, r, c) {
   m.keys = 0;
 }
 
+// ===================== Привид =====================
+// Вселяється у фішку: вона напівпрозора, але її можна рухати. Комбінація поруч, бонус чи удар перешкоди — привид показується.
+// Наступного ходу ще один удар — і він вилітає за екран. Не встигли — перелітає на іншу фішку (можна й під ланцюги) і ховається.
+// У зоні кристала (1 клітинка довкола) привид може опинитися, але сховатися там не може; кристал його не чіпає
+const GHOST_SVG = '<svg viewBox="0 0 100 100">' +
+  '<path d="M20,92 V46 Q20,10 50,10 Q80,10 80,46 V92 L70,83 L60,92 L50,83 L40,92 L30,83 Z" fill="rgba(246,249,255,.93)" stroke="#9fb0d8" stroke-width="3" stroke-linejoin="round"/>' +
+  '<ellipse cx="39" cy="44" rx="6" ry="9" fill="#1d2340"/><ellipse cx="61" cy="44" rx="6" ry="9" fill="#1d2340"/>' +
+  '<circle cx="41" cy="40" r="2" fill="#fff"/><circle cx="63" cy="40" r="2" fill="#fff"/>' +
+  '<ellipse cx="50" cy="64" rx="5" ry="7" fill="#1d2340"/>' +
+  '<circle cx="30" cy="56" r="4.5" fill="#ffb3c8" opacity=".75"/><circle cx="70" cy="56" r="4.5" fill="#ffb3c8" opacity=".75"/></svg>';
+function makeGhost(g, state = 'hidden', anim = false) {
+  if (!g) return;
+  g.ghost = { state, shownTurn: turn };
+  if (!g.el.querySelector('.ghostEl')) { const e = document.createElement('i'); e.className = 'ghostEl'; e.innerHTML = GHOST_SVG; g.el.appendChild(e); }
+  g.el.classList.toggle('ghosted', state === 'hidden');
+  g.el.classList.toggle('haunted', state === 'shown');
+  if (anim && state === 'hidden') {   // привид пірнає у фішку — та знебарвлюється
+    g.el.classList.remove('possess'); g.el.getBoundingClientRect(); g.el.classList.add('possess');
+    setTimeout(() => g.el.classList.remove('possess'), 750);
+  }
+}
+function revealGhost(g, r, c, quiet = false) {
+  if (!g?.ghost || g.ghost.state !== 'hidden') return;
+  g.ghost.state = 'shown';
+  g.ghost.shownTurn = turn;
+  g.el.classList.remove('ghosted', 'possess');
+  g.el.classList.add('haunted', 'boo', 'unpossess');
+  setTimeout(() => g.el.classList.remove('boo', 'unpossess'), 500);
+  if (!quiet) { sfx.ghostBoo(); floatText('👻', r, c, '#e6ecff'); }
+}
+function ghostOff(g) {
+  g.ghost = null;
+  g.el.classList.remove('ghosted', 'haunted', 'boo', 'shrug', 'possess', 'unpossess');
+  g.el.querySelector('.ghostEl')?.remove();
+}
+// привид отримав удар: схований — показується; видимий з минулого ходу — вилітає за екран
+function hitGhost(g, r, c) {
+  if (g.ghost.state === 'hidden') { revealGhost(g, r, c); return; }
+  if (turn > g.ghost.shownTurn) { ghostBye(g, r, c); return; }
+  g.el.classList.remove('shrug'); g.el.getBoundingClientRect(); g.el.classList.add('shrug');   // цього ж ходу — лише ухиляється
+}
+function ghostBye(g, r, c) {
+  ghostOff(g);
+  const el = document.createElement('div');
+  el.className = 'ghostFly';
+  el.innerHTML = GHOST_SVG;
+  board.appendChild(el);
+  const side = Math.random() < .5 ? -3 : N + 2;
+  el.animate([
+    { transform: `translate(${c * 100}%, ${r * 100}%)`, opacity: 1 },
+    { transform: `translate(${(c + side) / 2 * 100}%, ${(r - 2) * 100}%) scale(1.3) rotate(${side < 0 ? -20 : 20}deg)`, opacity: .9, offset: .45 },
+    { transform: `translate(${side * 100}%, ${(r - 6) * 100}%) scale(.5) rotate(${side < 0 ? -60 : 60}deg)`, opacity: 0 },
+  ], { duration: 1000, easing: 'ease-in', fill: 'forwards' });
+  setTimeout(() => el.remove(), 1050);
+  sfx.ghostBye();
+  score += 120; floatText('+120', r, c, '#ffd27a');
+  updateHud();
+}
+// куди привид може вселитися: звичайна фішка (на полі чи під ланцюгами), без ключа, овоча, павутини, павука, бджоли
+const ghostHost = g => g && isNormal(g.type) && !g.ghost && !g.key && !g.veg && !g.pinned && !locked(g) && !g.broken;
+function ghostFly([r1, c1], [r2, c2]) {
+  const el = document.createElement('div');
+  el.className = 'ghostFly';
+  el.innerHTML = GHOST_SVG;
+  board.appendChild(el);
+  const tf = (y, x, k = 1, rot = 0) => `translate(${x * 100}%, ${y * 100}%) scale(${k}) rotate(${rot}deg)`;
+  const dx = c2 - c1, dy = r2 - r1, len = Math.hypot(dx, dy) || 1;
+  // дуга: контрольна точка над серединою шляху, трохи вбік
+  const side = Math.random() < .5 ? -1 : 1, bend = Math.min(1.6, .4 + len * .25);
+  const cx = (c1 + c2) / 2 + (-dy / len) * bend * side, cy = (r1 + r2) / 2 - .6 - len * .12;
+  const y0 = r1 - .3, y1 = r2 - .35;
+  const frames = [{ transform: tf(r1, c1, .9), opacity: .85, offset: 0 }];   // виринає з фішки
+  const K = 18;
+  for (let i = 0; i <= K; i++) {
+    const t = i / K, u = 1 - t;
+    const x = u * u * c1 + 2 * u * t * cx + t * t * c2;
+    const y = u * u * y0 + 2 * u * t * cy + t * t * y1 + Math.sin(t * Math.PI * 3) * .07;   // легке погойдування
+    frames.push({ transform: tf(y, x, 1.05, Math.sin(t * Math.PI * 2) * 7 * side), opacity: 1, offset: .15 + t * .7 });
+  }
+  frames.push({ transform: tf(r2, c2, .25), opacity: 0, offset: 1 });   // пірнає в нову фішку
+  const a = el.animate(frames, { duration: Math.min(1900, 1000 + len * 140), easing: 'ease-in-out', fill: 'forwards' });
+  return a.finished.catch(() => {}).then(() => el.remove());
+}
+async function ghostTurn() {
+  // видимі привиди, яких не вигнали за хід, перелітають деінде й знову ховаються
+  const list = [];
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
+    const g = grid[r][c];
+    if (g?.ghost?.state === 'shown' && g.ghost.shownTurn < turn) list.push([r, c]);
+  }
+  const taken = new Set(), jobs = [];
+  for (const [r, c] of list) {
+    const opts = [];
+    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+      if ((y === r && x === c) || taken.has(key(y, x))) continue;
+      const g = grid[y][x];
+      const host = g?.type === CHAIN ? g.inner : g;   // під ланцюгами теж можна сховатися
+      if (ghostHost(host)) opts.push([y, x, host]);
+    }
+    if (!opts.length) continue;
+    const [y, x, host] = pick(opts);
+    taken.add(key(y, x));
+    ghostOff(grid[r][c]);
+    jobs.push(ghostFly([r, c], [y, x]).then(() => {
+      makeGhost(host, 'hidden', true);
+      sfx.ghostIn();
+      if (grid[y][x] === host && inAura(y, x)) revealGhost(host, y, x);   // біля кристала не сховаєшся
+    }));
+  }
+  if (jobs.length) { sfx.ghostMove(); await Promise.all(jobs); }
+  // схований привид, якого занесло в зону кристала, показується
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
+    const g = grid[r][c];
+    if (g?.ghost?.state === 'hidden' && inAura(r, c)) revealGhost(g, r, c);
+  }
+  updateHud();
+}
+
 // ===================== Мед, бджоли, вулик =====================
 const honeyAt = (r, c) => leaves[r]?.[c]?.dataset.kind === 'Y';
 const bedAt = (r, c) => leaves[r]?.[c]?.dataset.kind === 'B';
@@ -2535,7 +2682,7 @@ function killBee(g, r, c, pts = true) {
   updateHud();
 }
 // куди бджола може сісти: звичайна фішка (і овоч, і фішка в павутині) або слиз; не на грядку, не на павука, ключ чи іншу бджолу
-const beeSpot = (g, r, c) => g && !g.broken && !bedAt(r, c) && !g.bee && !g.spider && !g.eggs && !g.key && !g.pinned &&
+const beeSpot = (g, r, c) => g && !g.broken && !bedAt(r, c) && !g.bee && !g.ghost && !g.spider && !g.eggs && !g.key && !g.pinned &&
   (isNormal(g.type) || g.type === SLIME);
 function beeFly(el, [r1, c1], [r2, c2]) {
   const tf = (r, c, k = 1) => `translate(${c * 100}%, ${r * 100}%) scale(${k})`;
@@ -2770,7 +2917,7 @@ function spellQueue(m, r, c) {
   pendingSpell.push({ r, c });
 }
 // звичайна фішка, яку закляття може змінити (без ключа, овоча, павука, павутини, не скута)
-const plainGem = g => g && isNormal(g.type) && !g.key && !g.veg && !g.spider && !g.bee && !g.web && !g.eggs && !g.pinned && !locked(g);
+const plainGem = g => g && isNormal(g.type) && !g.key && !g.veg && !g.spider && !g.bee && !g.ghost && !g.web && !g.eggs && !g.pinned && !locked(g);
 const TRANSMUTE_TYPES = [CARDBOARD, WOOD, REINFORCED, STONE, STONEPICK, SLIME];
 const transmutable = g => g && !g.broken && !locked(g) && (TRANSMUTE_TYPES.includes(g.type) || (g.web && !g.spider && !g.eggs && isNormal(g.type)));
 const sparkTarget = g => g && !g.broken && (damageable(g) || g.spider || g.bee || g.eggs || (g.web && isNormal(g.type)));
@@ -2931,7 +3078,7 @@ async function amberApply(jobs) {
     const opts = [];
     for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
       const g = grid[y][x];
-      if (!g || used.has(key(y, x)) || g.spider || g.bee || g.eggs) continue;
+      if (!g || used.has(key(y, x)) || g.spider || g.bee || g.ghost || g.eggs) continue;
       const ok = (g.type === SLIME && !g.broken) || (isNormal(g.type) && g.type !== t);
       if (ok) opts.push([y, x]);
     }
@@ -3500,6 +3647,7 @@ async function broomHoney(el, r, c) {
 // Мітла чистить клітинку: листя, слиз, павутину. Фішки не чіпає
 function broomSweep(y, x) {
   const g = grid[y][x];
+  if (g?.ghost?.state === 'hidden') revealGhost(g, y, x);   // мітла робить привида видимим
   const wasVeg = !!g?.veg;   // овоч, що щойно виліз із грядки під мітлою, лишається
   if (leaves[y][x]) clearLeaf(y, x);
   if (g && g.type === SLIME && !g.broken) hitBox(y, x);
@@ -3776,11 +3924,11 @@ function tearWeb(gem, r, c) {
   updateHud();
 }
 const locked = g => g && (g.web || g.spider || g.eggs || g.bee);
-const isObstacle = g => g && ((isBox(g.type) && !g.broken) || locked(g));
+const isObstacle = g => g && ((isBox(g.type) && !g.broken) || locked(g) || !!g.ghost);   // фішка з привидом — теж перешкода (але її можна рухати)
 const movable = g => g && !isBox(g.type) && !locked(g);
-const isFree = (r, c) => isNormal(grid[r][c].type) && !locked(grid[r][c]) && !grid[r][c].veg;
+const isFree = (r, c) => isNormal(grid[r][c].type) && !locked(grid[r][c]) && !grid[r][c].veg && !grid[r][c].ghost;
 // те саме, але овочі теж підходять (на них може лягти слиз чи павутина)
-const isFreeV = (r, c) => isNormal(grid[r][c].type) && !locked(grid[r][c]);
+const isFreeV = (r, c) => isNormal(grid[r][c].type) && !locked(grid[r][c]) && !grid[r][c].ghost;
 
 const boxesLeft = () => grid.flat().filter(g => isObstacle(g) && g.type !== WALL && g.type !== AMBER).length + leaves.flat().filter(Boolean).length +
   grid.flat().filter(g => g && g.veg).length;
@@ -3845,6 +3993,7 @@ function hitBox(r, c) {
     if (!hitBox.lastTink || now - hitBox.lastTink > 120) { sfx.coreTink(); hitBox.lastTink = now; }
     return;
   }
+  if (box.ghost) { hitGhost(box, r, c); return; }
   if (box.bee) { killBee(box, r, c); return; }
   if (box.spider) { killSpider(box, r, c); return; }
   if (box.web) { tearWeb(box, r, c); return; }       // спершу рветься павутина
@@ -4282,6 +4431,10 @@ async function mixerSuck(box) {
     if (rr < 0 || rr >= N || cc < 0 || cc >= N || (rr === r && cc === c)) continue;
     const g = grid[rr][cc];
     if (!g || !isNormal(g.type)) continue;
+    if (g.ghost) {   // привид: схований — стає видимим (фішку не чіпаємо); видимого затягує й випльовує за екран
+      if (g.ghost.state === 'hidden') { revealGhost(g, rr, cc); continue; }
+      ghostBye(g, r, c);
+    }
     // павутина, павук і яйця не заважають — мішалка затягує їх разом із фішкою
     if (g.spider && g.spiderEl) {
       const sel = g.spiderEl;
@@ -4626,6 +4779,7 @@ function makeCellObj(r, c, ch) {
   const g = createGem(r, c, rand());
   if (ch === 'x' || ch === 'p') addWeb(g);
   if (ch === 'Q') makeKey(g);
+  if (ch === 'S') makeGhost(g);   // привид, схований під ланцюгами
   return g;
 }
 function spawnCell(r, c, ch) {
@@ -4646,6 +4800,7 @@ function spawnCell(r, c, ch) {
     if (ch === 'x') addWeb(grid[r][c]);
     if (ch === 'p') addSpider(r, c);
     if (ch === 'Z') addBee(r, c);
+    if (ch === 'S') makeGhost(grid[r][c]);
     if (ch === 'Q') makeKey(grid[r][c]);   // ключ, схований під стіною
   }
   return grid[r][c];
@@ -4821,7 +4976,7 @@ function applyPendingFill() {
     for (let r = cr - 1; r <= cr + 1; r++) for (let c = cc - 1; c <= cc + 1; c++) {
       if (r < 0 || r >= N || c < 0 || c >= N) continue;
       const g = grid[r][c];
-      if (g && !(isNormal(g.type) && !locked(g))) continue;  // інші перешкоди, бонуси, павутину не чіпаємо
+      if (g && !(isNormal(g.type) && !locked(g) && !g.ghost)) continue;  // інші перешкоди, бонуси, павутину, привида не чіпаємо
       if (inAura(r, c) || honeyAt(r, c)) continue;          // біля кристала й на меду слиз не з'являється
       if (g) removeGemEl(g);                                 // овоч слиз змітає
       grid[r][c] = createBox(r, c, SLIME);
@@ -5127,7 +5282,7 @@ async function fire(t, idx, destroyed, next) {
       setTimeout(() => beam(t.r, t.c, r, c), delay);
       if (loud && i < 16) sfx.zap(i, delay / 1000);
     }
-    if (isBox(g.type) || locked(g)) {
+    if (isBox(g.type) || locked(g) || g.ghost) {
       markBox(r, c, delay);                    // перешкода в зоні дії бонуса (фішка в павутині вціліє)
       if (type === LIGHTNING && g.type === CRYSTAL && !g.broken) crystalBolt(r, c, t.dir);   // кристал множить блискавку
     } else if (isSpecial(g.type)) {
@@ -5394,6 +5549,7 @@ async function trySwap(a, b) {
     await beeTurn();
     await spiderTurn();
     await moleTurn();
+    await ghostTurn();
   }
   await checkEnd();
   busy = false;
@@ -5422,8 +5578,8 @@ async function resolve(swap = null) {
 
     const amberJobs = amberTriggers(runs, squares);   // бурштини поруч із комбінаціями
     // фішки в павутині не зникають — рветься павутина
-    const webbed = matches.filter(([r, c]) => locked(grid[r][c]));
-    const clear = matches.filter(([r, c]) => !locked(grid[r][c]));
+    const webbed = matches.filter(([r, c]) => locked(grid[r][c]) || grid[r][c].ghost);
+    const clear = matches.filter(([r, c]) => !locked(grid[r][c]) && !grid[r][c].ghost);
     webbed.forEach(([r, c]) => hitBox(r, c));   // павутина рветься / павук гине, фішка лишається
     clear.forEach(([r, c]) => grid[r][c].el.classList.add('pop'));
     hitAdjacent(clear);
@@ -5433,6 +5589,11 @@ async function resolve(swap = null) {
     if (specials.length) {
       const names = { [RAINBOW]: '🌈 Куля!', [BOMB]: '💣 Бомба!', [LIGHTNING]: '⚡ Блискавка!', [FROG]: '🐸 Жабка!' };
       specials.forEach(({ r, c, type }) => {
+        if (grid[r][c]?.ghost) {   // на фішці з привидом бонус не з'являється — переносимо на вільну клітинку комбінації
+          const alt = matches.find(([y, x]) => !grid[y][x]);
+          if (!alt) return;
+          [r, c] = alt;
+        }
         // кам'яна жаба одразу ковтає створений бонус
         const sf = nearestStoneFrog(r, c);
         if (sf) { absorbSpecial(r, c, type, sf); return; }
@@ -5917,7 +6078,7 @@ $('soundBtn').onclick = () => {
 
 // ===================== Рівні з JSON =====================
 // Формат: { "levels": [ { "name": "...", "moves": 20, "map": ["........", ... 8 рядків по 8 символів] } ] }
-const MAP_CHARS = '.cnwtrsgxpeojkqmbzyfadhiKGPQXAMWODHZ';
+const MAP_CHARS = '.cnwtrsgxpeojkqmbzyfadhiKGPQXAMWODHZS';
 function parseLevels(data) {
   const list = Array.isArray(data) ? data : data?.levels;
   if (!Array.isArray(list) || !list.length) throw new Error('у файлі немає списку "levels"');
@@ -5992,6 +6153,7 @@ function levelBase(def) {
     if (ch === 'x') b += 30;
     if (ch === 'p') b += 80;
     if (ch === 'Z') b += 60;
+    if (ch === 'S') b += 120;
     const cv = def.cover?.[r]?.[c];
     if (cv === 'l') b += BOX_INFO[STONEWALL].pts; else if (cv === 'u') b += BOX_INFO[CARDWALL].pts; else if (cv === 'C') b += BOX_INFO[CHAIN].pts;
     const lf = def.leaves?.[r]?.[c];
@@ -6130,6 +6292,7 @@ const INTRO = {
   h: ["Мітла", "Змете зі шляху опале листя, павутиння та надокучливий слиз"],
   M: ['Кріт', 'Підземні бешкетники риють нори й нищать фішки. Бийте кротів, коли вони визирають назовні.'],
   O: ['Скляний шар', 'Майбутнє прихильне до тих, хто вміє чекати. Доля винагородить вас додатковими ходами.'],
+  S: ['Привид', 'Вселяється у фішку — і та ледь проглядає крізь туман. Зачепіть її, щоб привид показався, а наступним ходом виженіть його геть, поки він не сховався знову.'],
   Y: ['Медовий покрив', 'Солодкий, липкий і дуже впертий. Слиз і павутина на ньому не тримаються, а павук, що в нього вліз, застрягає назавжди. Мітла в ньому теж грузне.'],
   Z: ['Бджола', 'Непосидюча трудівниця: щоходу перелітає деінде й лишає по собі мед. Слиз їй не завада, овочі вона збирає для вас, а от павутина — пастка, і павуки про це знають.'],
   H: ['Вулик', 'Три удари — і вулик розвалиться: мед розтечеться довкола, а розлючені бджоли розлетяться по столу.'],
@@ -6153,8 +6316,9 @@ function introTile(ch) {
   tile.className = 'introTile';
   let g;
   if (ch === 'v' || ch === 'B' || ch === 'Y') tile.appendChild(makeLeafEl(ch));
-  if (ch === 'x' || ch === 'p' || ch === 'v' || ch === 'B' || ch === 'Y' || ch === 'Z') {
-    g = createGem(0, 0, ch === 'v' ? 2 : ch === 'B' ? 1 : ch === 'Y' ? 3 : ch === 'Z' ? 4 : 0);
+  if (ch === 'x' || ch === 'p' || ch === 'v' || ch === 'B' || ch === 'Y' || ch === 'Z' || ch === 'S') {
+    g = createGem(0, 0, ch === 'v' ? 2 : ch === 'B' ? 1 : ch === 'Y' ? 3 : ch === 'Z' ? 4 : ch === 'S' ? 5 : 0);
+    if (ch === 'S') makeGhost(g, 'shown');
     if (ch === 'x') addWeb(g);
   } else {
     if (ch === 'Q') { g = createGem(0, 0, 0); makeKey(g); }
