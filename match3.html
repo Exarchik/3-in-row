@@ -728,6 +728,37 @@
   @keyframes ghostShrug { 50% { transform: translateX(-4px) rotate(-10deg); } }
   .box.haunt .crate { filter: drop-shadow(0 0 5px rgba(205,218,255,.95)); }
   .ghostFly { position: absolute; left: 0; top: 0; width: var(--cell); height: var(--cell); padding: calc(var(--cell) * .08); z-index: 18; pointer-events: none; }
+  /* ===== Магічний горщик ===== */
+  .gem.box.pot::before { display: none; }
+  .pot .crate { background: none; box-shadow: none; inset: 0; }
+  .pot .psvg { position: absolute; inset: 0; width: 100%; height: 100%; transition: filter .6s; }
+  .pot .pcr { fill: none; stroke: #2a1840; stroke-width: 2.5; stroke-linecap: round; opacity: 0; }
+  .box.pot.crack1 .pcr.c1, .box.pot.crack2 .pcr { opacity: 1; }
+  .pot .plight { position: absolute; left: -10%; top: -20%; width: 120%; height: 100%; border-radius: 50%; opacity: 0; pointer-events: none; transition: opacity .6s;
+    background: radial-gradient(circle, rgba(255,255,255,.95), rgba(255,230,150,.55) 30%, rgba(255,140,220,.25) 55%, transparent 72%); }
+  .box.pot.c0 .psvg { filter: grayscale(1) brightness(.85); }
+  .box.pot.c1 .psvg { filter: grayscale(.45) brightness(.95) drop-shadow(0 0 4px rgba(200,160,255,.6)); }
+  .box.pot.c1 .plight { opacity: .25; }
+  /* повністю заряджений — сяє, мов лампочка, переливаючись кольорами */
+  .box.pot.c2 .psvg { animation: potHue 2.4s linear infinite; }
+  @keyframes potHue {
+    from { filter: hue-rotate(0deg) brightness(1.35) saturate(1.5) drop-shadow(0 0 6px #fff) drop-shadow(0 0 16px rgba(255,120,200,.9)); }
+    to { filter: hue-rotate(360deg) brightness(1.35) saturate(1.5) drop-shadow(0 0 6px #fff) drop-shadow(0 0 16px rgba(255,120,200,.9)); }
+  }
+  .box.pot.c2 .plight { opacity: 1; animation: potBulb 1.1s ease-in-out infinite alternate, potHueL 2.4s linear infinite; }
+  @keyframes potBulb { from { transform: scale(.9); } to { transform: scale(1.2); } }
+  @keyframes potHueL { to { filter: hue-rotate(360deg); } }
+  .box.pot.gulp .crate { animation: potGulp .5s cubic-bezier(.2,1.8,.4,1); }
+  @keyframes potGulp { 30% { transform: scale(1.22); } }
+  .potEnergy {
+    position: absolute; z-index: 16; pointer-events: none; width: var(--cell); height: var(--cell);
+  }
+  .potEnergy::before {
+    content: ''; position: absolute; inset: 30%; border-radius: 50%;
+    background: radial-gradient(circle, #fff 0 22%, transparent 70%), conic-gradient(#ff5d8f, #ffd23a, #7cffb0, #6bc5ff, #c77dff, #ff5d8f);
+    box-shadow: 0 0 12px 4px rgba(255,255,255,.8); animation: potSpin .4s linear infinite;
+  }
+  @keyframes potSpin { to { transform: rotate(360deg); } }
   /* ===== Кам'яний надгробок ===== */
   .gem.box.tomb::before { display: none; }
   .gem.box.tomb { z-index: 7; }   /* над чорно-білою зоною: сам надгробок барв не втрачає */
@@ -1386,6 +1417,7 @@
     🧹 мітла — від 1 удару злітає і летить по прямій, вичищаючи листя, слиз і павутину (фішки лишаються). Напрямок обирає за пріоритетом: найбільше листя, потім слизу, потім павутини, потім інших мітел, потім довший шлях. Інші мітли пролітає наскрізь, зачіпаючи їх (вони теж злітають). Наткнувшись на іншу перешкоду, розвертається; долетівши до стінки (краю поля чи броньованої стіни) — з хрустом ламається<br>
     🦫 кріт — спершу риє нору (невразлива; фішка на її місці знищується, овоч зараховується, бонус спрацьовує). Наступного ходу вилазить кріт — 1 удар (комбінація поруч, бонус). Не вдарили за цей хід — ховається й риє нору деінде. У норі 3 кроти: переможеного через хід змінює наступний, а коли переможено всіх трьох — нора зникає. Вилазячи, кріт: з'їдає павуків поруч, знищує слиз довкола, ковтає ключ (той вилетить, коли крота переможуть; доки ключ у кроті, новий не випадає), перевертає сміттєбак, б'є кошик, а на грядці — вириває овоч. Кристал поруч убиває крота<br>
     👻 привид — вселяється у фішку: вона стає чорно-білою, але її можна рухати. Комбінація поруч (чи з цією фішкою), бонус або удар перешкоди — привид показується. Ще один удар — у наступній комбінації каскаду чи наступного ходу — і він вилітає за екран. Не встигли — перелітає на іншу фішку (може сховатися й під ланцюгами) і знову ховається. Мітла робить привида видимим; бетономішалка схованого показує, а видимого затягує й викидає за екран. Біля кристала привид сховатися не може (але кристал його не знищує). Дзеркало, біля якого є привид, завжди обернене крихкою стороною<br>
+    🏺 магічний горщик — спершу сірий і невразливий. Кожен використаний бонус (жабка, бомба, блискавка, куля) заряджає найближчий горщик: після першого заряду він трохи кольоровий, після другого — сяє, мов лампочка, переливаючись кольорами. Заряджений горщик — 3 удари; від кожного удару з нього летять іскри по перешкодах, а розбитий він вибухає 5×5<br>
     🪦 кам'яний надгробок — 3 удари; клітинки довкола нього завжди чорно-білі. Завжди має свого привида (якщо привида немає — створює). Поки надгробок цілий, вигнаний привид повертається до нього, а через хід знову вселяється у фішку; розбили надгробок — його привид вилітає за край поля назавжди<br>
     🍯 медовий покрив — лежить під фішками, як листя; щоб пройти рівень, його треба прибрати. На меду не з'являються слиз і павутина; павук, що заліз у мед, застрягає (не повзе, не плете павутину й не відкладає яєць); кріт, що виліз на меду, вже не може сховатися; мітла застрягає в першій клітинці з медом і ламається, прибравши його; бетономішалка зриває мед у зоні 3×3; листя зі сміттєбака лягає поверх меду, замінюючи його<br>
     🐝 бджола — сидить на фішці (фішку не можна рухати); щоходу перелітає на випадкову клітинку й лишає мед там, звідки полетіла. На грядки не сідає; сівши на слиз — знищує його, на овоч — збирає його для вас. У павутині застрягає, а павук поруч повзе до неї й з'їдає. Гине з 1 удару; кристал убиває бджіл і прибирає мед довкола себе<br>
@@ -1606,6 +1638,8 @@ const sfx = {
   orbHit: dmg => { tone(1300 + dmg * 300, { dur: 0.3, vol: 0.05, type: 'sine' }); tone(2600 + dmg * 400, { dur: 0.12, vol: 0.03, type: 'triangle', delay: 0.03 }); noise(0.06, 0.04, 6000); },
   orbPop: () => { [0, 3, 7, 12, 15, 19].forEach((n, i) => tone(784 * Math.pow(2, n / 12), { dur: 0.35, vol: 0.05, type: 'sine', delay: 0.15 + i * 0.06 })); noise(0.35, 0.14, 5500); },
   ghostBoo: () => { tone(330, { dur: 0.35, vol: 0.07, type: 'triangle', slide: 0.6 }); tone(495, { dur: 0.3, vol: 0.04, type: 'sine', slide: 0.6, delay: 0.04 }); },
+  potCharge: full => { (full ? [0, 4, 7, 12, 16] : [0, 7]).forEach((n, i) => tone(523 * Math.pow(2, n / 12), { dur: 0.22, vol: 0.05, type: 'triangle', delay: i * 0.06 })); },
+  potHit: () => { tone(1100, { dur: 0.2, vol: 0.06, type: 'triangle', slide: 0.7 }); noise(0.06, 0.05, 4000); },
   ghostHome: () => { tone(500, { dur: 0.6, vol: 0.05, type: 'sine', slide: 0.5 }); noise(0.2, 0.03, 600); },
   ghostIn: () => { tone(700, { dur: 0.35, vol: 0.045, type: 'sine', slide: 0.45 }); tone(1050, { dur: 0.3, vol: 0.025, type: 'sine', slide: 0.4, delay: 0.06 }); },
   ghostMove: () => { tone(600, { dur: 0.5, vol: 0.04, type: 'sine', slide: 1.5 }); },
@@ -1685,14 +1719,14 @@ const sfx = {
 // ===== Гра =====
 const N = 8, TYPES = 6;
 const RAINBOW = 6, BOMB = 7, LIGHTNING = 8, FROG = 9;
-const CARDBOARD = 10, WOOD = 11, REINFORCED = 12, SLIME = 13, GENERATOR = 14, NAILGUN = 15, TNT = 16, TESLA = 17, CORE = 18, JACK = 19, STONE = 20, STONEPICK = 21, MIXER = 22, ROBOT = 23, MIRROR = 24, MIRROR2 = 25, STONEFROG = 26, WALL = 27, STONEWALL = 28, BIN = 29, BROOM = 30, CRYSTAL = 31, CARDWALL = 32, BASKET = 33, GRILL = 34, CHAIN = 35, PADLOCK = 36, COLORBOX = 37, AMBER = 38, MOLE = 39, ORB = 40, DORB = 41, HIVE = 42, TOMB = 43;
+const CARDBOARD = 10, WOOD = 11, REINFORCED = 12, SLIME = 13, GENERATOR = 14, NAILGUN = 15, TNT = 16, TESLA = 17, CORE = 18, JACK = 19, STONE = 20, STONEPICK = 21, MIXER = 22, ROBOT = 23, MIRROR = 24, MIRROR2 = 25, STONEFROG = 26, WALL = 27, STONEWALL = 28, BIN = 29, BROOM = 30, CRYSTAL = 31, CARDWALL = 32, BASKET = 33, GRILL = 34, CHAIN = 35, PADLOCK = 36, COLORBOX = 37, AMBER = 38, MOLE = 39, ORB = 40, DORB = 41, HIVE = 42, TOMB = 43, POT = 44;
 const KEYT = -2;   // ключ — фішка без кольору: рухається й падає, але не збирається в комбінації
 // стіни-покриття (шар cover): l — кам'яна, u — картонна; під ними може ховатися перешкода
 const COVER_TYPES = { l: STONEWALL, u: CARDWALL };
 const isCoverWall = t => t === STONEWALL || t === CARDWALL;
 const isMirror = t => t === MIRROR || t === MIRROR2;
 // перешкода, якій зараз можна завдати шкоди
-const damageable = g => isObstacle(g) && g.type !== CORE && g.type !== WALL && g.type !== CHAIN && g.type !== PADLOCK && g.type !== COLORBOX && g.type !== AMBER && !(g.type === MOLE && g.state !== 'up') && !(g.type === GRILL && !g.full) && !(g.type === STONEFROG && !g.armed) && !g.mixing && !g.final && !(isMirror(g.type) && !g.glass);
+const damageable = g => isObstacle(g) && g.type !== CORE && g.type !== WALL && g.type !== CHAIN && g.type !== PADLOCK && g.type !== COLORBOX && g.type !== AMBER && !(g.type === MOLE && g.state !== 'up') && !(g.type === GRILL && !g.full) && !(g.type === POT && g.charge < POT_FULL) && !(g.type === STONEFROG && !g.armed) && !g.mixing && !g.final && !(isMirror(g.type) && !g.glass);
 const isNormal = t => t >= 0 && t < TYPES;   // -1 — фішку вже «затягнула» бетономішалка
 const isSpecial = t => t >= RAINBOW && t <= FROG;
 const isBox = t => t >= CARDBOARD;
@@ -1777,7 +1811,7 @@ function createGem(r, c, type, fromRow = r) {
   return gem;
 }
 
-const BOX_CHARS = { c: CARDBOARD, n: CARDBOARD, w: WOOD, r: REINFORCED, s: SLIME, g: GENERATOR, t: TNT, e: TESLA, o: CORE, j: JACK, k: STONE, q: STONEPICK, m: MIXER, b: ROBOT, z: MIRROR, y: MIRROR2, f: STONEFROG, a: WALL, d: BIN, h: BROOM, i: CRYSTAL, K: BASKET, G: GRILL, P: PADLOCK, X: COLORBOX, A: AMBER, M: MOLE, W: MOLE, O: ORB, D: DORB, H: HIVE, T: TOMB };
+const BOX_CHARS = { c: CARDBOARD, n: CARDBOARD, w: WOOD, r: REINFORCED, s: SLIME, g: GENERATOR, t: TNT, e: TESLA, o: CORE, j: JACK, k: STONE, q: STONEPICK, m: MIXER, b: ROBOT, z: MIRROR, y: MIRROR2, f: STONEFROG, a: WALL, d: BIN, h: BROOM, i: CRYSTAL, K: BASKET, G: GRILL, P: PADLOCK, X: COLORBOX, A: AMBER, M: MOLE, W: MOLE, O: ORB, D: DORB, H: HIVE, T: TOMB, U: POT };
 function startLevel(i) {
   level = i;
   const def = LEVELS[i] || randomLevel();
@@ -2196,6 +2230,7 @@ const BOX_INFO = {
   [STONEFROG]:  { cls: 'stonefrog',  hp: 1, pts: 300, shards: ['#9a9fa8', '#6c717b', '#4a4e56', '#ff9a3a'] },
   [MOLE]:       { cls: 'mole',       hp: 1, pts: 250, shards: ['#6b4318', '#8a5a2e', '#3d2a14', '#ff9ab0'] },
   [ORB]:        { cls: 'orb',        hp: 3, pts: 100, shards: ['#e6ecff', '#b9a6ff', '#7f5cff', '#ffffff', '#c9b27a'] },
+  [POT]:        { cls: 'pot',        hp: 3, pts: 250, shards: ['#7b5cd6', '#ffd23a', '#ff5d8f', '#6bc5ff', '#3a2460'] },
   [TOMB]:       { cls: 'tomb',       hp: 3, pts: 200, shards: ['#9aa0a8', '#6c717b', '#c3c8ce', '#5f8a4a'] },
   [HIVE]:       { cls: 'hive',       hp: 3, pts: 150, shards: ['#e8b04a', '#b5782a', '#7a4a1a', '#ffd23a'] },
   [DORB]:       { cls: 'orb dorb',   hp: 3, pts: 100, shards: ['#1a0a14', '#4a0a20', '#ff3b5c', '#2a2a2a', '#8a0020'] },
@@ -2538,6 +2573,64 @@ function moleDefeated(m, r, c) {
     keyFly(k);
   }, 300 + i * 200);
   m.keys = 0;
+}
+
+// ===================== Магічний горщик =====================
+// Спершу сірий і невразливий. Кожен використаний бонус (жабка, бомба, блискавка, куля) заряджає найближчий незаряджений горщик:
+// 1 заряд — трошки кольоровий, 2 — повністю заряджений, сяє й переливається. Заряджений — 3 удари; від кожного удару
+// летять іскри (б'ють по перешкодах), а розбитий горщик вибухає 5×5
+const POT_FULL = 2;
+const POT_HTML = '<i class="plight"></i><svg class="psvg" viewBox="0 0 100 100">' +
+  '<ellipse cx="50" cy="94" rx="30" ry="5" fill="rgba(0,0,0,.35)"/>' +
+  '<path d="M30,38 Q12,56 20,76 Q28,94 50,94 Q72,94 80,76 Q88,56 70,38 Z" fill="#7b5cd6" stroke="#2a1840" stroke-width="3" stroke-linejoin="round"/>' +
+  '<path d="M34,26 H66 V38 H34 Z" fill="#6a4cc4" stroke="#2a1840" stroke-width="3" stroke-linejoin="round"/>' +
+  '<ellipse cx="50" cy="26" rx="21" ry="6" fill="#4a2f96" stroke="#2a1840" stroke-width="3"/>' +
+  '<ellipse cx="50" cy="26" rx="14" ry="3.2" fill="#ffe9a8"/>' +
+  '<path d="M24,62 Q50,70 76,62" fill="none" stroke="#ffd23a" stroke-width="3"/>' +
+  '<g fill="none" stroke="#ffd23a" stroke-width="2.2" stroke-linecap="round"><path d="M36,74 l4,-6 4,6"/><path d="M48,78 v-9 m-4,4 h8"/><path d="M58,72 a4,4 0 1,0 6,0"/></g>' +
+  '<path d="M30,46 Q26,56 28,66" fill="none" stroke="#b9a3ff" stroke-width="3" stroke-linecap="round" opacity=".7"/>' +
+  '<path class="pcr c1" d="M64,44 L58,54 L64,60 L58,70"/>' +
+  '<path class="pcr c2" d="M36,48 L44,56 L38,62 M70,72 L62,80 L68,88"/></svg>';
+function setPotStage(g) {
+  for (let i = 0; i <= POT_FULL; i++) g.el.classList.toggle('c' + i, Math.min(g.charge, POT_FULL) === i);
+}
+function potCharge(r, c) {
+  let best = null, bd = 1e9;
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+    const g = grid[y][x];
+    if (g?.type !== POT || g.broken || g.charge >= POT_FULL) continue;
+    const d = Math.hypot(y - r, x - c);
+    if (d < bd) { bd = d; best = [y, x, g]; }
+  }
+  if (!best) return;
+  const [y, x, g] = best;
+  g.charge++;
+  const full = g.charge >= POT_FULL;
+  // згусток енергії летить від бонуса до горщика
+  const e = fx('potEnergy', { left: `calc(var(--cell) * ${c})`, top: `calc(var(--cell) * ${r})` });
+  e.animate([
+    { transform: 'translate(0, 0) scale(.5)', opacity: .9 },
+    { transform: `translate(${(x - c) * 50}%, ${(y - r) * 50 - 70}%) scale(1.15)`, opacity: 1, offset: .5 },
+    { transform: `translate(${(x - c) * 100}%, ${(y - r) * 100}%) scale(.35)`, opacity: .7 },
+  ], { duration: 520, easing: 'ease-in', fill: 'forwards' });
+  setTimeout(() => {
+    if (g.broken) return;
+    setPotStage(g);
+    g.el.classList.remove('gulp'); g.el.getBoundingClientRect(); g.el.classList.add('gulp');
+    sfx.potCharge(full);
+    if (full) floatText('✨ Заряджено!', y, x, '#ffe66d');
+  }, 520);
+}
+// іскри з горщика: б'ють по кількох випадкових перешкодах (як закляття крота-чарівника)
+function potSparks(r, c, n = 3) {
+  const list = cellsWhere(sparkTarget).filter(([a, b]) => a !== r || b !== c).sort(() => Math.random() - .5).slice(0, n);
+  if (!list.length) return;
+  inFlight++;
+  list.forEach(([a, b], i) => {
+    setTimeout(() => beam(r, c, a, b), i * 90);
+    setTimeout(() => { if (grid[a][b]) { hitBox(a, b); sfx.crystalZap(); } }, i * 90 + 120);
+  });
+  setTimeout(() => { inFlight--; updateHud(); }, list.length * 90 + 220);
 }
 
 // ===================== Привид =====================
@@ -4012,6 +4105,7 @@ function createBox(r, c, type) {
   if (type === ORB || type === DORB) inner = ORB_HTML;
   if (type === HIVE) inner = HIVE_HTML;
   if (type === TOMB) inner = TOMB_HTML;
+  if (type === POT) inner = POT_HTML;
   if (type === COLORBOX) inner = '<i class="cbBody"></i><div class="cbGem"><div class="face"></div></div><i class="cbBar"><i></i></i><i class="cbCount"></i>';
   if (type === PADLOCK) inner = LOCK_SVG;
   if (type === GRILL) inner = GRILL_SVG + '<i class="gsmoke"><i></i><i></i><i></i></i>';
@@ -4035,6 +4129,7 @@ function createBox(r, c, type) {
   // на старті рівня дзеркало повернуте склом (неармованою стороною)
   if (type === CRYSTAL) setCrystalStage(box);
   if (type === ORB) box.moves = 5;
+  if (type === POT) { box.charge = 0; el.classList.add('c0'); }
   if (type === DORB) { box.moves = 3; el.querySelector('.ov').textContent = '−3'; }
   if (type === MOLE) { box.state = 'hole'; box.keys = 0; box.left = MOLE_COUNT; box.fresh = false; }
   if (type === GRILL) { box.count = 0; box.shown = 0; setGrillStage(box); }
@@ -4125,7 +4220,7 @@ function hitBox(r, c) {
     }
   }
   if (box.type === ROBOT && box.final) return;      // уже біжить на вибух     // уже затягує фішки
-  if (box.type === WALL || box.type === CHAIN || box.type === PADLOCK || box.type === COLORBOX || box.type === AMBER || (box.type === MOLE && box.state !== 'up' && !box.broken) || (box.type === STONEFROG && !box.armed && !box.broken) || (box.type === GRILL && !box.full && !box.broken)) {
+  if (box.type === WALL || box.type === CHAIN || box.type === PADLOCK || box.type === COLORBOX || box.type === AMBER || (box.type === MOLE && box.state !== 'up' && !box.broken) || (box.type === STONEFROG && !box.armed && !box.broken) || (box.type === GRILL && !box.full && !box.broken) || (box.type === POT && box.charge < POT_FULL && !box.broken)) {
     // броньована стіна і «спляча» кам'яна жаба — невразливі
     box.el.classList.remove('tink'); box.el.getBoundingClientRect(); box.el.classList.add('tink');
     const now = performance.now();
@@ -4174,7 +4269,7 @@ function hitBox(r, c) {
        [GENERATOR]: () => { sfx.metalBreak(); sfx.slimeBreak(); },
        [NAILGUN]: () => sfx.metalBreak(), [TNT]: () => sfx.woodBreak(),
        [TESLA]: () => { sfx.lightning(); sfx.teslaZap(true); },
-       [JACK]: () => sfx.cardBreak(), [STONE]: () => sfx.stoneBreak(), [STONEPICK]: () => sfx.stoneBreak(), [MIXER]: () => sfx.metalBreak(), [MIRROR]: () => sfx.glassBreak(), [MIRROR2]: () => sfx.glassBreak(), [STONEFROG]: () => sfx.stoneBreak(), [STONEWALL]: () => sfx.stoneBreak(), [CARDWALL]: () => sfx.cardBreak(), [BASKET]: () => sfx.cardBreak(), [GRILL]: () => sfx.metalBreak(), [MOLE]: () => sfx.moleHit(), [ORB]: () => sfx.glassBreak(), [DORB]: () => sfx.glassBreak(), [HIVE]: () => sfx.woodBreak(), [TOMB]: () => sfx.stoneBreak(), [BIN]: () => sfx.binTip(), [CRYSTAL]: () => sfx.crystalBreak() })[box.type]?.();
+       [JACK]: () => sfx.cardBreak(), [STONE]: () => sfx.stoneBreak(), [STONEPICK]: () => sfx.stoneBreak(), [MIXER]: () => sfx.metalBreak(), [MIRROR]: () => sfx.glassBreak(), [MIRROR2]: () => sfx.glassBreak(), [STONEFROG]: () => sfx.stoneBreak(), [STONEWALL]: () => sfx.stoneBreak(), [CARDWALL]: () => sfx.cardBreak(), [BASKET]: () => sfx.cardBreak(), [GRILL]: () => sfx.metalBreak(), [MOLE]: () => sfx.moleHit(), [ORB]: () => sfx.glassBreak(), [DORB]: () => sfx.glassBreak(), [HIVE]: () => sfx.woodBreak(), [TOMB]: () => sfx.stoneBreak(), [POT]: () => sfx.glassBreak(), [BIN]: () => sfx.binTip(), [CRYSTAL]: () => sfx.crystalBreak() })[box.type]?.();
     if (box.type !== BROOM) shatter(r, c, box.nailgun ? ['#8fb8ec', '#5b8fd6', '#2c5394', '#f0e1b4'] : info.shards, box.type === REINFORCED || box.type === GENERATOR ? 12 : 8);
     if (box.type === NAILGUN) [[0,1],[0,-1],[1,0],[-1,0]].forEach(d => fireNail(r, c, d));   // цвяхи в усі 4 боки
     if (box.type === TNT) tntExplode(r, c);
@@ -4222,7 +4317,8 @@ function hitBox(r, c) {
     if (box.type === GENERATOR) pendingFill.push([r, c]);   // зона 3×3 заллється слизом
     if (box.type === BIN) pendingSpill.push([r, c]);        // 2: бак перекидається — листя 5×5
     if (box.type === HIVE) pendingHive.push([r, c]);
-    if (box.type === TOMB) tombBreak(box, r, c);           // надгробок розбито — його привид зникає назавжди        // вулик розвалився — мед 3×3 і 3 бджоли
+    if (box.type === TOMB) tombBreak(box, r, c);
+    if (box.type === POT) { potSparks(r, c); tntExplode(r, c, 2); }   // розбитий горщик вибухає 5×5           // надгробок розбито — його привид зникає назавжди        // вулик розвалився — мед 3×3 і 3 бджоли
     if (box.type === GRILL) grillBlast(box, r, c);          // повний мангал вибухає 3×3
     if (box.type === ORB || box.type === DORB) orbBurst(box, r, c);   // скляний шар — додаткові ходи, чорна сфера — забирає ходи
     if (box.type === MOLE) moleDefeated(box, r, c);         // кріт переможений — проковтнуті ключі вилітають
@@ -4264,6 +4360,10 @@ function hitBox(r, c) {
     // 1–2 удари: скло тріскається, туман усередині закручується швидше
     el.classList.add('crack' + (BOX_INFO[box.type].hp - box.hp));
     sfx.orbHit(BOX_INFO[box.type].hp - box.hp);
+  } else if (box.type === POT) {
+    el.classList.add('crack' + (BOX_INFO[POT].hp - box.hp));   // від удару — іскри
+    sfx.potHit();
+    potSparks(r, c);
   } else if (box.type === TOMB) {
     el.classList.add('crack' + (BOX_INFO[TOMB].hp - box.hp));
     sfx.stoneHit();
@@ -5327,6 +5427,7 @@ async function detonate(triggers, consumed = []) {
 async function fire(t, idx, destroyed, next) {
   const gem = grid[t.r][t.c];
   const type = t.virtual ? LIGHTNING : gem.type;   // virtual — блискавка, яку випустив кристал
+  if (!t.virtual && isSpecial(type)) potCharge(t.r, t.c);   // частину енергії бонуса поглинає магічний горщик
   const loud = idx < 3; // щоб при масових вибухах звук не був оглушливим
 
   if (type === FROG) {
@@ -6256,7 +6357,7 @@ $('soundBtn').onclick = () => {
 
 // ===================== Рівні з JSON =====================
 // Формат: { "levels": [ { "name": "...", "moves": 20, "map": ["........", ... 8 рядків по 8 символів] } ] }
-const MAP_CHARS = '.cnwtrsgxpeojkqmbzyfadhiKGPQXAMWODHZST';
+const MAP_CHARS = '.cnwtrsgxpeojkqmbzyfadhiKGPQXAMWODHZSTU';
 function parseLevels(data) {
   const list = Array.isArray(data) ? data : data?.levels;
   if (!Array.isArray(list) || !list.length) throw new Error('у файлі немає списку "levels"');
@@ -6471,6 +6572,7 @@ const INTRO = {
   h: ["Мітла", "Змете зі шляху опале листя, павутиння та надокучливий слиз"],
   M: ['Кріт', 'Підземні бешкетники риють нори й нищать фішки. Бийте кротів, коли вони визирають назовні.'],
   O: ['Скляний шар', 'Майбутнє прихильне до тих, хто вміє чекати. Доля винагородить вас додатковими ходами.'],
+  U: ['Магічний горщик', 'Порожній і сірий, поки ви не нагодуєте його магією: кожен використаний бонус віддає горщику частку сили. Повністю заряджений сяє, мов лампочка, — тепер його можна бити: від кожного удару летять іскри, а розбитий горщик вибухає 5×5.'],
   T: ['Кам\'яний надгробок', 'Тут спочиває привид — і спочиває неспокійно. Поки камінь цілий, привид щоразу повертається додому, а довкола надгробка світ втрачає барви.'],
   S: ['Привид', 'Вселяється у фішку — і та втрачає свій колір.'],
   Y: ['Медовий покрив', 'Солодкий, липкий і дуже впертий.'],
@@ -6507,6 +6609,7 @@ function introTile(ch) {
     else if (ch === 'M') { g = createBox(0, 0, MOLE); g.el.classList.add('up'); }
     else if (ch === 'O') { g = createBox(0, 0, ORB); }
     else if (ch === 'D') { g = createBox(0, 0, DORB); }
+    else if (ch === 'U') { g = createBox(0, 0, POT); g.charge = POT_FULL; setPotStage(g); }
     else if (ch === 'W') { g = makeWizard(createBox(0, 0, MOLE)); g.el.classList.add('up'); }
     else g = createBox(0, 0, ch === 'C' ? CHAIN : COVER_TYPES[ch] ?? BOX_CHARS[ch]);
     if (ch === 'n') g.el.classList.add('ng-box');
