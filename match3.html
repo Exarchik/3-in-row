@@ -759,6 +759,21 @@
     box-shadow: 0 0 12px 4px rgba(255,255,255,.8); animation: potSpin .4s linear infinite;
   }
   @keyframes potSpin { to { transform: rotate(360deg); } }
+  /* ===== Уламки горщика ===== */
+  .gem.shardgem .face { background: none; box-shadow: none; border-radius: 0; }
+  .gem.shardgem .sh { position: absolute; inset: 12%; display: block; animation: shardWobble 2.2s ease-in-out infinite alternate; }
+  .gem.shardgem .sh svg, .shardFly svg, .potSite .ps svg { width: 100%; height: 100%; filter: drop-shadow(0 2px 2px rgba(0,0,0,.45)); }
+  @keyframes shardWobble { from { transform: rotate(-6deg); } to { transform: rotate(6deg) translateY(-2px); } }
+  .shardFly { position: absolute; left: 0; top: 0; width: var(--cell); height: var(--cell); padding: calc(var(--cell) * .2); z-index: 16; pointer-events: none; }
+  /* точка для майбутнього горщика: рунічне коло під фішками й уламки, що вже прилетіли */
+  .potSite { position: absolute; left: 0; top: 0; width: var(--cell); height: var(--cell); pointer-events: none; transition: opacity .5s; }
+  .potSite .pr { position: absolute; inset: 3px; border-radius: 50%; border: 3px dashed rgba(200,170,255,.85);
+    box-shadow: 0 0 10px rgba(170,130,255,.7), inset 0 0 10px rgba(170,130,255,.6); animation: siteSpin 6s linear infinite; }
+  @keyframes siteSpin { to { transform: rotate(360deg); } }
+  .potSite .ps { position: absolute; width: 38%; height: 38%; opacity: 0; transform: scale(.3); transition: opacity .3s, transform .35s cubic-bezier(.2,1.8,.4,1); z-index: 6; }
+  .potSite .ps.p1 { left: -6%; top: -6%; } .potSite .ps.p2 { right: -6%; bottom: -6%; }
+  .potSite.s1 .ps.p1, .potSite.s2 .ps { opacity: 1; transform: none; }
+  .potSite.gone { opacity: 0; }
   /* ===== Кам'яний надгробок ===== */
   .gem.box.tomb::before { display: none; }
   .gem.box.tomb { z-index: 7; }   /* над чорно-білою зоною: сам надгробок барв не втрачає */
@@ -1417,6 +1432,7 @@
     🧹 мітла — від 1 удару злітає і летить по прямій, вичищаючи листя, слиз і павутину (фішки лишаються). Напрямок обирає за пріоритетом: найбільше листя, потім слизу, потім павутини, потім інших мітел, потім довший шлях. Інші мітли пролітає наскрізь, зачіпаючи їх (вони теж злітають). Наткнувшись на іншу перешкоду, розвертається; долетівши до стінки (краю поля чи броньованої стіни) — з хрустом ламається<br>
     🦫 кріт — спершу риє нору (невразлива; фішка на її місці знищується, овоч зараховується, бонус спрацьовує). Наступного ходу вилазить кріт — 1 удар (комбінація поруч, бонус). Не вдарили за цей хід — ховається й риє нору деінде. У норі 3 кроти: переможеного через хід змінює наступний, а коли переможено всіх трьох — нора зникає. Вилазячи, кріт: з'їдає павуків поруч, знищує слиз довкола, ковтає ключ (той вилетить, коли крота переможуть; доки ключ у кроті, новий не випадає), перевертає сміттєбак, б'є кошик, а на грядці — вириває овоч. Кристал поруч убиває крота<br>
     👻 привид — вселяється у фішку: вона стає чорно-білою, але її можна рухати. Комбінація поруч (чи з цією фішкою), бонус або удар перешкоди — привид показується. Ще один удар — у наступній комбінації каскаду чи наступного ходу — і він вилітає за екран. Не встигли — перелітає на іншу фішку (може сховатися й під ланцюгами) і знову ховається. Мітла робить привида видимим; бетономішалка схованого показує, а видимого затягує й викидає за екран. Біля кристала привид сховатися не може (але кристал його не знищує). Дзеркало, біля якого є привид, завжди обернене крихкою стороною<br>
+    🧩 уламок горщика — його можна рухати, як ключ (але не зібрати в комбінацію); 1 удар (комбінація поруч, бонус); зачеплений уламок (зокрема мітлою) летить до точки майбутнього горщика (якщо точки немає — створює її на випадковій клітинці). Третій уламок у точці складає порожній магічний горщик. Якщо уламків на горщик уже не вистачить — уламок просто розбивається<br>
     🏺 магічний горщик — спершу сірий і невразливий. Кожен використаний бонус (жабка, бомба, блискавка, куля) заряджає найближчий горщик: після першого заряду він трохи кольоровий, після другого — сяє, мов лампочка, переливаючись кольорами. Заряджений горщик — 3 удари; від кожного удару з нього летять іскри по перешкодах, а розбитий він вибухає 5×5<br>
     🪦 кам'яний надгробок — 3 удари; клітинки довкола нього завжди чорно-білі. Завжди має свого привида (якщо привида немає — створює). Поки надгробок цілий, вигнаний привид повертається до нього, а через хід знову вселяється у фішку; розбили надгробок — його привид вилітає за край поля назавжди<br>
     🍯 медовий покрив — лежить під фішками, як листя; щоб пройти рівень, його треба прибрати. На меду не з'являються слиз і павутина; павук, що заліз у мед, застрягає (не повзе, не плете павутину й не відкладає яєць); кріт, що виліз на меду, вже не може сховатися; мітла застрягає в першій клітинці з медом і ламається, прибравши його; бетономішалка зриває мед у зоні 3×3; листя зі сміттєбака лягає поверх меду, замінюючи його<br>
@@ -1638,6 +1654,8 @@ const sfx = {
   orbHit: dmg => { tone(1300 + dmg * 300, { dur: 0.3, vol: 0.05, type: 'sine' }); tone(2600 + dmg * 400, { dur: 0.12, vol: 0.03, type: 'triangle', delay: 0.03 }); noise(0.06, 0.04, 6000); },
   orbPop: () => { [0, 3, 7, 12, 15, 19].forEach((n, i) => tone(784 * Math.pow(2, n / 12), { dur: 0.35, vol: 0.05, type: 'sine', delay: 0.15 + i * 0.06 })); noise(0.35, 0.14, 5500); },
   ghostBoo: () => { tone(330, { dur: 0.35, vol: 0.07, type: 'triangle', slide: 0.6 }); tone(495, { dur: 0.3, vol: 0.04, type: 'sine', slide: 0.6, delay: 0.04 }); },
+  shardLift: () => { tone(1300, { dur: 0.12, vol: 0.05, type: 'triangle', slide: 1.3 }); tone(1950, { dur: 0.08, vol: 0.03, delay: 0.05 }); },
+  potForm: () => { [0, 5, 9, 12].forEach((n, i) => tone(440 * Math.pow(2, n / 12), { dur: 0.25, vol: 0.06, type: 'triangle', delay: i * 0.08 })); noise(0.12, 0.05, 2500); },
   potCharge: full => { (full ? [0, 4, 7, 12, 16] : [0, 7]).forEach((n, i) => tone(523 * Math.pow(2, n / 12), { dur: 0.22, vol: 0.05, type: 'triangle', delay: i * 0.06 })); },
   potHit: () => { tone(1100, { dur: 0.2, vol: 0.06, type: 'triangle', slide: 0.7 }); noise(0.06, 0.05, 4000); },
   ghostHome: () => { tone(500, { dur: 0.6, vol: 0.05, type: 'sine', slide: 0.5 }); noise(0.2, 0.03, 600); },
@@ -1719,8 +1737,9 @@ const sfx = {
 // ===== Гра =====
 const N = 8, TYPES = 6;
 const RAINBOW = 6, BOMB = 7, LIGHTNING = 8, FROG = 9;
-const CARDBOARD = 10, WOOD = 11, REINFORCED = 12, SLIME = 13, GENERATOR = 14, NAILGUN = 15, TNT = 16, TESLA = 17, CORE = 18, JACK = 19, STONE = 20, STONEPICK = 21, MIXER = 22, ROBOT = 23, MIRROR = 24, MIRROR2 = 25, STONEFROG = 26, WALL = 27, STONEWALL = 28, BIN = 29, BROOM = 30, CRYSTAL = 31, CARDWALL = 32, BASKET = 33, GRILL = 34, CHAIN = 35, PADLOCK = 36, COLORBOX = 37, AMBER = 38, MOLE = 39, ORB = 40, DORB = 41, HIVE = 42, TOMB = 43, POT = 44;
-const KEYT = -2;   // ключ — фішка без кольору: рухається й падає, але не збирається в комбінації
+const CARDBOARD = 10, WOOD = 11, REINFORCED = 12, SLIME = 13, GENERATOR = 14, NAILGUN = 15, TNT = 16, TESLA = 17, CORE = 18, JACK = 19, STONE = 20, STONEPICK = 21, MIXER = 22, ROBOT = 23, MIRROR = 24, MIRROR2 = 25, STONEFROG = 26, WALL = 27, STONEWALL = 28, BIN = 29, BROOM = 30, CRYSTAL = 31, CARDWALL = 32, BASKET = 33, GRILL = 34, CHAIN = 35, PADLOCK = 36, COLORBOX = 37, AMBER = 38, MOLE = 39, ORB = 40, DORB = 41, HIVE = 42, TOMB = 43, POT = 44, SHARD = 45;
+const KEYT = -2;
+const SHARDT = -3;   // уламок горщика — теж фішка без кольору (рухається, падає, не збирається), але це перешкода   // ключ — фішка без кольору: рухається й падає, але не збирається в комбінації
 // стіни-покриття (шар cover): l — кам'яна, u — картонна; під ними може ховатися перешкода
 const COVER_TYPES = { l: STONEWALL, u: CARDWALL };
 const isCoverWall = t => t === STONEWALL || t === CARDWALL;
@@ -1815,7 +1834,7 @@ const BOX_CHARS = { c: CARDBOARD, n: CARDBOARD, w: WOOD, r: REINFORCED, s: SLIME
 function startLevel(i) {
   level = i;
   const def = LEVELS[i] || randomLevel();
-  board.querySelectorAll('.gem, .beam, .bolt, .shock, .float, .combo, .shard, .tongue, .spiderEl, .nail, .dart, .leaf, .broomFx, .vegToss, .spellFx, .spellTrail, .orbRing, .orbStar, .beeEl, .ghostFly, .tombShade').forEach(e => e.remove());
+  board.querySelectorAll('.gem, .beam, .bolt, .shock, .float, .combo, .shard, .tongue, .spiderEl, .nail, .dart, .leaf, .broomFx, .vegToss, .spellFx, .spellTrail, .orbRing, .orbStar, .beeEl, .ghostFly, .tombShade, .potSite, .shardFly, .potEnergy').forEach(e => e.remove());
   document.querySelectorAll('.movesFly').forEach(e => e.remove());
   pendingFill.length = pendingClear.length = pendingDet.length = 0;
   inFlight = 0;
@@ -1825,6 +1844,8 @@ function startLevel(i) {
   pendingBroom.length = 0;
   pendingSpell.length = 0;
   pendingHive.length = 0;
+  pendingPotForm.length = 0;
+  potSites = [];
   pendingBolts.length = 0;
   pendingVeg.length = 0;
   pendingBedVeg.length = 0;
@@ -1882,6 +1903,7 @@ function startLevel(i) {
       if (ch === 'Z') addBee(r, c);
       if (ch === 'S') makeGhost(grid[r][c]);
       if (ch === 'Q') makeKey(grid[r][c]);
+      if (ch === 'F') makeShard(grid[r][c]);
     }
   }
   // є замок, а ключа нема — один ключ з'являється на полі
@@ -2230,6 +2252,7 @@ const BOX_INFO = {
   [STONEFROG]:  { cls: 'stonefrog',  hp: 1, pts: 300, shards: ['#9a9fa8', '#6c717b', '#4a4e56', '#ff9a3a'] },
   [MOLE]:       { cls: 'mole',       hp: 1, pts: 250, shards: ['#6b4318', '#8a5a2e', '#3d2a14', '#ff9ab0'] },
   [ORB]:        { cls: 'orb',        hp: 3, pts: 100, shards: ['#e6ecff', '#b9a6ff', '#7f5cff', '#ffffff', '#c9b27a'] },
+  [SHARD]:      { cls: 'potshard',   hp: 1, pts: 40,  shards: ['#7b5cd6', '#ffd23a', '#3a2460'] },
   [POT]:        { cls: 'pot',        hp: 3, pts: 250, shards: ['#7b5cd6', '#ffd23a', '#ff5d8f', '#6bc5ff', '#3a2460'] },
   [TOMB]:       { cls: 'tomb',       hp: 3, pts: 200, shards: ['#9aa0a8', '#6c717b', '#c3c8ce', '#5f8a4a'] },
   [HIVE]:       { cls: 'hive',       hp: 3, pts: 150, shards: ['#e8b04a', '#b5782a', '#7a4a1a', '#ffd23a'] },
@@ -2631,6 +2654,127 @@ function potSparks(r, c, n = 3) {
     setTimeout(() => { if (grid[a][b]) { hitBox(a, b); sfx.crystalZap(); } }, i * 90 + 120);
   });
   setTimeout(() => { inFlight--; updateHud(); }, list.length * 90 + 220);
+}
+
+// ===================== Уламки горщика =====================
+// Уламок (1 удар): зачепили — летить до точки майбутнього горщика (немає точки — створює її на випадковій клітинці).
+// Третій уламок у точці складає порожній магічний горщик. Якщо уламків на горщик уже не вистачить — уламок просто розбивається
+const SHARD_SVG = '<svg viewBox="0 0 100 100">' +
+  '<path d="M20,32 L52,12 L82,34 L74,72 L40,88 L16,62 Z" fill="#7b5cd6" stroke="#2a1840" stroke-width="4.5" stroke-linejoin="round"/>' +
+  '<path d="M26,54 Q50,62 76,50" fill="none" stroke="#ffd23a" stroke-width="4.5"/>' +
+  '<path d="M40,72 l5,-8 5,8" fill="none" stroke="#ffd23a" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+  '<path d="M30,36 L50,23" stroke="#c8b6ff" stroke-width="4.5" stroke-linecap="round" opacity=".8"/></svg>';
+let potSites = [];             // [{ r, c, count, shown, el }]
+const pendingPotForm = [];
+const POT_PARTS = 3;
+function shardsLeft() {
+  let n = 0;
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
+    const g = grid[r][c], h = g?.type === CHAIN ? g.inner : g;
+    if (h?.shard && !h.broken) n++;
+  }
+  return n;
+}
+function makeShard(g) {
+  g.type = SHARDT; g.shard = true;
+  g.el.className = 'gem shardgem';
+  g.el.innerHTML = '<div class="face"><i class="sh">' + SHARD_SVG + '</i></div>';
+}
+// уламок зачепили: розбивається (клітинка звільниться, коли поле осідатиме) і летить до точки майбутнього горщика
+function shardHit(g, r, c) {
+  g.broken = true;
+  g.el.classList.add('pop');
+  const el = g.el; setTimeout(() => el.remove(), 300);
+  shatter(r, c, BOX_INFO[SHARD].shards, 5);
+  sfx.shardLift();
+  score += BOX_INFO[SHARD].pts; floatText('+' + BOX_INFO[SHARD].pts, r, c, '#ffd27a');
+  updateHud();
+  shardLift(r, c);
+}
+function makeSite(r, c) {
+  const el = document.createElement('div');
+  el.className = 'potSite';
+  el.innerHTML = '<i class="pr"></i><i class="ps p1">' + SHARD_SVG + '</i><i class="ps p2">' + SHARD_SVG + '</i>';
+  el.style.transform = `translate(${c * 100}%, ${r * 100}%)`;
+  board.prepend(el);   // під фішками, як листя
+  return { r, c, count: 0, shown: 0, el };
+}
+function setSite(site) {
+  site.el.classList.toggle('s1', site.shown >= 1);
+  site.el.classList.toggle('s2', site.shown >= 2);
+}
+function shardFly([r1, c1], [r2, c2]) {
+  const el = document.createElement('div');
+  el.className = 'shardFly';
+  el.innerHTML = SHARD_SVG;
+  board.appendChild(el);
+  const tf = (y, x, k, rot) => `translate(${x * 100}%, ${y * 100}%) scale(${k}) rotate(${rot}deg)`;
+  const len = Math.hypot(r2 - r1, c2 - c1);
+  const a = el.animate([
+    { transform: tf(r1, c1, 1, 0) },
+    { transform: tf((r1 + r2) / 2 - .8 - len * .1, (c1 + c2) / 2, 1.25, 360) },
+    { transform: tf(r2, c2, .6, 720) },
+  ], { duration: 550 + len * 60, easing: 'ease-in-out', fill: 'forwards' });
+  return a.finished.catch(() => {}).then(() => el.remove());
+}
+// уламок зачепили (він уже розбитий): куди летіти?
+function shardLift(r, c) {
+  let site = potSites.filter(s => s.count < POT_PARTS).sort((a, b) => b.count - a.count)[0];
+  if (!site) {
+    if (shardsLeft() + 1 < POT_PARTS) return;   // на цілий горщик уламків уже не вистачить — просто розбивається
+    const opts = cellsWhere((g, y, x) => g && !isBox(g.type) && !(y === r && x === c) && !noLayer(y, x) && !potSites.some(s => s.r === y && s.c === x));
+    if (!opts.length) return;
+    const [y, x] = pick(opts);
+    site = makeSite(y, x);
+    potSites.push(site);
+    floatText('✨', y, x, '#c8b6ff');
+  }
+  site.count++;
+  const full = site.count >= POT_PARTS;
+  inFlight++;
+  shardFly([r, c], [site.r, site.c]).then(() => {
+    site.shown++;
+    setSite(site);
+    sfx.shardLift();
+    if (full) pendingPotForm.push(site);
+    inFlight--;
+  });
+}
+// точки, які вже ніколи не стануть горщиком (уламків не вистачить), розсипаються
+function cleanupSites() {
+  const left = shardsLeft();
+  potSites = potSites.filter(site => {
+    if (site.count >= POT_PARTS || site.count + left >= POT_PARTS) return true;
+    site.el.classList.add('gone');
+    setTimeout(() => site.el.remove(), 550);
+    return false;
+  });
+}
+// три уламки в точці — складається порожній магічний горщик (на місці звичайної фішки)
+async function formPots() {
+  for (const site of pendingPotForm.splice(0)) {
+    let { r, c } = site;
+    if (!plainGem(grid[r][c])) {   // у точці зараз щось особливе — переносимо точку на найближчу звичайну фішку
+      const opts = cellsWhere(g => plainGem(g)).sort((a, b) => Math.hypot(a[0] - r, a[1] - c) - Math.hypot(b[0] - r, b[1] - c));
+      if (!opts.length) { site.el.remove(); potSites = potSites.filter(x => x !== site); continue; }
+      [r, c] = opts[0];
+      site.el.style.transition = 'transform .4s ease-in-out';
+      site.el.style.transform = `translate(${c * 100}%, ${r * 100}%)`;
+      await wait(420);
+    }
+    const g = grid[r][c];
+    g.el.classList.add('pop');
+    const old = g.el; setTimeout(() => old.remove(), 300);
+    const pot = createBox(r, c, POT);
+    pot.el.classList.add('spawn');
+    grid[r][c] = pot;
+    site.el.classList.add('gone'); setTimeout(() => site.el.remove(), 550);
+    potSites = potSites.filter(x => x !== site);
+    sfx.potForm();
+    floatText('🏺', r, c, '#c8b6ff');
+    updateHud();
+    await wait(400);
+  }
 }
 
 // ===================== Привид =====================
@@ -3886,6 +4030,7 @@ async function broomHoney(el, r, c) {
 function broomSweep(y, x) {
   const g = grid[y][x];
   if (g?.ghost?.state === 'hidden') revealGhost(g, y, x);   // мітла робить привида видимим
+  if (g?.shard && !g.broken) hitBox(y, x);   // уламок горщика мітла зачіпає — він летить до точки горщика
   const wasVeg = !!g?.veg;   // овоч, що щойно виліз із грядки під мітлою, лишається
   if (leaves[y][x]) clearLeaf(y, x);
   if (g && g.type === SLIME && !g.broken) hitBox(y, x);
@@ -4165,7 +4310,7 @@ function tearWeb(gem, r, c) {
   updateHud();
 }
 const locked = g => g && (g.web || g.spider || g.eggs || g.bee);
-const isObstacle = g => g && ((isBox(g.type) && !g.broken) || locked(g) || !!g.ghost);   // фішка з привидом — теж перешкода (але її можна рухати)
+const isObstacle = g => g && ((isBox(g.type) && !g.broken) || locked(g) || !!g.ghost || (!!g.shard && !g.broken));   // фішка з привидом — теж перешкода (але її можна рухати)
 const movable = g => g && !isBox(g.type) && !locked(g);
 const isFree = (r, c) => isNormal(grid[r][c].type) && !locked(grid[r][c]) && !grid[r][c].veg && !grid[r][c].ghost;
 // те саме, але овочі теж підходять (на них може лягти слиз чи павутина)
@@ -4234,6 +4379,7 @@ function hitBox(r, c) {
     if (!hitBox.lastTink || now - hitBox.lastTink > 120) { sfx.coreTink(); hitBox.lastTink = now; }
     return;
   }
+  if (box.shard) { if (!box.broken) shardHit(box, r, c); return; }
   if (box.ghost) { hitGhost(box, r, c); return; }
   if (box.bee) { killBee(box, r, c); return; }
   if (box.spider) { killSpider(box, r, c); return; }
@@ -4316,9 +4462,9 @@ function hitBox(r, c) {
     }
     if (box.type === GENERATOR) pendingFill.push([r, c]);   // зона 3×3 заллється слизом
     if (box.type === BIN) pendingSpill.push([r, c]);        // 2: бак перекидається — листя 5×5
-    if (box.type === HIVE) pendingHive.push([r, c]);
-    if (box.type === TOMB) tombBreak(box, r, c);
-    if (box.type === POT) { potSparks(r, c); tntExplode(r, c, 2); }   // розбитий горщик вибухає 5×5           // надгробок розбито — його привид зникає назавжди        // вулик розвалився — мед 3×3 і 3 бджоли
+    if (box.type === HIVE) pendingHive.push([r, c]);        // вулик розвалився — мед 3×3 і 3 бджоли
+    if (box.type === TOMB) tombBreak(box, r, c);           // надгробок розбито — його привид зникає назавжди
+    if (box.type === POT) { potSparks(r, c); tntExplode(r, c, 2); }   // розбитий горщик вибухає 5×5
     if (box.type === GRILL) grillBlast(box, r, c);          // повний мангал вибухає 3×3
     if (box.type === ORB || box.type === DORB) orbBurst(box, r, c);   // скляний шар — додаткові ходи, чорна сфера — забирає ходи
     if (box.type === MOLE) moleDefeated(box, r, c);         // кріт переможений — проковтнуті ключі вилітають
@@ -5052,6 +5198,7 @@ function makeCellObj(r, c, ch) {
   const g = createGem(r, c, rand());
   if (ch === 'x' || ch === 'p') addWeb(g);
   if (ch === 'Q') makeKey(g);
+  if (ch === 'F') makeShard(g);
   if (ch === 'S') makeGhost(g);   // привид, схований під ланцюгами
   return g;
 }
@@ -5076,6 +5223,7 @@ function spawnCell(r, c, ch) {
     if (ch === 'Z') addBee(r, c);
     if (ch === 'S') makeGhost(grid[r][c]);
     if (ch === 'Q') makeKey(grid[r][c]);   // ключ, схований під стіною
+    if (ch === 'F') makeShard(grid[r][c]);
   }
   return grid[r][c];
 }
@@ -5127,7 +5275,9 @@ async function settle() {
         for (const box of pendingSuck.splice(0)) await mixerSuck(box);
         continue;
       }
-      if (!pendingJack.length && !pendingMixer.length && !pendingSpill.length && !pendingBroom.length && !pendingVeg.length && !pendingSpell.length && !pendingHive.length) return;
+      cleanupSites();
+      if (!pendingJack.length && !pendingMixer.length && !pendingSpill.length && !pendingBroom.length && !pendingVeg.length && !pendingSpell.length && !pendingHive.length && !pendingPotForm.length) return;
+      if (pendingPotForm.length) { await formPots(); continue; }
       if (pendingHive.length) { for (const h of pendingHive.splice(0)) await hiveBurst(h); continue; }
       if (pendingSpell.length) { for (const sp of pendingSpell.splice(0)) await castSpell(sp); continue; }
       for (const v of pendingVeg.splice(0)) await basketThrow(v);
@@ -5559,7 +5709,7 @@ async function fire(t, idx, destroyed, next) {
       setTimeout(() => beam(t.r, t.c, r, c), delay);
       if (loud && i < 16) sfx.zap(i, delay / 1000);
     }
-    if (isBox(g.type) || locked(g) || g.ghost) {
+    if (isBox(g.type) || locked(g) || g.ghost || g.shard) {
       markBox(r, c, delay);                    // перешкода в зоні дії бонуса (фішка в павутині вціліє)
       if (type === LIGHTNING && g.type === CRYSTAL && !g.broken) crystalBolt(r, c, t.dir);   // кристал множить блискавку
     } else if (isSpecial(g.type)) {
@@ -6357,7 +6507,7 @@ $('soundBtn').onclick = () => {
 
 // ===================== Рівні з JSON =====================
 // Формат: { "levels": [ { "name": "...", "moves": 20, "map": ["........", ... 8 рядків по 8 символів] } ] }
-const MAP_CHARS = '.cnwtrsgxpeojkqmbzyfadhiKGPQXAMWODHZSTU';
+const MAP_CHARS = '.cnwtrsgxpeojkqmbzyfadhiKGPQXAMWODHZSTUF';
 function parseLevels(data) {
   const list = Array.isArray(data) ? data : data?.levels;
   if (!Array.isArray(list) || !list.length) throw new Error('у файлі немає списку "levels"');
@@ -6434,6 +6584,7 @@ function levelBase(def) {
     if (ch === 'Z') b += 60;
     if (ch === 'S') b += 120;
     if (ch === 'T') b += 120;   // привид надгробка
+    if (ch === 'F') b += 40;
     const cv = def.cover?.[r]?.[c];
     if (cv === 'l') b += BOX_INFO[STONEWALL].pts; else if (cv === 'u') b += BOX_INFO[CARDWALL].pts; else if (cv === 'C') b += BOX_INFO[CHAIN].pts;
     const lf = def.leaves?.[r]?.[c];
@@ -6572,6 +6723,7 @@ const INTRO = {
   h: ["Мітла", "Змете зі шляху опале листя, павутиння та надокучливий слиз"],
   M: ['Кріт', 'Підземні бешкетники риють нори й нищать фішки. Бийте кротів, коли вони визирають назовні.'],
   O: ['Скляний шар', 'Майбутнє прихильне до тих, хто вміє чекати. Доля винагородить вас додатковими ходами.'],
+  F: ['Уламок горщика', 'Черепок магічного горщика. Три уламки разом складуть новий горщик.'],
   U: ['Магічний горщик', 'Порожній і сірий, поки ви не нагодуєте його магією. Повністю заряджений він може розсипатись на іскри і вибухнути.'],
   T: ['Кам\'яний надгробок', 'Тут спочиває привид — і спочиває неспокійно. Поки камінь цілий, привид щоразу повертається додому, а довкола надгробка світ втрачає барви.'],
   S: ['Привид', 'Вселяється у фішку — і та втрачає свій колір.'],
@@ -6604,6 +6756,7 @@ function introTile(ch) {
     if (ch === 'x') addWeb(g);
   } else {
     if (ch === 'Q') { g = createGem(0, 0, 0); makeKey(g); }
+    else if (ch === 'F') { g = createGem(0, 0, 0); makeShard(g); }
     else if (ch === 'X') { g = createBox(0, 0, COLORBOX); setupCBox(g, { color: 3, count: 10 }); }
     else if (ch === 'A') { g = createBox(0, 0, AMBER); setupAmber(g, { color: 1 }); }
     else if (ch === 'M') { g = createBox(0, 0, MOLE); g.el.classList.add('up'); }
